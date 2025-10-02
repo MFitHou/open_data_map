@@ -1,0 +1,265 @@
+.info-container {
+  position: absolute;
+  top: 70px; /* Dưới thanh search */
+  left: 10px;
+  z-index: 999;
+  width: 350px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  max-height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+}
+
+.info-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 15px;
+  color: white;
+}
+
+.info-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.info-content {
+  padding: 15px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.info-section {
+  margin-bottom: 15px;
+}
+
+.info-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Ward Name */
+.ward-name {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.ward-name .icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.ward-name .name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+  font-size: 28px;
+  margin-right: 12px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.stat-details {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Section Title */
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* POI Grid */
+.poi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.poi-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 8px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.poi-item:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.poi-icon {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.poi-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.poi-count {
+  font-size: 18px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* Loading States */
+.info-loading,
+.poi-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.poi-loading {
+  padding: 20px;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.loading-spinner {
+  font-size: 32px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.info-loading p,
+.poi-loading span {
+  margin-top: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+.poi-loading span {
+  margin-top: 0;
+}
+
+/* Empty State */
+.info-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.info-empty p {
+  color: #999;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Scrollbar */
+.info-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.info-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.info-content::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 8px;
+}
+
+.info-content::-webkit-scrollbar-thumb:hover {
+  background: #764ba2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .info-container {
+    top: 130px; /* Dưới search trên mobile */
+    left: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    max-height: calc(100vh - 150px);
+  }
+
+  .poi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-item {
+    padding: 8px;
+  }
+
+  .stat-icon {
+    font-size: 24px;
+    min-width: 35px;
+  }
+
+  .stat-value {
+    font-size: 14px;
+  }
+}
