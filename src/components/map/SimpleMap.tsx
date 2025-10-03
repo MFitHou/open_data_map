@@ -1,9 +1,10 @@
 import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, useMap, Polyline, Popup, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Search } from "./Search";
-import { SearchResult } from "./SearchResult";
+import { SearchResult as SearchResultComponent } from "./SearchResult";
 import { InfoPanel } from './InfoPanel';
 import { loadATMsWithStats } from "../../utils/rdfParser";
 import { fetchOutlineByOSMRelationId } from '../../utils/overpass';
@@ -123,7 +124,46 @@ interface ATMData {
   bank?: string;
 }
 
+interface SearchResult {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lon: number;
+  displayName: string;
+  source: 'wikidata';
+  wikidataId: string;
+  description?: string;
+  image?: string;
+  instanceOf?: string;
+  identifiers?: {
+    osmRelationId?: string;
+    osmNodeId?: string;
+    osmWayId?: string;
+    viafId?: string;
+    gndId?: string;
+  };
+  statements?: {
+    inception?: string;
+    population?: string;
+    area?: string;
+    website?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    postalCode?: string;
+  };
+  osmId?: number;
+  osmType?: string;
+}
+
+interface LocationState {
+  searchResult?: SearchResult; // ✅ Nhận SearchResult đầy đủ từ Home
+}
+
 const SimpleMap: React.FC = () => {
+  const location = useLocation();
+  const [map, setMap] = useState<L.Map | null>(null);
   const [wardData, setWardData] = useState<any>(null);
   // ✅ Loại bỏ state POIs
   // const [pois, setPois] = useState<{...}>({...});
@@ -300,20 +340,20 @@ const SimpleMap: React.FC = () => {
   };
 
   // HANDLER KHI USER CLICK VÀO KẾT QUẢ TÌM KIẾM
-  const handleSelectLocation = async (result: any) => {
+  const handleSelectLocation = async (result: SearchResult) => {
     setOutlineGeoJSON(null);
-    setMemberNames({}); // ✅ Reset
+    setMemberNames({});
 
     setSelectedInfo({
       category: result.type || 'search',
       title: result.name,
       subtitle: result.description,
-      wikidataId: result.wikidataId,
+      wikidataId: result.wikidataId || undefined,
       coordinates: [result.lon, result.lat],
       identifiers: result.identifiers,
       statements: result.statements,
-      osmId: result.osmId,
-      osmType: result.osmType,
+      osmId: result.osmId?.toString() || result.identifiers?.osmRelationId || result.identifiers?.osmNodeId || result.identifiers?.osmWayId,
+      osmType: result.osmType || (result.identifiers?.osmRelationId ? 'relation' : result.identifiers?.osmNodeId ? 'node' : result.identifiers?.osmWayId ? 'way' : undefined),
       rows: makeRows({
         'Loại': result.instanceOf,
         'Nguồn': 'Wikidata SPARQL'
@@ -379,7 +419,7 @@ out geom;
 
           setWardMembers({ innerWays, outerWays, nodes, subAreas });
 
-          // ✅ Fetch tên cho sub-areas ngay lập tức
+          // Fetch tên cho sub-areas
           if (subAreas.length > 0) {
             const relationIds = subAreas.map((m: any) => m.ref).join(',');
             const nameQuery = `
@@ -594,6 +634,22 @@ out geom;
     fillOpacity: 0
   };
 
+  // ✅ Handle search result from Home page
+  useEffect(() => {
+    const state = location.state as LocationState;
+    if (state?.searchResult && map) {
+      console.log('🏠 Received FULL DATA from Home:', state.searchResult);
+      console.log('📍 Identifiers:', state.searchResult.identifiers);
+      console.log('📊 Statements:', state.searchResult.statements);
+      
+      // ✅ Gọi trực tiếp với data đầy đủ
+      handleSelectLocation(state.searchResult);
+      
+      // Clear state
+      window.history.replaceState({}, document.title);
+    }
+  }, [map, location.state]);
+
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <Search onSelectLocation={handleSelectLocation} />
@@ -605,10 +661,10 @@ out geom;
             setSelectedInfo(null);
             setOutlineGeoJSON(null);
             setMemberOutline(null);
-            setMemberNames({}); // ✅ Clear
+            setMemberNames({});
           }}
           onMemberClick={handleMemberClick}
-          memberNames={memberNames} // ✅ Pass xuống
+          memberNames={memberNames}
         />
       )}
 
@@ -618,19 +674,20 @@ out geom;
         style={{ height: "100%", width: "100%" }}
         attributionControl={false}
         zoomControl={false}
+        ref={setMap}
       >
         <ZoomControl position="bottomright" />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
         {highlightBounds && highlightBounds.length > 0 && (
-          <SearchResult
+          <SearchResultComponent
             bounds={highlightBounds}
             name={highlightName}
             color="#ff6b6b"
           />
         )}
 
-        {/* ✅ Hiển thị member outline với màu theo type */}
+        {/* Member outline với màu theo type */}
         {memberOutline && memberOutline.type === 'way' && (
           <Polyline
             positions={memberOutline.coordinates.map(c => [c[1], c[0]])}
@@ -687,28 +744,9 @@ out geom;
             key={wardId}
             data={wardData}
             style={wardStyle}
-            onEachFeature={(feature, layer) => {
-              layer.on('click', () => {
-                setSelectedInfo({
-                  category: 'ward',
-                  title: `Đơn vị hành chính`,
-                  subtitle: feature.properties.name,
-                  rows: makeRows({
-                    'Diện tích tính': feature.properties.area,
-                    'Dân số': feature.properties.population,
-                    'Mật độ': feature.properties.density,
-                    'Trường học': pois.schools.length,
-                    'Y tế': pois.hospitals.length,
-                    'Ăn uống': pois.restaurants.length,
-                    'Ngân hàng': pois.banks.length
-                  })
-                });
-              });
-            }}
           />
         )}
 
-        {/* ✅ VẼ OUTLINE TỪ OVERPASS (ĐỎ, NÉT ĐỨT) */}
         {outlineGeoJSON && (
           <GeoJSON
             key={JSON.stringify(outlineGeoJSON)}

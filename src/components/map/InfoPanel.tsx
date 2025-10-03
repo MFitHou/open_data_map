@@ -5,6 +5,9 @@ import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
 import type { WikidataInfo, ReferenceInfo } from '../../utils/wikidataUtils';
 import { resolveValueLink, generateExternalLinks } from '../../utils/linkResolver';
 import type { ExternalLink } from '../../utils/linkResolver';
+import { fetchNearbyPlaces, getAmenityIcon } from '../../utils/nearbyApi';
+import type { NearbyPlace } from '../../utils/nearbyApi';
+
 
 interface InfoPanelProps {
   data: {
@@ -58,13 +61,22 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   onMemberClick,
   memberNames = {}
 }) => {
-  const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
   const [references, setReferences] = useState<ReferenceInfo[]>([]);
   const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rowPropLabels, setRowPropLabels] = useState<Record<string, string>>({});
   const [selectedMemberRef, setSelectedMemberRef] = useState<number | null>(null);
+  
+  // ✅ Tasks sub-tab state
+  const [activeTaskTab, setActiveTaskTab] = useState<'nearby' | 'route' | 'statistics'>('nearby');
+  
+  // Nearby state
+  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
+  const [nearbyRadius, setNearbyRadius] = useState(1);
+  const [nearbyAmenity, setNearbyAmenity] = useState('toilets');
+  const [isLoadingNearby, setIsLoadingNearby] = useState(false);
 
   useEffect(() => {
     if (data.wikidataId && (activeTab === 'statements' || activeTab === 'references')) {
@@ -94,11 +106,198 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   }, [data.rows]);
 
+  // ✅ Fetch nearby places khi vào task tab
+  useEffect(() => {
+    if (activeTab === 'tasks' && activeTaskTab === 'nearby' && data.coordinates) {
+      setIsLoadingNearby(true);
+      fetchNearbyPlaces(data.coordinates[0], data.coordinates[1], nearbyRadius, nearbyAmenity)
+        .then(response => {
+          if (response) {
+            setNearbyPlaces(response.items);
+          }
+          setIsLoadingNearby(false);
+        });
+    }
+  }, [activeTab, activeTaskTab, data.coordinates, nearbyRadius, nearbyAmenity]);
+
   const handleMemberClick = (member: { type: string; ref: number; role?: string }) => {
     setSelectedMemberRef(member.ref);
     if (onMemberClick) {
       onMemberClick(member);
     }
+  };
+
+  // ✅ Render Nearby content (sub-tab của Tasks)
+  const renderNearbyContent = () => {
+    if (!data.coordinates) {
+      return <div className="no-data">❌ Không có tọa độ để tìm kiếm địa điểm gần</div>;
+    }
+
+    return (
+      <>
+        {/* Filters */}
+        <div className="nearby-filters">
+          <div className="filter-group">
+            <label htmlFor="amenity-select">🏷️ Loại địa điểm:</label>
+            <select 
+              id="amenity-select"
+              value={nearbyAmenity} 
+              onChange={(e) => setNearbyAmenity(e.target.value)}
+              className="nearby-select"
+            >
+              <option value="toilets">🚻 Nhà vệ sinh</option>
+              <option value="atm">🏧 ATM</option>
+              <option value="restaurant">🍴 Nhà hàng</option>
+              <option value="cafe">☕ Quán cà phê</option>
+              <option value="hospital">🏥 Bệnh viện</option>
+              <option value="pharmacy">💊 Nhà thuốc</option>
+              <option value="school">🏫 Trường học</option>
+              <option value="parking">🅿️ Bãi đỗ xe</option>
+              <option value="fuel">⛽ Trạm xăng</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="radius-select">📏 Bán kính:</label>
+            <select 
+              id="radius-select"
+              value={nearbyRadius} 
+              onChange={(e) => setNearbyRadius(Number(e.target.value))}
+              className="nearby-select"
+            >
+              <option value="0.5">0.5 km</option>
+              <option value="1">1 km</option>
+              <option value="2">2 km</option>
+              <option value="5">5 km</option>
+              <option value="10">10 km</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Results */}
+        {isLoadingNearby ? (
+          <div className="loading">⏳ Đang tìm kiếm địa điểm gần...</div>
+        ) : nearbyPlaces.length === 0 ? (
+          <div className="no-data">
+            ❌ Không tìm thấy {nearbyAmenity} trong bán kính {nearbyRadius} km
+          </div>
+        ) : (
+          <div className="reference-group">
+            <div className="reference-title">
+              ✅ Tìm thấy {nearbyPlaces.length} {nearbyAmenity} trong bán kính {nearbyRadius} km
+            </div>
+            
+            {nearbyPlaces.map((place, idx) => (
+              <div key={idx} className="nearby-item">
+                <div className="nearby-header">
+                  <span className="nearby-icon">{getAmenityIcon(place.amenity)}</span>
+                  <span className="nearby-name">
+                    {place.name || `${place.amenity} #${idx + 1}`}
+                  </span>
+                  <span className="nearby-distance">
+                    📍 {(place.distanceKm * 1000).toFixed(0)}m
+                  </span>
+                </div>
+
+                <div className="nearby-details">
+                  {place.access && (
+                    <div className="nearby-detail">
+                      <span className="detail-label">Truy cập:</span>
+                      <span className="detail-value">{place.access}</span>
+                    </div>
+                  )}
+                  {place.fee && (
+                    <div className="nearby-detail">
+                      <span className="detail-label">Phí:</span>
+                      <span className="detail-value">{place.fee === 'yes' ? 'Có phí' : 'Miễn phí'}</span>
+                    </div>
+                  )}
+                  <div className="nearby-detail">
+                    <span className="detail-label">Tọa độ:</span>
+                    <a 
+                      href={`https://www.google.com/maps?q=${place.lat},${place.lon}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="detail-link"
+                    >
+                      {place.lat.toFixed(6)}, {place.lon.toFixed(6)} ↗
+                    </a>
+                  </div>
+                  <div className="nearby-detail">
+                    <span className="detail-label">POI URI:</span>
+                    <a 
+                      href={place.poi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="detail-link"
+                      style={{ fontSize: '11px', wordBreak: 'break-all' }}
+                    >
+                      {place.poi} ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
+    );
+  };
+
+  // ✅ Render Route content (placeholder)
+  const renderRouteContent = () => {
+    return (
+      <div className="no-data">
+        🚧 Chức năng tính đường đi đang được phát triển...
+      </div>
+    );
+  };
+
+  // ✅ Render Statistics content (placeholder)
+  const renderStatisticsContent = () => {
+    return (
+      <div className="no-data">
+        📊 Chức năng thống kê đang được phát triển...
+      </div>
+    );
+  };
+
+  // ✅ Render Tasks Tab với sub-tabs
+  const renderTasksTab = () => {
+    return (
+      <div className="tab-content">
+        {/* Sub-tabs */}
+        <div className="sub-tabs">
+          <button 
+            className={`sub-tab-btn ${activeTaskTab === 'nearby' ? 'active' : ''}`}
+            onClick={() => setActiveTaskTab('nearby')}
+          >
+            📍 Địa điểm gần
+          </button>
+          <button 
+            className={`sub-tab-btn ${activeTaskTab === 'route' ? 'active' : ''}`}
+            onClick={() => setActiveTaskTab('route')}
+            disabled
+          >
+            🗺️ Tính đường đi
+          </button>
+          <button 
+            className={`sub-tab-btn ${activeTaskTab === 'statistics' ? 'active' : ''}`}
+            onClick={() => setActiveTaskTab('statistics')}
+            disabled
+          >
+            📊 Thống kê
+          </button>
+        </div>
+
+        {/* Sub-tab content */}
+        <div className="sub-tab-content">
+          {activeTaskTab === 'nearby' && renderNearbyContent()}
+          {activeTaskTab === 'route' && renderRouteContent()}
+          {activeTaskTab === 'statistics' && renderStatisticsContent()}
+        </div>
+      </div>
+    );
   };
 
   const renderBasicTab = () => {
@@ -448,54 +647,61 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         </div>
       </div>
 
-      <div className="tabs">
+      {/* Main Tabs */}
+      <div className="panel-tabs">
         <button 
-          className={`tab ${activeTab === 'basic' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('basic')} 
-          title="Basic Information"
+          className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
+          onClick={() => setActiveTab('basic')}
         >
-          📋
+          📋 Cơ bản
         </button>
         <button 
-          className={`tab ${activeTab === 'identifiers' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('identifiers')} 
-          title="Identifiers"
+          className={`tab-btn ${activeTab === 'identifiers' ? 'active' : ''}`}
+          onClick={() => setActiveTab('identifiers')}
         >
-          🔗
+          🔗 Định danh
         </button>
         {data.wikidataId && (
-          <button 
-            className={`tab ${activeTab === 'statements' ? 'active' : ''}`} 
-            onClick={() => setActiveTab('statements')} 
-            title="Statements"
-          >
-            📊
-          </button>
+          <>
+            <button 
+              className={`tab-btn ${activeTab === 'statements' ? 'active' : ''}`}
+              onClick={() => setActiveTab('statements')}
+            >
+              📊 Thuộc tính
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'references' ? 'active' : ''}`}
+              onClick={() => setActiveTab('references')}
+            >
+              📚 Tham chiếu
+            </button>
+          </>
         )}
-        <button 
-          className={`tab ${activeTab === 'references' ? 'active' : ''}`} 
-          onClick={() => setActiveTab('references')} 
-          title="References & Links"
-        >
-          📎
-        </button>
         {data.members && (
           <button 
-            className={`tab ${activeTab === 'members' ? 'active' : ''}`} 
-            onClick={() => setActiveTab('members')} 
-            title="OSM Members"
+            className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
+            onClick={() => setActiveTab('members')}
           >
-            🗺️
+            👥 Thành viên
           </button>
         )}
+        {/* ✅ Tasks Tab */}
+        <button 
+          className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tasks')}
+        >
+          ⚡ Tác vụ
+        </button>
       </div>
 
+      {/* Tab Content */}
       <div className="panel-content">
         {activeTab === 'basic' && renderBasicTab()}
         {activeTab === 'identifiers' && renderIdentifiersTab()}
         {activeTab === 'statements' && renderStatementsTab()}
         {activeTab === 'references' && renderReferencesTab()}
         {activeTab === 'members' && renderMembersTab()}
+        {activeTab === 'tasks' && renderTasksTab()}
       </div>
     </div>
   );
