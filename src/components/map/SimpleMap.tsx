@@ -8,8 +8,9 @@ import { SearchResult as SearchResultComponent } from "./SearchResult";
 import { InfoPanel } from './InfoPanel';
 import { loadATMsWithStats } from "../../utils/rdfParser";
 import { fetchOutlineByOSMRelationId } from '../../utils/overpass';
+import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi'; 
+import type { NearbyPlace } from '../../utils/nearbyApi'; // 
 
-// Hàm tính diện tích polygon (đơn vị: km²)
 const calculatePolygonArea = (coordinates: number[][]): number => {
   if (coordinates.length < 3) return 0;
   
@@ -161,14 +162,63 @@ interface LocationState {
   searchResult?: SearchResult; // ✅ Nhận SearchResult đầy đủ từ Home
 }
 
+
+const NearbyMarkers: React.FC<{ places: NearbyPlace[] }> = ({ places }) => {
+  return (
+    <>
+      {places.map((place, idx) => {
+        // ✅ Tạo custom icon với emoji
+        const icon = L.divIcon({
+          html: `<div class="nearby-marker">${getAmenityIcon(place)}</div>`,
+          className: 'nearby-marker-wrapper',
+          iconSize: [30, 30],
+          iconAnchor: [15, 30],
+          popupAnchor: [0, -30]
+        });
+
+        return (
+          <Marker
+            key={idx}
+            position={[place.lat, place.lon]}
+            icon={icon}
+          >
+            <Popup>
+              <div className="nearby-popup">
+                <div className="nearby-popup-title">
+                  {getAmenityIcon(place)} {getPlaceName(place, idx)}
+                </div>
+                <div className="nearby-popup-content">
+                  <div><strong>Loại:</strong> {place.highway || place.amenity || 'N/A'}</div>
+                  {place.brand && <div><strong>Thương hiệu:</strong> {place.brand}</div>}
+                  {place.operator && <div><strong>Vận hành:</strong> {place.operator}</div>}
+                  <div><strong>Khoảng cách:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
+                  <div className="nearby-popup-coords">
+                    <a 
+                      href={`https://www.google.com/maps?q=${place.lat},${place.lon}`} 
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {place.lat.toFixed(6)}, {place.lon.toFixed(6)} ↗
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        );
+      })}
+    </>
+  );
+};
+
 const SimpleMap: React.FC = () => {
   const location = useLocation();
   const [map, setMap] = useState<L.Map | null>(null);
   const [wardData, setWardData] = useState<any>(null);
-  // ✅ Loại bỏ state POIs
-  // const [pois, setPois] = useState<{...}>({...});
   
-  // ✅ Thêm state cho members
+  // ✅ State cho nearby places
+  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
+  
   const [wardMembers, setWardMembers] = useState<{
     innerWays: any[];
     outerWays: any[];
@@ -187,7 +237,6 @@ const SimpleMap: React.FC = () => {
   const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
   const [highlightName, setHighlightName] = useState<string>("");
   const [isLoadingBoundary, setIsLoadingBoundary] = useState(false);
-  // ✅ Loại bỏ isLoadingPOIs
   const [wardStats, setWardStats] = useState<{
     calculatedArea: number;
     population: number | null;
@@ -213,7 +262,7 @@ const SimpleMap: React.FC = () => {
     statements?: any;
     osmId?: string;
     osmType?: string;
-    members?: any; // ✅ Thêm members vào selectedInfo
+    members?: any;
   } | null>(null);
 
   const [outlineGeoJSON, setOutlineGeoJSON] = useState<any>(null);
@@ -222,7 +271,13 @@ const SimpleMap: React.FC = () => {
     name: string;
     type: string;
   } | null>(null);
-  const [memberNames, setMemberNames] = useState<Record<number, string>>({}); // ✅ Thêm state
+  const [memberNames, setMemberNames] = useState<Record<number, string>>({});
+
+  // ✅ ĐỊNH NGHĨA handleNearbyPlacesChange NGAY SAU CÁC STATE
+  const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
+    console.log('📍 Nearby places updated:', places.length);
+    setNearbyPlaces(places);
+  }, []);
 
   const handleOutlineLoaded = useCallback((geo: any) => {
     setOutlineGeoJSON(geo);
@@ -662,9 +717,11 @@ out geom;
             setOutlineGeoJSON(null);
             setMemberOutline(null);
             setMemberNames({});
+            setNearbyPlaces([]); // 
           }}
           onMemberClick={handleMemberClick}
           memberNames={memberNames}
+          onNearbyPlacesChange={handleNearbyPlacesChange} // 
         />
       )}
 
@@ -729,6 +786,11 @@ out geom;
           >
             <Popup>{searchMarker.name}</Popup>
           </Marker>
+        )}
+
+        {/* ✅ Hiển thị Nearby Markers */}
+        {nearbyPlaces.length > 0 && (
+          <NearbyMarkers places={nearbyPlaces} />
         )}
 
         {selectedLocation && (

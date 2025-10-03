@@ -5,7 +5,7 @@ import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
 import type { WikidataInfo, ReferenceInfo } from '../../utils/wikidataUtils';
 import { resolveValueLink, generateExternalLinks } from '../../utils/linkResolver';
 import type { ExternalLink } from '../../utils/linkResolver';
-import { fetchNearbyPlaces, getAmenityIcon } from '../../utils/nearbyApi';
+import { fetchNearbyPlaces, getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
 
 
@@ -53,13 +53,16 @@ interface InfoPanelProps {
   onClose: () => void;
   onMemberClick?: (member: { type: string; ref: number; role?: string }) => void;
   memberNames?: Record<number, string>;
+  // ✅ Thêm callbacks cho nearby markers
+  onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({ 
   data, 
   onClose, 
   onMemberClick,
-  memberNames = {}
+  memberNames = {},
+  onNearbyPlacesChange
 }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
@@ -72,7 +75,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   // ✅ Tasks sub-tab state
   const [activeTaskTab, setActiveTaskTab] = useState<'nearby' | 'route' | 'statistics'>('nearby');
   
-  // Nearby state
+  // ✅ Nearby state (không auto-fetch)
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [nearbyRadius, setNearbyRadius] = useState(1);
   const [nearbyAmenity, setNearbyAmenity] = useState('toilets');
@@ -106,19 +109,60 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   }, [data.rows]);
 
-  // ✅ Fetch nearby places khi vào task tab
-  useEffect(() => {
-    if (activeTab === 'tasks' && activeTaskTab === 'nearby' && data.coordinates) {
-      setIsLoadingNearby(true);
-      fetchNearbyPlaces(data.coordinates[0], data.coordinates[1], nearbyRadius, nearbyAmenity)
-        .then(response => {
-          if (response) {
-            setNearbyPlaces(response.items);
-          }
-          setIsLoadingNearby(false);
-        });
+  // ✅ Hàm fetch manual
+  const handleSearchNearby = async () => {
+    if (!data.coordinates) return;
+
+    setIsLoadingNearby(true);
+    setNearbyPlaces([]); // ✅ Clear old results
+    
+    // ✅ Clear markers trên map
+    if (onNearbyPlacesChange) {
+      onNearbyPlacesChange([]);
     }
-  }, [activeTab, activeTaskTab, data.coordinates, nearbyRadius, nearbyAmenity]);
+
+    try {
+      const response = await fetchNearbyPlaces(
+        data.coordinates[0],
+        data.coordinates[1],
+        nearbyRadius,
+        nearbyAmenity
+      );
+      
+      if (response) {
+        setNearbyPlaces(response.items);
+        
+        // ✅ Gửi markers lên parent component (Map)
+        if (onNearbyPlacesChange) {
+          onNearbyPlacesChange(response.items);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching nearby places:', error);
+    } finally {
+      setIsLoadingNearby(false);
+    }
+  };
+
+  // ✅ Clear markers khi đổi amenity
+  const handleAmenityChange = (newAmenity: string) => {
+    setNearbyAmenity(newAmenity);
+    setNearbyPlaces([]);
+    
+    if (onNearbyPlacesChange) {
+      onNearbyPlacesChange([]);
+    }
+  };
+
+  // ✅ Clear markers khi rời tab
+  useEffect(() => {
+    if (activeTab !== 'tasks' || activeTaskTab !== 'nearby') {
+      setNearbyPlaces([]);
+      if (onNearbyPlacesChange) {
+        onNearbyPlacesChange([]);
+      }
+    }
+  }, [activeTab, activeTaskTab, onNearbyPlacesChange]);
 
   const handleMemberClick = (member: { type: string; ref: number; role?: string }) => {
     setSelectedMemberRef(member.ref);
@@ -127,7 +171,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   };
 
-  // ✅ Render Nearby content (sub-tab của Tasks)
+  // ✅ Render Nearby content với nút Search
   const renderNearbyContent = () => {
     if (!data.coordinates) {
       return <div className="no-data">❌ Không có tọa độ để tìm kiếm địa điểm gần</div>;
@@ -142,18 +186,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             <select 
               id="amenity-select"
               value={nearbyAmenity} 
-              onChange={(e) => setNearbyAmenity(e.target.value)}
+              onChange={(e) => handleAmenityChange(e.target.value)}
               className="nearby-select"
             >
               <option value="toilets">🚻 Nhà vệ sinh</option>
-              <option value="atm">🏧 ATM</option>
-              <option value="restaurant">🍴 Nhà hàng</option>
-              <option value="cafe">☕ Quán cà phê</option>
-              <option value="hospital">🏥 Bệnh viện</option>
-              <option value="pharmacy">💊 Nhà thuốc</option>
-              <option value="school">🏫 Trường học</option>
-              <option value="parking">🅿️ Bãi đỗ xe</option>
-              <option value="fuel">⛽ Trạm xăng</option>
+              <option value="atms">🏧 ATM</option>
+              <option value="hospitals">🏥 Bệnh viện</option>
+              <option value="bus-stops">🚌 Trạm xe buýt</option>
             </select>
           </div>
 
@@ -172,6 +211,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               <option value="10">10 km</option>
             </select>
           </div>
+
+          {/* ✅ Nút Search */}
+          <button 
+            className="search-button"
+            onClick={handleSearchNearby}
+            disabled={isLoadingNearby}
+          >
+            {isLoadingNearby ? '⏳ Đang tìm...' : '🔍 Tìm kiếm'}
+          </button>
         </div>
 
         {/* Results */}
@@ -179,7 +227,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           <div className="loading">⏳ Đang tìm kiếm địa điểm gần...</div>
         ) : nearbyPlaces.length === 0 ? (
           <div className="no-data">
-            ❌ Không tìm thấy {nearbyAmenity} trong bán kính {nearbyRadius} km
+            {nearbyPlaces.length === 0 && !isLoadingNearby
+              ? 'ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn "Tìm kiếm"'
+              : `❌ Không tìm thấy ${nearbyAmenity} trong bán kính ${nearbyRadius} km`
+            }
           </div>
         ) : (
           <div className="reference-group">
@@ -190,9 +241,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             {nearbyPlaces.map((place, idx) => (
               <div key={idx} className="nearby-item">
                 <div className="nearby-header">
-                  <span className="nearby-icon">{getAmenityIcon(place.amenity)}</span>
+                  <span className="nearby-icon">{getAmenityIcon(place)}</span>
                   <span className="nearby-name">
-                    {place.name || `${place.amenity} #${idx + 1}`}
+                    {getPlaceName(place, idx)}
                   </span>
                   <span className="nearby-distance">
                     📍 {(place.distanceKm * 1000).toFixed(0)}m
@@ -200,18 +251,49 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                 </div>
 
                 <div className="nearby-details">
+                  {/* Type */}
+                  <div className="nearby-detail">
+                    <span className="detail-label">Loại:</span>
+                    <span className="detail-value">
+                      {place.highway || place.amenity || 'N/A'}
+                    </span>
+                  </div>
+
+                  {/* Brand */}
+                  {place.brand && (
+                    <div className="nearby-detail">
+                      <span className="detail-label">Thương hiệu:</span>
+                      <span className="detail-value">{place.brand}</span>
+                    </div>
+                  )}
+
+                  {/* Operator */}
+                  {place.operator && (
+                    <div className="nearby-detail">
+                      <span className="detail-label">Vận hành:</span>
+                      <span className="detail-value">{place.operator}</span>
+                    </div>
+                  )}
+
+                  {/* Access */}
                   {place.access && (
                     <div className="nearby-detail">
                       <span className="detail-label">Truy cập:</span>
                       <span className="detail-value">{place.access}</span>
                     </div>
                   )}
+
+                  {/* Fee */}
                   {place.fee && (
                     <div className="nearby-detail">
                       <span className="detail-label">Phí:</span>
-                      <span className="detail-value">{place.fee === 'yes' ? 'Có phí' : 'Miễn phí'}</span>
+                      <span className="detail-value">
+                        {place.fee === 'yes' ? 'Có phí' : 'Miễn phí'}
+                      </span>
                     </div>
                   )}
+                  
+                  {/* Coordinates */}
                   <div className="nearby-detail">
                     <span className="detail-label">Tọa độ:</span>
                     <a 
@@ -223,6 +305,8 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                       {place.lat.toFixed(6)}, {place.lon.toFixed(6)} ↗
                     </a>
                   </div>
+                  
+                  {/* POI URI */}
                   <div className="nearby-detail">
                     <span className="detail-label">POI URI:</span>
                     <a 

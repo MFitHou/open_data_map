@@ -338,9 +338,6 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
         {isLoading && <div className="search-loading">📚</div>}
       </div>
 
-      <div className="search-info">
-        <span className="info-badge">📚 Dữ liệu từ Wikidata</span>
-      </div>
 
       {showResults && (
         <div className="search-results">
