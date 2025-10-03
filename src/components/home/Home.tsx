@@ -526,6 +526,7 @@ const Home: React.FC = () => {
             <div className="footer-links">
               <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer">GitHub</a>
               <a href="/map">Bản đồ</a>
+              <a href="/query">Truy vấn dữ liệu</a>
             </div>
             <div className="footer-copyright">
               <p>© 2025 OpenDataFitHou. Licensed under GNU General Public License.</p>

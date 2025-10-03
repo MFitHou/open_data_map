@@ -710,12 +710,14 @@ out geom;
         center={[21.0285, 105.8542]}
         zoom={13}
         style={{ height: "100%", width: "100%" }}
-        attributionControl={false}
         zoomControl={false}
         ref={setMap}
       >
         <ZoomControl position="bottomright" />
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
 
         {highlightBounds && highlightBounds.length > 0 && (
           <SearchResultComponent
