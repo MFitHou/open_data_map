@@ -117,14 +117,6 @@ const FlyToLocation: React.FC<{ lat: number; lon: number; zoom?: number }> = ({ 
   return null;
 };
 
-// ✅ Thêm interface cho ATMData
-interface ATMData {
-  name: string;
-  lat: number;
-  lon: number;
-  bank?: string;
-}
-
 interface SearchResult {
   id: string;
   name: string;
@@ -248,7 +240,6 @@ const SimpleMap: React.FC = () => {
     officialArea: null,
     density: null
   });
-  const [atmData, setAtmData] = useState<ATMData[]>([]);
   const [atmStats, setAtmStats] = useState<Record<string, number>>({});
   const [isLoadingATM, setIsLoadingATM] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState<{
@@ -283,16 +274,6 @@ const SimpleMap: React.FC = () => {
     setOutlineGeoJSON(geo);
   }, []);
 
-  // Load ATM data từ Fuseki
-  useEffect(() => {
-    (async () => {
-      setIsLoadingATM(true);
-      const { atms, stats } = await loadATMsWithStats('http://localhost:3000/fuseki/atms');
-      setAtmData(atms);
-      setAtmStats(stats);
-      setIsLoadingATM(false);
-    })();
-  }, []);
 
   // Hàm nối các way thành polygon hoàn chỉnh
   const connectWays = (ways: any[]) => {

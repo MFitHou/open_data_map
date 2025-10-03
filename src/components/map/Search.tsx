@@ -259,7 +259,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       setShowResults(true);
 
       if (sortedResults.length === 0) {
-        setError("Không tìm thấy kết quả trên Wikidata. Thử từ khóa khác.");
+        setError("Không tìm thấy kết quả. Thử từ khóa khác.");
       }
     } catch (error) {
       console.error("Error searching:", error);
@@ -330,7 +330,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
         <input
           type="text"
           className="search-input"
-          placeholder="Tìm địa điểm trên Wikidata... (VD: Hồ Gươm, Văn Miếu, BIDV)"
+          placeholder="Tìm địa điểm trên (VD: Hồ Gươm, Văn Miếu, BIDV)"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setShowResults(true)}
@@ -409,7 +409,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             </>
           ) : (
             <div className="search-no-results">
-              🔍 Không tìm thấy "{searchTerm}" trên Wikidata
+              🔍 Không tìm thấy "{searchTerm}"
             </div>
           )}
         </div>
