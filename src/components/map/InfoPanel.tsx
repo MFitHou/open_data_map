@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/InfoPanel.css';
+import { DownloadButton } from './DownloadButton';
+import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
+import type { WikidataInfo, ReferenceInfo } from '../../utils/wikidataUtils';
+import { resolveValueLink, generateExternalLinks } from '../../utils/linkResolver';
+import type { ExternalLink } from '../../utils/linkResolver';
 
 interface InfoPanelProps {
   data: {
@@ -44,36 +49,14 @@ interface InfoPanelProps {
   };
   onClose: () => void;
   onMemberClick?: (member: { type: string; ref: number; role?: string }) => void;
-  memberNames?: Record<number, string>; // ✅ Thêm prop mới
-}
-
-interface WikidataInfo {
-  label?: string;
-  description?: string;
-  image?: string;
-  claims?: Record<string, any>;
-  allProperties?: { [key: string]: string };
-  propertyUrls?: { [key: string]: string };
-  propertyEntityIds?: { [key: string]: string }; // property label -> Qid (để link)
-}
-
-interface ReferenceInfo {
-  property: string;
-  propertyLabel: string;
-  references: Array<{ [key: string]: string }>;
-}
-
-interface ExternalLink {
-  label: string;
-  url: string;
-  type: string;
+  memberNames?: Record<number, string>;
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({ 
   data, 
   onClose, 
   onMemberClick,
-  memberNames = {} // ✅ Default empty object
+  memberNames = {}
 }) => {
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
@@ -81,19 +64,24 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const [externalLinks, setExternalLinks] = useState<ExternalLink[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rowPropLabels, setRowPropLabels] = useState<Record<string, string>>({});
-  const [selectedMemberRef, setSelectedMemberRef] = useState<number | null>(null); // ✅ Track member được chọn
+  const [selectedMemberRef, setSelectedMemberRef] = useState<number | null>(null);
 
   useEffect(() => {
     if (data.wikidataId && (activeTab === 'statements' || activeTab === 'references')) {
-      fetchWikidataInfo(data.wikidataId);
+      setIsLoading(true);
+      fetchWikidataInfo(data.wikidataId).then(({ wikidataInfo, references }) => {
+        setWikidataInfo(wikidataInfo);
+        setReferences(references);
+        setIsLoading(false);
+      });
     }
   }, [data.wikidataId, activeTab]);
 
   useEffect(() => {
-    generateExternalLinks();
+    const links = generateExternalLinks(data);
+    setExternalLinks(links);
   }, [data]);
 
-  // Lấy label cho các hàng có dạng Pxxx
   useEffect(() => {
     const ids = new Set<string>();
     data.rows.forEach(r => {
@@ -106,267 +94,11 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   }, [data.rows]);
 
-  const generateExternalLinks = () => {
-    const links: ExternalLink[] = [];
-    if (data.wikidataId) {
-      links.push({ label: 'Wikidata Entity', url: `https://www.wikidata.org/wiki/${data.wikidataId}`, type: 'wikidata' });
+  const handleMemberClick = (member: { type: string; ref: number; role?: string }) => {
+    setSelectedMemberRef(member.ref);
+    if (onMemberClick) {
+      onMemberClick(member);
     }
-    if (data.coordinates) {
-      links.push({
-        label: 'Google Maps',
-        url: `https://www.google.com/maps?q=${data.coordinates[1]},${data.coordinates[0]}`,
-        type: 'map'
-      });
-      links.push({
-        label: 'OpenStreetMap',
-        url: `https://www.openstreetmap.org/?mlat=${data.coordinates[1]}&mlon=${data.coordinates[0]}&zoom=16`,
-        type: 'map'
-      });
-    }
-    if (data.osmId && data.osmType) {
-      links.push({
-        label: `OSM ${data.osmType} ${data.osmId}`,
-        url: `https://www.openstreetmap.org/${data.osmType}/${data.osmId}`,
-        type: 'osm'
-      });
-    }
-    if (data.identifiers?.osmRelationId) {
-      links.push({
-        label: `OSM Relation ${data.identifiers.osmRelationId}`,
-        url: `https://www.openstreetmap.org/relation/${data.identifiers.osmRelationId}`,
-        type: 'osm'
-      });
-    }
-    if (data.identifiers?.osmNodeId) {
-      links.push({
-        label: `OSM Node ${data.identifiers.osmNodeId}`,
-        url: `https://www.openstreetmap.org/node/${data.identifiers.osmNodeId}`,
-        type: 'osm'
-      });
-    }
-    if (data.identifiers?.osmWayId) {
-      links.push({
-        label: `OSM Way ${data.identifiers.osmWayId}`,
-        url: `https://www.openstreetmap.org/way/${data.identifiers.osmWayId}`,
-        type: 'osm'
-      });
-    }
-    if (data.identifiers?.viafId) {
-      links.push({
-        label: `VIAF ${data.identifiers.viafId}`,
-        url: `https://viaf.org/viaf/${data.identifiers.viafId}`,
-        type: 'authority'
-      });
-    }
-    if (data.identifiers?.gndId) {
-      links.push({
-        label: `GND ${data.identifiers.gndId}`,
-        url: `https://d-nb.info/gnd/${data.identifiers.gndId}`,
-        type: 'authority'
-      });
-    }
-    if (data.statements?.website) {
-      links.push({ label: 'Official Website', url: data.statements.website, type: 'website' });
-    }
-    if (data.statements?.phone) {
-      links.push({ label: `Phone: ${data.statements.phone}`, url: `tel:${data.statements.phone}`, type: 'contact' });
-    }
-    if (data.statements?.email) {
-      links.push({ label: `Email: ${data.statements.email}`, url: `mailto:${data.statements.email}`, type: 'contact' });
-    }
-    setExternalLinks(links);
-  };
-
-  const fetchLabels = async (ids: Set<string>): Promise<Record<string, string>> => {
-    if (ids.size === 0) return {};
-    const allIds = Array.from(ids).slice(0, 450);
-    const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&props=labels&ids=${allIds.join('|')}&languages=vi|en&format=json&origin=*`;
-    const res = await fetch(url);
-    const json = await res.json();
-    const out: Record<string, string> = {};
-    if (json.entities) {
-      Object.entries(json.entities).forEach(([id, entity]: any) => {
-        out[id] = entity.labels?.vi?.value || entity.labels?.en?.value || id;
-      });
-    }
-    return out;
-  };
-
-  const fetchWikidataInfo = async (qid: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`);
-      const json = await response.json();
-      const entity = json.entities[qid];
-      if (!entity) {
-        setWikidataInfo(null);
-        return;
-      }
-
-      const propertyIds = new Set<string>();
-      const entityIds = new Set<string>();
-
-      Object.entries(entity.claims || {}).forEach(([propId, claims]: [string, any]) => {
-        propertyIds.add(propId);
-        claims.forEach((c: any) => {
-          const dv = c.mainsnak?.datavalue;
-            if (dv?.type === 'wikibase-entityid') entityIds.add(dv.value.id);
-            c.references?.forEach((r: any) => {
-              Object.entries(r.snaks || {}).forEach(([refPropId, refSnaks]: [string, any]) => {
-                propertyIds.add(refPropId);
-                const refSnak = refSnaks[0];
-                const rdv = refSnak?.datavalue;
-                if (rdv?.type === 'wikibase-entityid') entityIds.add(rdv.value.id);
-              });
-            });
-        });
-      });
-
-      const labels = await fetchLabels(new Set<string>([...propertyIds, ...entityIds, qid]));
-
-      const info: WikidataInfo = {
-        label: labels[qid] || qid,
-        description: entity.descriptions?.vi?.value || entity.descriptions?.en?.value,
-        claims: entity.claims,
-        allProperties: {},
-        propertyUrls: {},
-        propertyEntityIds: {}
-      };
-
-      if (entity.claims?.P18) {
-        const imageFile = entity.claims.P18[0].mainsnak.datavalue.value;
-        info.image = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(imageFile)}?width=300`;
-      }
-
-      Object.entries(entity.claims || {}).forEach(([propId, claims]: [string, any]) => {
-        const claim = claims[0];
-        const dv = claim.mainsnak?.datavalue;
-        if (!dv) return;
-        let value = '';
-        let isUrl = false;
-        switch (dv.type) {
-          case 'string':
-            if (typeof dv.value === 'string') {
-              if (dv.value.startsWith('http')) {
-                isUrl = true;
-                value = dv.value; // giữ nguyên giá trị thật
-              } else {
-                value = dv.value;
-              }
-            }
-            break;
-          case 'time':
-            value = dv.value.time.substring(1, 11);
-            break;
-          case 'quantity':
-            value = dv.value.amount;
-            break;
-          case 'wikibase-entityid':
-            value = labels[dv.value.id] || dv.value.id;
-            info.propertyEntityIds![labels[propId] || propId] = dv.value.id;
-            break;
-          case 'globecoordinate':
-            value = `${dv.value.latitude.toFixed(6)}, ${dv.value.longitude.toFixed(6)}`;
-            break;
-        }
-        if (propId !== 'P18' && value) {
-          const propLabel = labels[propId] || propId;
-          if (!info.allProperties![propLabel]) {
-            info.allProperties![propLabel] = value;
-            if (isUrl) info.propertyUrls![propLabel] = dv.value;
-          }
-        }
-      });
-
-      // References + additional links (giữ nguyên)
-      const refs: ReferenceInfo[] = [];
-      const additionalLinks: ExternalLink[] = [];
-      Object.entries(entity.claims || {}).forEach(([propId, claims]: [string, any]) => {
-        const claim = claims[0];
-        const dv = claim.mainsnak?.datavalue;
-        if (dv?.type === 'string') {
-          const v: string = dv.value;
-          if (v.startsWith('http')) {
-            additionalLinks.push({ label: (labels[propId] || propId), url: v, type: 'wikidata-claim' });
-          } else if (propId === 'P1329') {
-            additionalLinks.push({ label: (labels[propId] || 'Phone') + ': ' + v, url: `tel:${v}`, type: 'wikidata-claim' });
-          } else if (propId === 'P968') {
-            additionalLinks.push({ label: (labels[propId] || 'Email') + ': ' + v, url: `mailto:${v}`, type: 'wikidata-claim' });
-          }
-        }
-        if (claim.references && claim.references.length > 0) {
-          const refData: Array<{ [key: string]: string }> = [];
-          claim.references.forEach((ref: any) => {
-            const refObj: { [key: string]: string } = {};
-            Object.entries(ref.snaks || {}).forEach(([refPropId, refSnaks]: [string, any]) => {
-              const refSnak = refSnaks[0];
-              const rdv = refSnak?.datavalue;
-              if (!rdv) return;
-              let refValue = '';
-              if (rdv.type === 'string') refValue = rdv.value;
-              else if (rdv.type === 'time') refValue = rdv.value.time.substring(1, 11);
-              else if (rdv.type === 'wikibase-entityid') refValue = labels[rdv.value.id] || rdv.value.id;
-              if (refValue) {
-                const refLabel = labels[refPropId] || refPropId;
-                refObj[refLabel] = refValue;
-              }
-            });
-            if (Object.keys(refObj).length > 0) refData.push(refObj);
-          });
-          if (refData.length > 0) {
-            refs.push({
-              property: propId,
-              propertyLabel: labels[propId] || propId,
-              references: refData
-            });
-          }
-        }
-      });
-
-      setReferences(refs);
-      setExternalLinks(prev => {
-        const existing = new Set(prev.map(l => l.url));
-        const merged = [...prev];
-        additionalLinks.forEach(l => { if (!existing.has(l.url)) merged.push(l); });
-        return merged;
-      });
-      setWikidataInfo(info);
-    } catch (e) {
-      console.error('Error fetching Wikidata:', e);
-      setWikidataInfo(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Helper: sinh URL cho value nếu nhận dạng được
-  const resolveValueLink = (label: string, value: string): string | undefined => {
-    // Raw URL
-    if (/^https?:\/\//i.test(value)) return value;
-
-    // Wikidata entity (Qxxx)
-    if (/^Q\d+$/.test(value)) return `https://www.wikidata.org/wiki/${value}`;
-
-    // Property id (Pxxx) -> trang property
-    if (/^P\d+$/.test(value)) return `https://www.wikidata.org/wiki/Property:${value}`;
-
-    // VIAF
-    if (/^\d{5,}$/.test(value) && /VIAF/i.test(label)) return `https://viaf.org/viaf/${value}`;
-
-    // GND (thường có chữ + số hoặc 9 chữ số)
-    if (/GND/i.test(label)) return `https://d-nb.info/gnd/${value}`;
-
-    // OSM IDs
-    if (/OSM Relation ID/i.test(label)) return `https://www.openstreetmap.org/relation/${value}`;
-    if (/OSM Node ID/i.test(label)) return `https://www.openstreetmap.org/node/${value}`;
-    if (/OSM Way ID/i.test(label)) return `https://www.openstreetmap.org/way/${value}`;
-    if (/Wikidata ID/i.test(label) && /^Q\d+$/.test(value)) return `https://www.wikidata.org/wiki/${value}`;
-
-    // Phone / Email (nếu lộ ra)
-    if (/@/.test(value) && !value.startsWith('mailto:')) return `mailto:${value}`;
-    if (/^\+?\d[\d\s\-()]{5,}$/.test(value)) return `tel:${value}`;
-
-    return undefined;
   };
 
   const renderBasicTab = () => {
@@ -565,13 +297,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     );
   };
 
-  const handleMemberClick = (member: { type: string; ref: number; role?: string }) => {
-    setSelectedMemberRef(member.ref);
-    if (onMemberClick) {
-      onMemberClick(member);
-    }
-  };
-
   const renderMembersTab = () => {
     if (!data.members) return <div className="no-data">No members data available</div>;
 
@@ -696,12 +421,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     );
   };
 
-  // THAY isAdminArea cũ bằng phiên bản mới chỉ kiểm tra từ khóa tiếng Việt
   const isAdminArea = React.useMemo(() => {
     const title = (data.title || '').toLowerCase();
-    const vnKeywords = [
-      'quận','phường','xã','tỉnh','huyện','thành phố','thị trấn'
-    ];
+    const vnKeywords = ['quận','phường','xã','tỉnh','huyện','thành phố','thị trấn'];
     return vnKeywords.some(k => title.includes(k));
   }, [data.title]);
 
@@ -715,7 +437,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             {data.subtitle && <p className="subtitle">{data.subtitle}</p>}
           </div>
         </div>
-        <button className="close-btn" onClick={onClose}>✕</button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <DownloadButton 
+            data={data} 
+            memberNames={memberNames}
+            wikidataProperties={wikidataInfo?.allProperties}
+            rowPropLabels={rowPropLabels}
+          />
+          <button className="close-btn" onClick={onClose}><span>✕</span></button>
+        </div>
       </div>
 
       <div className="tabs">

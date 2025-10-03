@@ -2,7 +2,7 @@
   position: absolute;
   top: 70px;
   left: 10px;
-  width: 320px;
+  width: 30%;
   max-height: calc(100vh - 90px);
   background: white;
   border-radius: 12px;
@@ -70,6 +70,14 @@
   transition: background 0.2s;
 }
 
+.close-btn span {
+  color: #333;
+}
+
+.close-btn:focus {
+  outline: none;
+}
+
 .close-btn:hover {
   background: rgba(255, 255, 255, 0.3);
 }
@@ -90,6 +98,10 @@
   color: #666;
   transition: all 0.2s;
   position: relative;
+}
+
+.tab:focus {
+  outline: none;
 }
 
 .tab:hover {
@@ -478,4 +490,90 @@
   font-size: 16px;
   font-weight: 600;
   color: #667eea;
+}
+
+/* Download button và menu */
+.download-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.download-btn:focus {
+  outline: none;
+}
+
+.download-btn:hover {
+  background: #5568d3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+}
+
+.download-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 200px;
+  overflow: hidden;
+}
+
+.download-menu button {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: white;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.download-menu button:last-child {
+  border-bottom: none;
+}
+
+.download-menu button:hover {
+  background: #f5f5f5;
+  color: #667eea;
+}
+
+.download-menu button:active {
+  background: #ebebeb;
+}
+
+/* Đóng menu khi click outside */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.download-menu {
+  animation: slideDown 0.2s ease;
 }
