@@ -326,144 +326,214 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-container">
-      <div className="home-hero">
-        <div className="home-content">
-          <h1 className="home-title">
-            🗺️ Open Data FITHOU
+      {/* Section 1: Hero với OpenDataFitHou + Slogan */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <h1 className="main-title">
+            <span className="title-icon">🌍</span>
+            OpenDataFitHou
           </h1>
-          <p className="home-subtitle">
-            Khám phá dữ liệu địa lý Việt Nam với công nghệ Semantic Web
-          </p>
+          <p className="main-slogan">Open Data for Digital Transformation</p>
+          
+          
 
-          <div className="home-search-wrapper" ref={resultsRef}>
-            <div className="home-search-box">
-              <span className="search-icon">🔍</span>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => handleSearch(e.target.value)}
-                onFocus={() => setShowResults(true)}
-                placeholder="Tìm địa điểm trên Wikidata... (VD: Hồ Gươm, Văn Miếu, BIDV)"
-                className="home-search-input"
-              />
-              {isLoading && <span className="search-loading">📚</span>}
-            </div>
-
-            <div className="home-search-info">
-              <span className="info-badge">📚 Dữ liệu từ Wikidata</span>
-            </div>
-
-            {showResults && (
-              <div className="home-search-results">
-                {error ? (
-                  <div className="search-error">⚠️ {error}</div>
-                ) : results.length > 0 ? (
-                  results.map((result) => (
-                    <div
-                      key={result.id}
-                      className="home-search-result-item"
-                      onClick={() => handleResultClick(result)}
-                    >
-                      {result.image && (
-                        <img 
-                          src={result.image} 
-                          alt={result.name} 
-                          className="result-image"
-                        />
-                      )}
-                      <span className="result-icon">
-                        {getTypeIcon(result.type)}
-                      </span>
-                      <div className="result-info">
-                        <div className="result-name">
-                          {result.name}
-                          <span className="wikidata-badge">{result.wikidataId}</span>
-                        </div>
-                        <div className="result-type">
-                          {result.description || result.instanceOf || 'Địa điểm'}
-                        </div>
-                        <div className="result-metadata">
-                          {result.instanceOf && (
-                            <span className="metadata-item">🏷️ {result.instanceOf}</span>
-                          )}
-                          {result.identifiers?.osmRelationId && (
-                            <span className="metadata-item">🗺️ OSM: {result.identifiers.osmRelationId}</span>
-                          )}
-                          {result.statements?.population && (
-                            <span className="metadata-item">👥 {parseInt(result.statements.population).toLocaleString()}</span>
-                          )}
-                          {result.statements?.inception && (
-                            <span className="metadata-item">📅 {new Date(result.statements.inception).getFullYear()}</span>
-                          )}
-                        </div>
-                      </div>
-                      <span className="result-arrow">→</span>
-                    </div>
-                  ))
-                ) : searchTerm.length === 0 ? (
-                  <>
-                    <div className="search-suggestions-header">💡 Gợi ý tìm kiếm phổ biến:</div>
-                    {suggestions.map((suggestion, index) => (
-                      <div
-                        key={index}
-                        className="home-search-result-item"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                      >
-                        <div className="result-icon">📚</div>
-                        <div className="result-info">
-                          <div className="result-name">{suggestion}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <div className="no-results">
-                    🔍 Không tìm thấy "{searchTerm}" trên Wikidata
-                  </div>
-                )}
+          {/* Giữ lại phần tìm kiếm hiện tại */}
+          <div className="search-section">
+    
+            <div className="home-search-wrapper" ref={resultsRef}>
+              <div className="home-search-box">
+                <span className="search-icon">🔍</span>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => setShowResults(true)}
+                  placeholder="Tìm địa điểm trong nước... (VD: Hồ Gươm, Văn Miếu, BIDV)"
+                  className="home-search-input"
+                />
+                {isLoading && <span className="search-loading">📚</span>}
               </div>
-            )}
-          </div>
 
-          <div className="home-actions">
-            <button 
-              className="action-btn primary"
-              onClick={() => navigate('/map')}
-            >
-              🗺️ Mở bản đồ
-            </button>
-            <button 
-              className="action-btn secondary"
-              onClick={() => alert('Tính năng đang phát triển')}
-            >
-              📊 Xem thống kê
-            </button>
+              
+
+              {showResults && (
+                <div className="home-search-results">
+                  {error ? (
+                    <div className="search-error">⚠️ {error}</div>
+                  ) : results.length > 0 ? (
+                    results.map((result) => (
+                      <div
+                        key={result.id}
+                        className="home-search-result-item"
+                        onClick={() => handleResultClick(result)}
+                      >
+                        {result.image && (
+                          <img 
+                            src={result.image} 
+                            alt={result.name} 
+                            className="result-image"
+                          />
+                        )}
+                        <span className="result-icon">
+                          {getTypeIcon(result.type)}
+                        </span>
+                        <div className="result-info">
+                          <div className="result-name">
+                            {result.name}
+                            <span className="wikidata-badge">{result.wikidataId}</span>
+                          </div>
+                          <div className="result-type">
+                            {result.description || result.instanceOf || 'Địa điểm'}
+                          </div>
+                          <div className="result-metadata">
+                            {result.instanceOf && (
+                              <span className="metadata-item">🏷️ {result.instanceOf}</span>
+                            )}
+                            {result.identifiers?.osmRelationId && (
+                              <span className="metadata-item">🗺️ OSM: {result.identifiers.osmRelationId}</span>
+                            )}
+                            {result.statements?.population && (
+                              <span className="metadata-item">👥 {parseInt(result.statements.population).toLocaleString()}</span>
+                            )}
+                            {result.statements?.inception && (
+                              <span className="metadata-item">📅 {new Date(result.statements.inception).getFullYear()}</span>
+                            )}
+                          </div>
+                        </div>
+                        <span className="result-arrow">→</span>
+                      </div>
+                    ))
+                  ) : searchTerm.length === 0 ? (
+                    <>
+                      <div className="search-suggestions-header">💡 Gợi ý tìm kiếm phổ biến:</div>
+                      {suggestions.map((suggestion, index) => (
+                        <div
+                          key={index}
+                          className="home-search-result-item"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          <div className="result-icon">📚</div>
+                          <div className="result-info">
+                            <div className="result-name">{suggestion}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="no-results">
+                      🔍 Không tìm thấy "{searchTerm}" trên Wikidata
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="description">
+            <p>
+              OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, 
+              OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng 
+              Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu – phân tích – 
+              phát triển ứng dụng trở nên dễ dàng hơn.
+            </p>
+            <p>
+              Dự án góp phần thúc đẩy chuyển đổi số và mở ra cơ hội khai thác dữ liệu mở 
+              cho nghiên cứu, giáo dục và cộng đồng. 🌍✨
+            </p>
           </div>
         </div>
+      </section>
 
-        <div className="home-features">
-          <div className="feature-card">
-            <div className="feature-icon">🔍</div>
-            <h3>Tìm kiếm đầy đủ</h3>
-            <p>Query SPARQL với metadata, identifiers và statements</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🌐</div>
-            <h3>Semantic Web</h3>
-            <p>Dữ liệu liên kết với Wikidata và OpenStreetMap</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">📍</div>
-            <h3>Chi tiết ngay lập tức</h3>
-            <p>Không cần fetch thêm khi vào map</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">⬇️</div>
-            <h3>Export dữ liệu</h3>
-            <p>Tải xuống dữ liệu dạng XML, RDF/XML</p>
+      {/* Section 2: Giới thiệu dự án */}
+      <section className="intro-section">
+        <div className="container">
+          <h2 className="section-title">📋 Giới thiệu dự án</h2>
+          <div className="intro-grid">
+            <div className="intro-card">
+              <div className="intro-icon">🎯</div>
+              <h3>Mục tiêu</h3>
+              <p>Thu thập, chuẩn hóa, và cung cấp dữ liệu mở dạng Linked Open Data</p>
+            </div>
+            <div className="intro-card">
+              <div className="intro-icon">🌟</div>
+              <h3>Bối cảnh</h3>
+              <p>Thuộc OLP PMNM 2025, phục vụ nghiên cứu & chuyển đổi số</p>
+            </div>
+            <div className="intro-card">
+              <div className="intro-icon">🔮</div>
+              <h3>Tầm nhìn</h3>
+              <p>Minh bạch dữ liệu, hỗ trợ cộng đồng, dễ tái sử dụng</p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      
+
+      {/* Section 4: Dữ liệu & tính năng */}
+      <section className="features-section">
+        <div className="container">
+          <div className="data-types">
+            <h3>📊 Các loại dữ liệu:</h3>
+            <div className="data-tags">
+              <span className="data-tag">🚌 Bus Stop</span>
+              <span className="data-tag">🏧 ATM</span>
+              <span className="data-tag">🏥 Hospital</span>
+              <span className="data-tag">🏫 School</span>
+              <span className="data-tag">🛝 Playground</span>
+              <span className="data-tag">🚻 Toilets</span>
+              <span className="data-tag">🚰 Drinking Water</span>
+            </div>
+          </div>
+
+          <div className="features-list">
+            <h3>⭐ Tính năng chính:</h3>
+            <div className="features-grid">
+              <div className="feature-item">
+                <span className="feature-icon">🔍</span>
+                <span>Tìm kiếm địa điểm trong nước</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">📍</span>
+                <span>Hiển thị và highlight địa điểm trên bản đồ</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">📋</span>
+                <span>Hiển thị chi tiết dữ liệu của địa điểm</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">🔄</span>
+                <span>Tra cứu các dịch vụ ở gần địa điểm đó như ATM, Điểm bus</span>
+              </div>
+              <div className="feature-item">
+                <span className="feature-icon">⬇️</span>
+                <span>Download dữ liệu về địa điểm theo dạng XML hoặc RDF</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    
+
+      {/* Section 7: Footer */}
+      <footer className="footer-section">
+        <div className="container">
+          <div className="footer-content">
+            <div className="footer-logo">
+              <span className="title-icon">🌍</span>
+              <span>OpenDataFitHou</span>
+            </div>
+            <div className="footer-links">
+              <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer">GitHub</a>
+              <a href="/map">Bản đồ</a>
+            </div>
+            <div className="footer-copyright">
+              <p>© 2025 OpenDataFitHou. Licensed under GNU General Public License.</p>
+              <p>Open Data for Digital Transformation 🌍✨</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
