@@ -2,12 +2,35 @@ import { useState, useEffect, useRef } from "react";
 import "../../styles/Search.css";
 
 interface SearchResult {
-  id: number;
+  id: string;
   name: string;
   type: string;
   lat: number;
   lon: number;
   displayName: string;
+  source: 'wikidata';
+  wikidataId: string;
+  description?: string;
+  image?: string;
+  instanceOf?: string;
+  // Thêm metadata chi tiết
+  identifiers?: {
+    osmRelationId?: string;
+    osmNodeId?: string;
+    osmWayId?: string;
+    viafId?: string;
+    gndId?: string;
+  };
+  statements?: {
+    inception?: string; // P571 - Ngày thành lập
+    population?: string; // P1082 - Dân số
+    area?: string; // P2046 - Diện tích
+    website?: string; // P856 - Website chính thức
+    phone?: string; // P1329 - Số điện thoại
+    email?: string; // P968 - Email
+    address?: string; // P6375 - Địa chỉ
+    postalCode?: string; // P281 - Mã bưu điện
+  };
 }
 
 interface SearchProps {
@@ -22,14 +45,186 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   const [error, setError] = useState<string | null>(null);
   
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Handle click outside to close results
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
     };
   }, []);
+
+  // Tìm kiếm với SPARQL mở rộng
+  const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
+    try {
+      console.log('🔍 Searching Wikidata for:', searchTerm);
+
+      // SPARQL query lấy thêm statements và identifiers
+      const sparqlQuery = `
+        SELECT DISTINCT 
+          ?place ?placeLabel ?placeDescription ?coord ?image ?instanceOfLabel
+          ?inception ?population ?area ?website ?phone ?email ?address ?postalCode
+          ?osmRelation ?osmNode ?osmWay ?viaf ?gnd
+        WHERE {
+          SERVICE wikibase:mwapi {
+            bd:serviceParam wikibase:api "EntitySearch" .
+            bd:serviceParam wikibase:endpoint "www.wikidata.org" .
+            bd:serviceParam mwapi:search "${searchTerm}" .
+            bd:serviceParam mwapi:language "vi" .
+            ?place wikibase:apiOutputItem mwapi:item .
+            bd:serviceParam mwapi:limit "20" .
+          }
+          
+          # Lọc địa điểm ở Việt Nam (country = Vietnam)
+          ?place wdt:P17 wd:Q881 .
+          
+          # Lấy tọa độ (bắt buộc)
+          ?place wdt:P625 ?coord .
+          
+          # Lấy instance of (loại đối tượng)
+          OPTIONAL { ?place wdt:P31 ?instanceOf . }
+          
+          # Lấy ảnh (optional)
+          OPTIONAL { ?place wdt:P18 ?image . }
+          
+          # Statements / Claims
+          OPTIONAL { ?place wdt:P571 ?inception . }
+          OPTIONAL { ?place wdt:P1082 ?population . }
+          OPTIONAL { ?place wdt:P2046 ?area . }
+          OPTIONAL { ?place wdt:P856 ?website . }
+          OPTIONAL { ?place wdt:P1329 ?phone . }
+          OPTIONAL { ?place wdt:P968 ?email . }
+          OPTIONAL { ?place wdt:P6375 ?address . }
+          OPTIONAL { ?place wdt:P281 ?postalCode . }
+          
+          # Identifiers
+          OPTIONAL { ?place wdt:P402 ?osmRelation . }
+          OPTIONAL { ?place wdt:P11693 ?osmNode . }
+          OPTIONAL { ?place wdt:P10689 ?osmWay . }
+          OPTIONAL { ?place wdt:P214 ?viaf . }
+          OPTIONAL { ?place wdt:P227 ?gnd . }
+          
+          SERVICE wikibase:label { 
+            bd:serviceParam wikibase:language "vi,en" . 
+          }
+        }
+        ORDER BY DESC(?image)
+        LIMIT 15
+      `;
+
+      const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Accept': 'application/sparql-results+json',
+          'User-Agent': 'HanoiMapApp/1.0'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Wikidata API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('📊 Wikidata results:', data.results.bindings.length);
+
+      const wikidataResults: SearchResult[] = data.results.bindings.map((binding: any) => {
+        // Parse coordinate string "Point(lon lat)"
+        const coordMatch = binding.coord.value.match(/Point\(([-\d.]+)\s+([-\d.]+)\)/);
+        const lon = coordMatch ? parseFloat(coordMatch[1]) : 0;
+        const lat = coordMatch ? parseFloat(coordMatch[2]) : 0;
+
+        // Extract Wikidata QID
+        const qid = binding.place.value.split('/').pop();
+
+        // Get image URL if available
+        let imageUrl = undefined;
+        if (binding.image) {
+          const imageName = binding.image.value.split('/').pop();
+          imageUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(imageName)}?width=100`;
+        }
+
+        // Determine type based on instanceOf
+        let type = 'place';
+        const instanceOfLabel = binding.instanceOfLabel?.value.toLowerCase() || '';
+        
+        if (instanceOfLabel.includes('bank') || instanceOfLabel.includes('ngân hàng')) {
+          type = 'bank';
+        } else if (instanceOfLabel.includes('school') || instanceOfLabel.includes('trường')) {
+          type = 'school';
+        } else if (instanceOfLabel.includes('hospital') || instanceOfLabel.includes('bệnh viện')) {
+          type = 'hospital';
+        } else if (instanceOfLabel.includes('restaurant') || instanceOfLabel.includes('nhà hàng')) {
+          type = 'restaurant';
+        } else if (instanceOfLabel.includes('building') || instanceOfLabel.includes('tòa nhà')) {
+          type = 'building';
+        } else if (instanceOfLabel.includes('street') || instanceOfLabel.includes('đường')) {
+          type = 'street';
+        }
+
+        const name = binding.placeLabel.value;
+        const description = binding.placeDescription?.value;
+
+        // Extract identifiers
+        const identifiers: SearchResult['identifiers'] = {};
+        if (binding.osmRelation) identifiers.osmRelationId = binding.osmRelation.value;
+        if (binding.osmNode) identifiers.osmNodeId = binding.osmNode.value;
+        if (binding.osmWay) identifiers.osmWayId = binding.osmWay.value;
+        if (binding.viaf) identifiers.viafId = binding.viaf.value;
+        if (binding.gnd) identifiers.gndId = binding.gnd.value;
+
+        // Extract statements
+        const statements: SearchResult['statements'] = {};
+        if (binding.inception) {
+          const date = binding.inception.value;
+          statements.inception = date.includes('T') ? date.split('T')[0] : date;
+        }
+        if (binding.population) statements.population = binding.population.value;
+        if (binding.area) statements.area = binding.area.value;
+        if (binding.website) statements.website = binding.website.value;
+        if (binding.phone) statements.phone = binding.phone.value;
+        if (binding.email) statements.email = binding.email.value;
+        if (binding.address) statements.address = binding.address.value;
+        if (binding.postalCode) statements.postalCode = binding.postalCode.value;
+
+        return {
+          id: `wd-${qid}`,
+          name,
+          type,
+          lat,
+          lon,
+          displayName: name + (description ? ` - ${description}` : ''),
+          source: 'wikidata' as const,
+          wikidataId: qid,
+          description,
+          image: imageUrl,
+          instanceOf: binding.instanceOfLabel?.value,
+          identifiers: Object.keys(identifiers).length > 0 ? identifiers : undefined,
+          statements: Object.keys(statements).length > 0 ? statements : undefined
+        };
+      });
+
+      // Filter out invalid coordinates
+      const validResults = wikidataResults.filter(r => r.lat !== 0 && r.lon !== 0);
+
+      console.log(`✅ Found ${validResults.length} valid results with metadata`);
+      return validResults;
+
+    } catch (error) {
+      console.error('❌ Wikidata search error:', error);
+      throw error;
+    }
+  };
 
   const performSearch = async (value: string) => {
     if (value.length < 2) {
@@ -43,121 +238,32 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
     setError(null);
 
     try {
-      // Chuẩn hóa input: loại bỏ dấu và viết thường
-      const normalizedValue = value
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      
-      // Tìm kiếm theo ID hoặc tên chính xác
-      // Không dùng regex để tránh lỗi parsing
-      const query = `
-        [out:json][timeout:25];
-        (
-          relation["name"="${value}"]["boundary"="administrative"]["admin_level"~"6|7|8"](21.0,105.8,21.1,105.9);
-          relation["name"~"${value}"]["boundary"="administrative"]["admin_level"~"6|7|8"](21.0,105.8,21.1,105.9);
-          relation["name:vi"="${value}"]["boundary"="administrative"]["admin_level"~"6|7|8"](21.0,105.8,21.1,105.9);
-          node["name"="${value}"]["place"~"district|ward|suburb"](21.0,105.8,21.1,105.9);
-        );
-        out center 15;
-      `;
+      const wikidataResults = await searchWikidata(value);
 
-      console.log('Searching with query:', query);
-
-      const response = await fetch("https://overpass-api.de/api/interpreter", {
-        method: "POST",
-        body: query,
+      // Sắp xếp: có ảnh trước, exact match trước
+      const sortedResults = wikidataResults.sort((a, b) => {
+        const aExact = a.name.toLowerCase() === value.toLowerCase();
+        const bExact = b.name.toLowerCase() === value.toLowerCase();
+        
+        if (aExact && !bExact) return -1;
+        if (!aExact && bExact) return 1;
+        
+        // Ưu tiên có ảnh
+        if (a.image && !b.image) return -1;
+        if (!a.image && b.image) return 1;
+        
+        return 0;
       });
 
-      console.log('Response status:', response.status);
+      setResults(sortedResults);
+      setShowResults(true);
 
-      if (response.status === 429) {
-        setError("Quá nhiều yêu cầu. Vui lòng chờ một chút...");
-        setResults([]);
-        setShowResults(true);
-        return;
-      }
-
-      if (response.status === 504) {
-        setError("Kết nối timeout. Vui lòng thử lại sau.");
-        setResults([]);
-        setShowResults(true);
-        return;
-      }
-
-      if (response.status === 400) {
-        setError("Truy vấn không hợp lệ. Vui lòng thử từ khóa khác.");
-        setResults([]);
-        setShowResults(true);
-        return;
-      }
-
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const textResponse = await response.text();
-        console.error("Received non-JSON response:", textResponse);
-        setError("Lỗi kết nối đến máy chủ. Vui lòng thử lại sau.");
-        setResults([]);
-        setShowResults(true);
-        return;
-      }
-
-      const data = await response.json();
-      console.log('Search results:', data);
-
-      if (data.elements && data.elements.length > 0) {
-        const searchResults: SearchResult[] = data.elements
-          .map((element: any) => {
-            const lat = element.lat || element.center?.lat;
-            const lon = element.lon || element.center?.lon;
-            
-            if (!lat || !lon) return null;
-
-            let type = "location";
-            if (element.tags?.admin_level === "6") {
-              type = "district";
-            } else if (element.tags?.admin_level === "7" || element.tags?.admin_level === "8") {
-              type = "ward";
-            } else if (element.tags?.place) {
-              type = element.tags.place;
-            }
-
-            // Lấy tên hiển thị
-            const name = element.tags?.name || element.tags?.["name:vi"] || "Không rõ tên";
-            const parentName = element.tags?.["is_in:district"] || 
-                              element.tags?.["addr:district"] ||
-                              element.tags?.["is_in:province"] ||
-                              "Hà Nội";
-
-            return {
-              id: element.id,
-              name: name,
-              type: type,
-              lat: lat,
-              lon: lon,
-              displayName: `${name}${parentName !== name ? ` - ${parentName}` : ""}`,
-            };
-          })
-          .filter((r): r is SearchResult => r !== null);
-
-        // Sắp xếp kết quả: exact match trước
-        const sortedResults = searchResults.sort((a, b) => {
-          const aExact = a.name.toLowerCase() === value.toLowerCase();
-          const bExact = b.name.toLowerCase() === value.toLowerCase();
-          if (aExact && !bExact) return -1;
-          if (!aExact && bExact) return 1;
-          return 0;
-        });
-
-        setResults(sortedResults);
-        setShowResults(true);
-      } else {
-        setResults([]);
-        setShowResults(true);
+      if (sortedResults.length === 0) {
+        setError("Không tìm thấy kết quả trên Wikidata. Thử từ khóa khác.");
       }
     } catch (error) {
-      console.error("Error searching location:", error);
-      setError("Có lỗi xảy ra khi tìm kiếm. Vui lòng thử lại.");
+      console.error("Error searching:", error);
+      setError("Có lỗi khi kết nối Wikidata. Vui lòng thử lại sau.");
       setResults([]);
       setShowResults(true);
     } finally {
@@ -174,111 +280,141 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
 
     debounceTimer.current = setTimeout(() => {
       performSearch(value);
-    }, 1000);
+    }, 800);
   };
 
   const handleSelectResult = (result: SearchResult) => {
+    console.log('🎯 Selected:', result);
+    console.log('📍 Identifiers:', result.identifiers);
+    console.log('📊 Statements:', result.statements);
     setSearchTerm(result.name);
     setShowResults(false);
     setError(null);
     onSelectLocation(result);
   };
 
-  const handleInputFocus = () => {
-    if (results.length > 0 || error) {
-      setShowResults(true);
-    }
-  };
-
-  const handleInputBlur = () => {
-    setTimeout(() => {
-      setShowResults(false);
-    }, 200);
-  };
-
-  // Danh sách gợi ý phường/quận phổ biến
-  const suggestions = [
-    "Ba Đình",
-    "Hoàn Kiếm", 
-    "Hai Bà Trưng",
-    "Đống Đa",
-    "Cầu Giấy",
-    "Thanh Xuân",
-    "Điện Biên",
-    "Ngọc Hà",
-    "Kim Mã",
-    "Láng Hạ"
-  ];
-
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion);
     performSearch(suggestion);
   };
 
+  const getTypeIcon = (type: string): string => {
+    const icons: Record<string, string> = {
+      bank: '🏦',
+      school: '🏫',
+      hospital: '🏥',
+      restaurant: '🍴',
+      building: '🏢',
+      street: '🛣️',
+      place: '📍'
+    };
+    return icons[type] || '📚';
+  };
+
+  const suggestions = [
+    "Hồ Gươm",
+    "Văn Miếu Quốc Tử Giám",
+    "Lăng Chủ tịch Hồ Chí Minh",
+    "Chùa Một Cột",
+    "Nhà hát Lớn Hà Nội",
+    "Hoàng Thành Thăng Long",
+    "Vietcombank",
+    "BIDV",
+    "Trường Đại học Bách Khoa Hà Nội",
+    "Bệnh viện Bạch Mai"
+  ];
+
   return (
-    <div className="search-container">
+    <div className="search-container" ref={containerRef}>
       <div className="search-input-wrapper">
         <input
           type="text"
           className="search-input"
-          placeholder="Nhập tên phường, quận (VD: Ba Đình, Điện Biên)"
+          placeholder="Tìm địa điểm trên Wikidata... (VD: Hồ Gươm, Văn Miếu, BIDV)"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
-          onFocus={handleInputFocus}
-          onBlur={handleInputBlur}
+          onFocus={() => setShowResults(true)}
         />
-        {isLoading && <div className="search-loading">🔍</div>}
+        {isLoading && <div className="search-loading">📚</div>}
       </div>
 
-      {/* Hiển thị suggestions khi chưa có kết quả */}
-      {showResults && searchTerm.length === 0 && (
-        <div className="search-results">
-          <div className="search-suggestions-header">
-            💡 Gợi ý tìm kiếm:
-          </div>
-          {suggestions.map((suggestion, index) => (
-            <div
-              key={index}
-              className="search-result-item"
-              onClick={() => handleSuggestionClick(suggestion)}
-            >
-              <div className="result-icon">🔍</div>
-              <div className="result-info">
-                <div className="result-name">{suggestion}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="search-info">
+        <span className="info-badge">📚 Dữ liệu từ Wikidata</span>
+      </div>
 
-      {showResults && searchTerm.length > 0 && (
+      {showResults && (
         <div className="search-results">
           {error ? (
-            <div className="search-error">
-              ⚠️ {error}
-            </div>
+            <div className="search-error">⚠️ {error}</div>
           ) : results.length > 0 ? (
             results.map((result) => (
               <div
                 key={result.id}
                 className="search-result-item"
-                onClick={() => handleSelectResult(result)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelectResult(result);
+                }}
               >
+                {result.image && (
+                  <img 
+                    src={result.image} 
+                    alt={result.name} 
+                    className="result-image"
+                  />
+                )}
                 <div className="result-icon">
-                  {result.type === "district" ? "🏙️" : 
-                   result.type === "ward" ? "📍" : "🗺️"}
+                  {getTypeIcon(result.type)}
                 </div>
                 <div className="result-info">
-                  <div className="result-name">{result.name}</div>
-                  <div className="result-type">{result.displayName}</div>
+                  <div className="result-name">
+                    {result.name}
+                    <span className="wikidata-badge">{result.wikidataId}</span>
+                  </div>
+                  <div className="result-type">
+                    {result.description || result.instanceOf || 'Địa điểm'}
+                  </div>
+                  <div className="result-metadata">
+                    {result.instanceOf && (
+                      <span className="metadata-item">🏷️ {result.instanceOf}</span>
+                    )}
+                    {result.identifiers?.osmRelationId && (
+                      <span className="metadata-item">🗺️ OSM: {result.identifiers.osmRelationId}</span>
+                    )}
+                    {result.statements?.population && (
+                      <span className="metadata-item">👥 {parseInt(result.statements.population).toLocaleString()}</span>
+                    )}
+                    {result.statements?.inception && (
+                      <span className="metadata-item">📅 {new Date(result.statements.inception).getFullYear()}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
-          ) : searchTerm.length >= 2 ? (
+          ) : searchTerm.length === 0 ? (
+            <>
+              <div className="search-suggestions-header">💡 Gợi ý tìm kiếm phổ biến:</div>
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="search-result-item"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSuggestionClick(suggestion);
+                  }}
+                >
+                  <div className="result-icon">📚</div>
+                  <div className="result-info">
+                    <div className="result-name">{suggestion}</div>
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : (
             <div className="search-no-results">
-              Không tìm thấy "{searchTerm}". Thử tìm: {suggestions.slice(0, 3).join(", ")}
+              🔍 Không tìm thấy "{searchTerm}" trên Wikidata
             </div>
-          ) : null}
+          )}
         </div>
       )}
     </div>

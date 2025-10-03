@@ -1,10 +1,12 @@
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON, ZoomControl, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, useMap, Polyline, Popup, Polygon } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Search } from "./Search";
 import { SearchResult } from "./SearchResult";
-import { Info } from "./Info";
+import { InfoPanel } from './InfoPanel';
+import { loadATMsWithStats } from "../../utils/rdfParser";
+import { fetchOutlineByOSMRelationId } from '../../utils/overpass';
 
 // Hàm tính diện tích polygon (đơn vị: km²)
 const calculatePolygonArea = (coordinates: number[][]): number => {
@@ -113,26 +115,39 @@ const FlyToLocation: React.FC<{ lat: number; lon: number; zoom?: number }> = ({ 
   return null;
 };
 
+// ✅ Thêm interface cho ATMData
+interface ATMData {
+  name: string;
+  lat: number;
+  lon: number;
+  bank?: string;
+}
+
 const SimpleMap: React.FC = () => {
   const [wardData, setWardData] = useState<any>(null);
-  const [pois, setPois] = useState<{
-    schools: any[];
-    hospitals: any[];
-    restaurants: any[];
-    banks: any[];
+  // ✅ Loại bỏ state POIs
+  // const [pois, setPois] = useState<{...}>({...});
+  
+  // ✅ Thêm state cho members
+  const [wardMembers, setWardMembers] = useState<{
+    innerWays: any[];
+    outerWays: any[];
+    nodes: any[];
+    subAreas: any[];
   }>({
-    schools: [],
-    hospitals: [],
-    restaurants: [],
-    banks: []
+    innerWays: [],
+    outerWays: [],
+    nodes: [],
+    subAreas: []
   });
+  
   const [wardId, setWardId] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lon: number} | null>(null);
   const [searchMarker, setSearchMarker] = useState<{lat: number, lon: number, name: string} | null>(null);
   const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
   const [highlightName, setHighlightName] = useState<string>("");
   const [isLoadingBoundary, setIsLoadingBoundary] = useState(false);
-  const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
+  // ✅ Loại bỏ isLoadingPOIs
   const [wardStats, setWardStats] = useState<{
     calculatedArea: number;
     population: number | null;
@@ -144,6 +159,45 @@ const SimpleMap: React.FC = () => {
     officialArea: null,
     density: null
   });
+  const [atmData, setAtmData] = useState<ATMData[]>([]);
+  const [atmStats, setAtmStats] = useState<Record<string, number>>({});
+  const [isLoadingATM, setIsLoadingATM] = useState(false);
+  const [selectedInfo, setSelectedInfo] = useState<{
+    category: string;
+    title: string;
+    subtitle?: string;
+    rows: { label: string; value: string }[];
+    wikidataId?: string;
+    coordinates?: [number, number];
+    identifiers?: any;
+    statements?: any;
+    osmId?: string;
+    osmType?: string;
+    members?: any; // ✅ Thêm members vào selectedInfo
+  } | null>(null);
+
+  const [outlineGeoJSON, setOutlineGeoJSON] = useState<any>(null);
+  const [memberOutline, setMemberOutline] = useState<{
+    coordinates: number[][];
+    name: string;
+    type: string;
+  } | null>(null);
+  const [memberNames, setMemberNames] = useState<Record<number, string>>({}); // ✅ Thêm state
+
+  const handleOutlineLoaded = useCallback((geo: any) => {
+    setOutlineGeoJSON(geo);
+  }, []);
+
+  // Load ATM data từ Fuseki
+  useEffect(() => {
+    (async () => {
+      setIsLoadingATM(true);
+      const { atms, stats } = await loadATMsWithStats('http://localhost:3000/fuseki/atms');
+      setAtmData(atms);
+      setAtmStats(stats);
+      setIsLoadingATM(false);
+    })();
+  }, []);
 
   // Hàm nối các way thành polygon hoàn chỉnh
   const connectWays = (ways: any[]) => {
@@ -213,47 +267,96 @@ const SimpleMap: React.FC = () => {
     fillOpacity: 0.2
   };
 
+  // Thay load outline: ưu tiên dùng 1 API (relation id)
+  const loadOutlineByResult = async (result: any) => {
+    try {
+      let relId: number | null = null;
+
+      // Lấy từ identifiers.osmRelationId hoặc osmId nếu osmType=relation
+      if (result.identifiers?.osmRelationId) {
+        relId = Number(result.identifiers.osmRelationId);
+      } else if (result.osmType === 'relation' && result.osmId) {
+        relId = Number(result.osmId);
+      }
+
+      if (!relId) {
+        console.warn('Không có OSM Relation ID để vẽ outline');
+        setOutlineGeoJSON(null);
+        return;
+      }
+
+      const outline = await fetchOutlineByOSMRelationId(relId);
+      if (outline.geojson) {
+        setOutlineGeoJSON(outline.geojson);
+        setWardId(relId);
+      } else {
+        console.warn('Outline rỗng:', outline.source);
+        setOutlineGeoJSON(null);
+      }
+    } catch (e) {
+      console.error('Lỗi fetch outline:', e);
+      setOutlineGeoJSON(null);
+    }
+  };
+
   // HANDLER KHI USER CLICK VÀO KẾT QUẢ TÌM KIẾM
   const handleSelectLocation = async (result: any) => {
-    console.log("Selected location:", result);
+    setOutlineGeoJSON(null);
+    setMemberNames({}); // ✅ Reset
+
+    setSelectedInfo({
+      category: result.type || 'search',
+      title: result.name,
+      subtitle: result.description,
+      wikidataId: result.wikidataId,
+      coordinates: [result.lon, result.lat],
+      identifiers: result.identifiers,
+      statements: result.statements,
+      osmId: result.osmId,
+      osmType: result.osmType,
+      rows: makeRows({
+        'Loại': result.instanceOf,
+        'Nguồn': 'Wikidata SPARQL'
+      })
+    });
     
-    // 1. Reset highlight cũ
     setHighlightBounds(null);
     setHighlightName("");
-    
-    // 2. Fly to location ngay lập tức
     setSelectedLocation({ lat: result.lat, lon: result.lon });
     setSearchMarker({ lat: result.lat, lon: result.lon, name: result.name });
-
-    // 3. Reset dữ liệu cũ
     setWardData(null);
-    setPois({
-      schools: [],
-      hospitals: [],
-      restaurants: [],
-      banks: []
-    });
-    setWardStats({
-      calculatedArea: 0,
-      population: null,
-      officialArea: null,
-      density: null
-    });
+    setWardMembers({ innerWays: [], outerWays: [], nodes: [], subAreas: [] });
+    setWardStats({ calculatedArea: 0, population: null, officialArea: null, density: null });
 
-    // 4. Fetch boundary
+    let osmRelationId: number | null = null;
+    
+    if (result.identifiers?.osmRelationId) {
+      osmRelationId = Number(result.identifiers.osmRelationId);
+    } else if (result.osmType === 'relation' && result.osmId) {
+      osmRelationId = Number(result.osmId);
+    }
+
+    if (!osmRelationId) {
+      console.warn('Không có OSM Relation ID để fetch boundary');
+      setIsLoadingBoundary(false);
+      return;
+    }
+
     setIsLoadingBoundary(true);
+
     const locationQuery = `
-      [out:json][timeout:25];
-      (
-        relation(${result.id});
-      );
-      out geom;
-    `;
+[out:json][timeout:25];
+relation(${osmRelationId});
+out geom;
+`.trim();
 
     try {
       const response = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
-        body: locationQuery
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `data=${encodeURIComponent(locationQuery)}`
       });
 
       if (!response.ok) {
@@ -269,11 +372,66 @@ const SimpleMap: React.FC = () => {
         setWardId(element.id);
 
         if (element.members) {
-          const outerWays = element.members
+          const innerWays = element.members.filter((m: any) => m.role === 'inner' && m.type === 'way');
+          const outerWays = element.members.filter((m: any) => m.role === 'outer' && m.type === 'way');
+          const nodes = element.members.filter((m: any) => m.type === 'node');
+          const subAreas = element.members.filter((m: any) => m.type === 'relation');
+
+          setWardMembers({ innerWays, outerWays, nodes, subAreas });
+
+          // ✅ Fetch tên cho sub-areas ngay lập tức
+          if (subAreas.length > 0) {
+            const relationIds = subAreas.map((m: any) => m.ref).join(',');
+            const nameQuery = `
+[out:json][timeout:25];
+relation(id:${relationIds});
+out tags;
+`.trim();
+
+            fetch('https://overpass-api.de/api/interpreter', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `data=${encodeURIComponent(nameQuery)}`
+            })
+            .then(res => res.json())
+            .then(nameData => {
+              const names: Record<number, string> = {};
+              nameData.elements?.forEach((el: any) => {
+                const name = el.tags?.name || 
+                            el.tags?.['name:vi'] || 
+                            el.tags?.['name:en'] || 
+                            el.tags?.official_name;
+                if (name) {
+                  names[el.id] = name;
+                }
+              });
+              setMemberNames(names);
+            })
+            .catch(err => console.error('Error fetching relation names:', err));
+          }
+
+          setSelectedInfo(prev => prev ? {
+            ...prev,
+            members: {
+              innerWays: innerWays.length,
+              outerWays: outerWays.length,
+              nodes: nodes.length,
+              subAreas: subAreas.length,
+              total: element.members.length,
+              details: element.members.map((m: any) => ({
+                type: m.type,
+                ref: m.ref,
+                role: m.role,
+                tags: m.tags
+              }))
+            }
+          } : null);
+
+          const outerGeometry = element.members
             .filter((member: any) => member.role === 'outer' && member.geometry);
 
-          if (outerWays.length > 0) {
-            const wayGeometries = outerWays.map((way: any) => way.geometry);
+          if (outerGeometry.length > 0) {
+            const wayGeometries = outerGeometry.map((way: any) => way.geometry);
             const connectedCoords = connectWays(wayGeometries);
 
             if (connectedCoords.length > 0) {
@@ -283,19 +441,12 @@ const SimpleMap: React.FC = () => {
                 connectedCoords.push(firstPoint);
               }
 
-              // Chuyển đổi từ [lon, lat] sang [lat, lon] cho Leaflet
               const leafletCoords = connectedCoords.map(coord => [coord[1], coord[0]]);
-
-              // SET HIGHLIGHT BOUNDS
               setHighlightBounds(leafletCoords);
               setHighlightName(result.name);
 
-              // Tính diện tích
               const calculatedArea = calculatePolygonArea(connectedCoords);
-              
-              // Fetch dân số
               const { population, officialArea } = await fetchPopulationData(element.id);
-              
               const density = population && calculatedArea > 0 
                 ? Math.round(population / calculatedArea) 
                 : null;
@@ -307,7 +458,6 @@ const SimpleMap: React.FC = () => {
                 density
               });
 
-              // Tạo GeoJSON cho boundary
               const geoJson = {
                 type: "Feature",
                 properties: { 
@@ -324,9 +474,6 @@ const SimpleMap: React.FC = () => {
 
               setWardData(geoJson);
               console.log('Boundary loaded successfully');
-
-              // 5. Fetch POIs sau khi có boundary
-              fetchPOIsForWard(element.id);
             }
           }
         }
@@ -338,104 +485,132 @@ const SimpleMap: React.FC = () => {
     }
   };
 
-  // HÀM FETCH POIs (GỌI SAU KHI CÓ BOUNDARY)
-  const fetchPOIsForWard = async (wardIdToFetch: number) => {
-    setIsLoadingPOIs(true);
-    const wardAreaQuery = `(area:${3600000000 + wardIdToFetch})`;
-
-    const combinedQuery = `
-      [out:json][timeout:30];
-      (
-        node["amenity"="school"]${wardAreaQuery};
-        way["amenity"="school"]${wardAreaQuery};
-        node["amenity"~"hospital|clinic|pharmacy"]${wardAreaQuery};
-        way["amenity"~"hospital|clinic|pharmacy"]${wardAreaQuery};
-        node["amenity"~"restaurant|cafe|fast_food"]${wardAreaQuery};
-        way["amenity"~"restaurant|cafe|fast_food"]${wardAreaQuery};
-        node["amenity"~"bank|atm"]${wardAreaQuery};
-        way["amenity"~"bank|atm"]${wardAreaQuery};
-      );
-      out center;
-    `;
+  // HANDLER KHI USER CLICK VÀO MEMBER TRONG INFO PANEL
+  const handleMemberClick = async (member: { type: string; ref: number; role?: string }) => {
+    console.log('Fetching member:', member);
+    
+    const query = `
+[out:json][timeout:25];
+${member.type}(${member.ref});
+out geom;
+`.trim();
 
     try {
-      console.log(`Fetching POIs for ward ID: ${wardIdToFetch}`);
-
       const response = await fetch('https://overpass-api.de/api/interpreter', {
         method: 'POST',
-        body: combinedQuery
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `data=${encodeURIComponent(query)}`
       });
 
-      if (response.status === 429) {
-        console.error('Rate limited. Please wait before retrying.');
-        setIsLoadingPOIs(false);
-        return;
-      }
-
       if (!response.ok) {
-        console.error('Failed to fetch POIs:', response.status);
-        setIsLoadingPOIs(false);
+        console.error('Failed to fetch member:', response.status);
         return;
       }
 
       const data = await response.json();
+      
+      if (data.elements && data.elements.length > 0) {
+        const element = data.elements[0];
+        
+        if (member.type === 'node') {
+          // Hiển thị marker cho node
+          if (element.lat && element.lon) {
+            setSelectedLocation({ lat: element.lat, lon: element.lon });
+            setSearchMarker({
+              lat: element.lat,
+              lon: element.lon,
+              name: element.tags?.name || `Node ${member.ref}`
+            });
+            setMemberOutline(null);
+          }
+        } else if (member.type === 'way') {
+          // Vẽ outline cho way - màu xanh da trời
+          if (element.geometry) {
+            const coords = element.geometry.map((g: any) => [g.lon, g.lat]);
+            setMemberOutline({
+              coordinates: coords,
+              name: element.tags?.name || `Way ${member.ref}`,
+              type: 'way'
+            });
+            
+            // Center map
+            if (coords.length > 0) {
+              const centerLat = coords.reduce((sum: number, c: number[]) => sum + c[1], 0) / coords.length;
+              const centerLon = coords.reduce((sum: number, c: number[]) => sum + c[0], 0) / coords.length;
+              setSelectedLocation({ lat: centerLat, lon: centerLon });
+            }
+          }
+        } else if (member.type === 'relation') {
+          // Vẽ outline cho relation - màu vàng
+          if (element.members) {
+            const outerWays = element.members
+              .filter((m: any) => m.role === 'outer' && m.geometry);
 
-      if (data.elements) {
-        // Phân loại POIs
-        const schools = data.elements.filter((el: any) => el.tags?.amenity === "school");
-        const hospitals = data.elements.filter((el: any) => 
-          ["hospital", "clinic", "pharmacy"].includes(el.tags?.amenity)
-        );
-        const restaurants = data.elements.filter((el: any) => 
-          ["restaurant", "cafe", "fast_food"].includes(el.tags?.amenity)
-        ).slice(0, 20);
-        const banks = data.elements.filter((el: any) => 
-          ["bank", "atm"].includes(el.tags?.amenity)
-        );
+            if (outerWays.length > 0) {
+              const wayGeometries = outerWays.map((way: any) => way.geometry);
+              const connectedCoords = connectWays(wayGeometries);
 
-        setPois({
-          schools,
-          hospitals,
-          restaurants,
-          banks
-        });
+              if (connectedCoords.length > 0) {
+                // Đóng polygon
+                const firstPoint = connectedCoords[0];
+                const lastPoint = connectedCoords[connectedCoords.length - 1];
+                if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+                  connectedCoords.push(firstPoint);
+                }
 
-        console.log('Found POIs:', {
-          schools: schools.length,
-          hospitals: hospitals.length,
-          restaurants: restaurants.length,
-          banks: banks.length
-        });
+                setMemberOutline({
+                  coordinates: connectedCoords,
+                  name: element.tags?.name || `Relation ${member.ref}`,
+                  type: 'relation'
+                });
+
+                // Center map
+                const centerLat = connectedCoords.reduce((sum, c) => sum + c[1], 0) / connectedCoords.length;
+                const centerLon = connectedCoords.reduce((sum, c) => sum + c[0], 0) / connectedCoords.length;
+                setSelectedLocation({ lat: centerLat, lon: centerLon });
+              }
+            }
+          }
+        }
       }
     } catch (error) {
-      console.error('Error fetching POIs:', error);
-    } finally {
-      setIsLoadingPOIs(false);
+      console.error('Error fetching member:', error);
     }
+  };
+
+  const makeRows = (obj: Record<string, any>): { label: string; value: string }[] =>
+    Object.entries(obj)
+      .filter(([, v]) => v !== undefined && v !== null && v !== "")
+      .map(([k, v]) => ({ label: k, value: String(v) }));
+
+  // ✅ STYLE CHO OUTLINE (ĐỎ, NÉT ĐỨT)
+  const outlineStyle = {
+    color: '#ff0000',
+    weight: 3,
+    opacity: 0.8,
+    dashArray: '10, 5',
+    fillOpacity: 0
   };
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      {/* Search Component */}
       <Search onSelectLocation={handleSelectLocation} />
 
-      {/* Info Panel - Thay thế Stats Panel cũ */}
-      <Info
-        wardName={searchMarker?.name}
-        stats={{
-          calculatedArea: wardStats.calculatedArea,
-          population: wardStats.population,
-          density: wardStats.density,
-        }}
-        pois={{
-          schools: pois.schools.length,
-          hospitals: pois.hospitals.length,
-          restaurants: pois.restaurants.length,
-          banks: pois.banks.length,
-        }}
-        isLoadingBoundary={isLoadingBoundary}
-        isLoadingPOIs={isLoadingPOIs}
-      />
+      {selectedInfo && (
+        <InfoPanel
+          data={selectedInfo}
+          onClose={() => {
+            setSelectedInfo(null);
+            setOutlineGeoJSON(null);
+            setMemberOutline(null);
+            setMemberNames({}); // ✅ Clear
+          }}
+          onMemberClick={handleMemberClick}
+          memberNames={memberNames} // ✅ Pass xuống
+        />
+      )}
 
       <MapContainer
         center={[21.0285, 105.8542]}
@@ -447,122 +622,99 @@ const SimpleMap: React.FC = () => {
         <ZoomControl position="bottomright" />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* Search Result Highlight */}
         {highlightBounds && highlightBounds.length > 0 && (
-          <SearchResult 
-            bounds={highlightBounds} 
+          <SearchResult
+            bounds={highlightBounds}
             name={highlightName}
             color="#ff6b6b"
           />
         )}
 
-        {/* Search marker */}
-        {searchMarker && (
-          <Marker position={[searchMarker.lat, searchMarker.lon]} icon={searchIcon}>
+        {/* ✅ Hiển thị member outline với màu theo type */}
+        {memberOutline && memberOutline.type === 'way' && (
+          <Polyline
+            positions={memberOutline.coordinates.map(c => [c[1], c[0]])}
+            color="#2196F3"
+            weight={4}
+            opacity={0.9}
+          >
             <Popup>
-              <div>
-                <h4>📍 {searchMarker.name}</h4>
-                <p>Vị trí được chọn</p>
-              </div>
+              <strong>{memberOutline.name}</strong>
+              <br />
+              Type: Way
             </Popup>
+          </Polyline>
+        )}
+
+        {memberOutline && memberOutline.type === 'relation' && (
+          <Polygon
+            positions={memberOutline.coordinates.map(c => [c[1], c[0]])}
+            pathOptions={{
+              color: '#FFA000',
+              fillColor: '#FFC107',
+              weight: 3,
+              opacity: 0.9,
+              fillOpacity: 0.4
+            }}
+          >
+            <Popup>
+              <strong>{memberOutline.name}</strong>
+              <br />
+              Type: Relation
+            </Popup>
+          </Polygon>
+        )}
+
+        {searchMarker && (
+          <Marker
+            position={[searchMarker.lat, searchMarker.lon]}
+            icon={searchIcon}
+          >
+            <Popup>{searchMarker.name}</Popup>
           </Marker>
         )}
 
-        {/* Ward boundary (subtle background) */}
+        {selectedLocation && (
+          <FlyToLocation 
+            lat={selectedLocation.lat} 
+            lon={selectedLocation.lon}
+            zoom={15}
+          />
+        )}
+
         {wardData && (
-          <GeoJSON 
+          <GeoJSON
             key={wardId}
-            data={wardData} 
+            data={wardData}
             style={wardStyle}
             onEachFeature={(feature, layer) => {
-              layer.bindPopup(`
-                <div>
-                  <h3>${feature.properties.name}</h3>
-                  <p><strong>Diện tích:</strong> ${feature.properties.area}</p>
-                  <p><strong>Dân số:</strong> ${feature.properties.population}</p>
-                  <p><strong>Mật độ:</strong> ${feature.properties.density}</p>
-                  <hr />
-                  <p>Trường học: ${pois.schools.length}</p>
-                  <p>Y tế: ${pois.hospitals.length}</p>
-                  <p>Ăn uống: ${pois.restaurants.length}</p>
-                  <p>Ngân hàng: ${pois.banks.length}</p>
-                </div>
-              `);
+              layer.on('click', () => {
+                setSelectedInfo({
+                  category: 'ward',
+                  title: `Đơn vị hành chính`,
+                  subtitle: feature.properties.name,
+                  rows: makeRows({
+                    'Diện tích tính': feature.properties.area,
+                    'Dân số': feature.properties.population,
+                    'Mật độ': feature.properties.density,
+                    'Trường học': pois.schools.length,
+                    'Y tế': pois.hospitals.length,
+                    'Ăn uống': pois.restaurants.length,
+                    'Ngân hàng': pois.banks.length
+                  })
+                });
+              });
             }}
           />
         )}
 
-        {/* POI Markers */}
-        {!isLoadingPOIs && (
-          <>
-            {pois.schools.map((school, index) => {
-              const coords = getCoordinates(school);
-              if (!coords) return null;
-              
-              return (
-                <Marker key={`school-${index}`} position={coords} icon={schoolIcon}>
-                  <Popup>
-                    <div>
-                      <h4>🏫 Trường học</h4>
-                      <p><strong>{school.tags?.name || 'Không rõ tên'}</strong></p>
-                      {school.tags?.phone && <p>📞 {school.tags.phone}</p>}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-
-            {pois.hospitals.map((hospital, index) => {
-              const coords = getCoordinates(hospital);
-              if (!coords) return null;
-              
-              return (
-                <Marker key={`hospital-${index}`} position={coords} icon={hospitalIcon}>
-                  <Popup>
-                    <div>
-                      <h4>🏥 Y tế</h4>
-                      <p><strong>{hospital.tags?.name || 'Không rõ tên'}</strong></p>
-                      <p>Loại: {hospital.tags?.amenity}</p>
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-
-            {pois.restaurants.map((restaurant, index) => {
-              const coords = getCoordinates(restaurant);
-              if (!coords) return null;
-              
-              return (
-                <Marker key={`restaurant-${index}`} position={coords} icon={restaurantIcon}>
-                  <Popup>
-                    <div>
-                      <h4>🍴 Ăn uống</h4>
-                      <p><strong>{restaurant.tags?.name || 'Không rõ tên'}</strong></p>
-                      {restaurant.tags?.cuisine && <p>Món: {restaurant.tags.cuisine}</p>}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-
-            {pois.banks.map((bank, index) => {
-              const coords = getCoordinates(bank);
-              if (!coords) return null;
-              
-              return (
-                <Marker key={`bank-${index}`} position={coords} icon={bankIcon}>
-                  <Popup>
-                    <div>
-                      <h4>🏦 Ngân hàng</h4>
-                      <p><strong>{bank.tags?.name || 'Không rõ tên'}</strong></p>
-                      {bank.tags?.operator && <p>Ngân hàng: {bank.tags.operator}</p>}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
-            })}
-          </>
+        {/* ✅ VẼ OUTLINE TỪ OVERPASS (ĐỎ, NÉT ĐỨT) */}
+        {outlineGeoJSON && (
+          <GeoJSON
+            key={JSON.stringify(outlineGeoJSON)}
+            data={outlineGeoJSON}
+            style={outlineStyle}
+          />
         )}
       </MapContainer>
     </div>
