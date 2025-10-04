@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) 2025 MFitHou
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useState, useRef } from 'react';
 import '../../styles/Query.css';
 
@@ -39,54 +56,6 @@ OPTIONAL {
 }
 LIMIT 20`
     },
-    {
-      name: '🚻 Đếm số nhà vệ sinh',
-      query: `PREFIX ex: <http://opendatafithou.org/poi/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-SELECT (COUNT(?poi) AS ?count)
-WHERE {
-  ?poi rdf:type ex:Toilets
-}`
-    },
-    {
-      name: '🏥 Lấy bệnh viện có tên',
-      query: `PREFIX ex: <http://opendatafithou.org/poi/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX geo: <http://www.opengis.net/ont/geosparql#>
-
-SELECT ?poi ?operator ?wkt
-WHERE {
-  ?poi rdf:type ex:Hospital ;
-       ex:operator ?operator ;
-       geo:hasGeometry/geo:asWKT ?wkt .
-}
-LIMIT 10`
-    },
-    {
-      name: '🚌 Trạm xe buýt có operator',
-      query: `PREFIX ex: <http://opendatafithou.org/poi/>
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-
-SELECT ?poi ?highway ?operator
-WHERE {
-  ?poi rdf:type ex:BusStop ;
-       ex:highway ?highway ;
-       ex:operator ?operator .
-}
-LIMIT 10`
-    },
-    {
-      name: '📊 Thống kê theo loại amenity',
-      query: `PREFIX ex: <http://opendatafithou.org/poi/>
-
-SELECT ?amenity (COUNT(?poi) AS ?count)
-WHERE {
-  ?poi ex:amenity ?amenity .
-}
-GROUP BY ?amenity
-ORDER BY DESC(?count)`
-    }
   ];
 
   // ✅ Thực thi query
