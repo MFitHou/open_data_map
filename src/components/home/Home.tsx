@@ -451,7 +451,7 @@ const Home: React.FC = () => {
                     </>
                   ) : (
                     <div className="no-results">
-                      🔍 Không tìm thấy "{searchTerm}" trên Wikidata
+                      🔍 Không tìm thấy "{searchTerm}"
                     </div>
                   )}
                 </div>
