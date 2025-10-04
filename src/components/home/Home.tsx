@@ -256,11 +256,11 @@ const Home: React.FC = () => {
       setShowResults(true);
 
       if (sortedResults.length === 0) {
-        setError("Không tìm thấy kết quả trên Wikidata. Thử từ khóa khác.");
+        setError("Không tìm thấy kết quả. Thử từ khóa khác.");
       }
     } catch (error) {
       console.error("Error searching:", error);
-      setError("Có lỗi khi kết nối Wikidata. Vui lòng thử lại sau.");
+      setError("Có lỗi khi kết nối. Vui lòng thử lại sau.");
       setResults([]);
       setShowResults(true);
     } finally {

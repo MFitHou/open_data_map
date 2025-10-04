@@ -97,6 +97,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const [nearbyRadius, setNearbyRadius] = useState(1);
   const [nearbyAmenity, setNearbyAmenity] = useState('toilets');
   const [isLoadingNearby, setIsLoadingNearby] = useState(false);
+  const [hasSearchedNearby, setHasSearchedNearby] = useState(false);
 
   useEffect(() => {
     if (data.wikidataId && (activeTab === 'statements' || activeTab === 'references')) {
@@ -131,7 +132,8 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     if (!data.coordinates) return;
 
     setIsLoadingNearby(true);
-    setNearbyPlaces([]); // ✅ Clear old results
+    setNearbyPlaces([]);
+    setHasSearchedNearby(true);
     
     // ✅ Clear markers trên map
     if (onNearbyPlacesChange) {
@@ -165,6 +167,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const handleAmenityChange = (newAmenity: string) => {
     setNearbyAmenity(newAmenity);
     setNearbyPlaces([]);
+    setHasSearchedNearby(false);
     
     if (onNearbyPlacesChange) {
       onNearbyPlacesChange([]);
@@ -244,7 +247,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           <div className="loading">⏳ Đang tìm kiếm địa điểm gần...</div>
         ) : nearbyPlaces.length === 0 ? (
           <div className="no-data">
-            {nearbyPlaces.length === 0 && !isLoadingNearby
+            {!hasSearchedNearby
               ? 'ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn "Tìm kiếm"'
               : `❌ Không tìm thấy ${nearbyAmenity} trong bán kính ${nearbyRadius} km`
             }
