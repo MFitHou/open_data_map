@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import '../../styles/Query.css';
+import { HelpButton } from '../../tours';
 
 interface QueryResult {
   count: number;
@@ -239,7 +240,7 @@ ORDER BY DESC(?count)`
       </div>
 
       {/* Sample Queries */}
-      <div className="sample-queries">
+      <div id="query-examples" className="sample-queries">
         <div className="sample-header">📋 Query mẫu:</div>
         <div className="sample-buttons">
           {sampleQueries.map((sample, idx) => (
@@ -267,6 +268,7 @@ ORDER BY DESC(?count)`
             </div>
           </div>
           <textarea
+            id="sparql-editor"
             ref={textareaRef}
             className="query-textarea"
             value={query}
@@ -276,6 +278,7 @@ ORDER BY DESC(?count)`
           />
           <div className="editor-footer">
             <button
+              id="execute-query"
               className="execute-btn"
               onClick={executeQuery}
               disabled={isLoading || !query.trim()}
@@ -300,7 +303,7 @@ ORDER BY DESC(?count)`
 
           {/* Results Display */}
           {results && (
-            <div className="results-container">
+            <div id="results-table" className="results-container">
               <div className="results-tabs">
                 <button
                   className={`tab-btn ${activeTab === 'table' ? 'active' : ''}`}
@@ -333,6 +336,9 @@ ORDER BY DESC(?count)`
           )}
         </div>
       </div>
+      
+      {/* Help Button */}
+      <HelpButton tourType="query" />
     </div>
   );
 };
