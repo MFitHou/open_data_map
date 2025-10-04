@@ -18,6 +18,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Home.css';
+import { HelpButton } from '../../tours';
 
 interface SearchResult {
   id: string;
@@ -57,7 +58,7 @@ const Home: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -346,7 +347,7 @@ const Home: React.FC = () => {
       {/* Section 1: Hero với OpenDataFitHou + Slogan */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 className="main-title">
+          <h1 id="app-title" className="main-title">
             <span className="title-icon">🌍</span>
             OpenDataFitHou
           </h1>
@@ -361,6 +362,7 @@ const Home: React.FC = () => {
               <div className="home-search-box">
                 <span className="search-icon">🔍</span>
                 <input
+                  id="search-input"
                   type="text"
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
@@ -665,8 +667,8 @@ const Home: React.FC = () => {
             </div>
             <div className="footer-links">
               <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a href="/map">Bản đồ</a>
-              <a href="/query">Truy vấn dữ liệu</a>
+              <a id="map-navigation" href="/map">Bản đồ</a>
+              <a id="query-navigation" href="/query">Truy vấn dữ liệu</a>
             </div>
             <div className="footer-copyright">
               <p>© 2025 OpenDataFitHou. Licensed under GNU General Public License.</p>
@@ -675,6 +677,9 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Help Button */}
+      <HelpButton tourType="home" />
     </div>
   );
 };
