@@ -371,6 +371,19 @@ const Home: React.FC = () => {
                 {isLoading && <span className="search-loading">📚</span>}
               </div>
 
+              {/* Quick Links */}
+              <div className="quick-links">
+                <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer" className="quick-link-button">
+                  📚 GitHub
+                </a>
+                <a href="/map" className="quick-link-button">
+                  🗺️ Bản đồ
+                </a>
+                <a href="/query" className="quick-link-button">
+                  🔍 Truy vấn dữ liệu
+                </a>
+              </div>
+
               
 
               {showResults && (
@@ -525,12 +538,122 @@ const Home: React.FC = () => {
                 <span className="feature-icon">⬇️</span>
                 <span>Download dữ liệu về địa điểm theo dạng XML hoặc RDF</span>
               </div>
+              <div className="feature-item">
+                <span className="feature-icon">🌍</span>
+                <span>Query dữ liệu với SPARQL</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
     
+
+      {/* Section 6: License Information */}
+      <section className="license-section">
+        <div className="container">
+          <h2 className="section-title">📄 Thông tin giấy phép</h2>
+          
+          <div className="license-content">
+            <div className="license-main">
+              <div className="license-header">
+                <span className="license-icon">⚖️</span>
+                <div className="license-info">
+                  <h3>GNU General Public License v3.0</h3>
+                  <p className="license-subtitle">Giấy phép mã nguồn mở</p>
+                </div>
+              </div>
+              
+              <div className="license-description">
+                <p>
+                  OpenDataFitHou được phát hành dưới giấy phép <strong>GNU GPL v3.0</strong>, 
+                  đảm bảo tính mở và tự do cho cộng đồng. Bạn có thể:
+                </p>
+                
+                <div className="license-permissions">
+                  <div className="permission-item">
+                    <span className="permission-icon">✅</span>
+                    <span><strong>Sử dụng</strong> - Chạy chương trình cho mọi mục đích</span>
+                  </div>
+                  <div className="permission-item">
+                    <span className="permission-icon">✅</span>
+                    <span><strong>Nghiên cứu</strong> - Xem và học hỏi từ mã nguồn</span>
+                  </div>
+                  <div className="permission-item">
+                    <span className="permission-icon">✅</span>
+                    <span><strong>Phân phối</strong> - Chia sẻ với người khác</span>
+                  </div>
+                  <div className="permission-item">
+                    <span className="permission-icon">✅</span>
+                    <span><strong>Chỉnh sửa</strong> - Thay đổi và cải thiện</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="license-requirements">
+                <h4>📋 Điều kiện khi sử dụng:</h4>
+                <div className="requirement-list">
+                  <div className="requirement-item">
+                    <span className="requirement-icon">📝</span>
+                    <span>Giữ nguyên thông báo bản quyền và giấy phép</span>
+                  </div>
+                  <div className="requirement-item">
+                    <span className="requirement-icon">🔄</span>
+                    <span>Các bản phân phối phải dùng cùng giấy phép GPL v3.0</span>
+                  </div>
+                  <div className="requirement-item">
+                    <span className="requirement-icon">📖</span>
+                    <span>Công khai mã nguồn nếu phân phối phần mềm</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="license-sidebar">
+              <div className="license-badge">
+                <img src="https://img.shields.io/badge/License-GPLv3-blue.svg" alt="GPL v3 License" />
+              </div>
+              
+              <div className="license-links">
+                <a href="https://www.gnu.org/licenses/gpl-3.0.html" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="license-link">
+                  📖 Đọc toàn văn giấy phép
+                </a>
+                <a href="https://github.com/MFitHou/open_data_map/blob/main/LICENSE" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="license-link">
+                  📄 Xem LICENSE file
+                </a>
+                <a href="https://choosealicense.com/licenses/gpl-3.0/" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="license-link">
+                  ❓ Tìm hiểu thêm về GPL v3.0
+                </a>
+              </div>
+              
+              <div className="copyright-info">
+                <h5>© 2025 OpenDataFitHou</h5>
+                <p>Tất cả contributors</p>
+                <p className="copyright-note">
+                  Dự án thuộc chương trình <strong>OLP PMNM 2025</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="license-footer">
+            <p className="disclaimer">
+              <strong>Lưu ý:</strong> Đây chỉ là tóm tắt thông tin giấy phép. 
+              Vui lòng đọc toàn văn <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU GPL v3.0</a> 
+              để hiểu đầy đủ quyền và nghĩa vụ của bạn.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Section 7: Footer */}
       <footer className="footer-section">
