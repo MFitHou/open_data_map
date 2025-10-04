@@ -5,9 +5,48 @@ Tất cả các thay đổi đáng chú ý trong dự án này sẽ được ghi
 Định dạng dựa trên [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 và dự án này tuân theo [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+---
 
-## [0.1.0] - 2025-10-03
+## [Unreleased] 🚧
+
+---
+
+## [0.1.1] - 2025-10-04 ✨
+
+### Added
+- **🔗 Quick Navigation Links**: Buttons điều hướng nhanh dưới search box
+  - 📚 GitHub - Link đến repository chính thức
+  - 🗺️ Bản đồ - Chuyển đến trang interactive map
+  - 🔍 Truy vấn dữ liệu - Đi đến trang SPARQL query interface
+- **📄 License Information Section**: Section thông tin giấy phép GNU GPL v3.0
+  - ⚖️ Tổng quan về quyền và trách nhiệm
+  - ✅ Visual permissions grid (sử dụng, nghiên cứu, phân phối, chỉnh sửa)
+  - 📋 Requirements checklist (copyright, same license, source disclosure)
+  - 🔗 Quick links đến documentation và toàn văn giấy phép
+  - © Copyright attribution với OLP PMNM 2025
+
+### Enhanced
+- **🎨 UI/UX Improvements**:
+  - Quick navigation buttons với prominent white background trên nền xanh
+  - Smooth hover effects và transitions cho better user experience
+  - Icon-based navigation để dễ nhận biết và sử dụng
+  - Professional card-based layout với subtle shadows
+- **📱 Responsive Design**:
+  - Mobile-optimized layout cho quick links (stack vertical)
+  - Responsive grid system cho license section
+  - Touch-friendly button sizing trên mobile devices
+
+### Technical
+- **🏗️ Component Architecture**: Cải thiện Home.tsx structure
+- **🎨 CSS Framework**: Comprehensive styling system với:
+  - `.quick-links` và `.quick-link-button` classes
+  - `.license-section` với responsive grid layout
+  - Color-coded components (green for permissions, orange for requirements)
+  - Consistent spacing và typography system
+
+---
+
+## [0.1.0] - 2025-10-03 🎉
 
 ### Added
 - ✨ **Tính năng tìm kiếm địa điểm**: Tích hợp API Wikidata để tìm kiếm các địa điểm trong nước với SPARQL query
