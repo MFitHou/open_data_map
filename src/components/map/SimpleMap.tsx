@@ -239,7 +239,11 @@ const SimpleMap: React.FC = () => {
     nodes: [],
     subAreas: []
   });
-  
+
+
+  const [currentLocation, setCurrentLocation] = useState<{lat: number, lon: number} | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [wardId, setWardId] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{lat: number, lon: number} | null>(null);
   const [searchMarker, setSearchMarker] = useState<{lat: number, lon: number, name: string} | null>(null);
@@ -280,6 +284,94 @@ const SimpleMap: React.FC = () => {
     type: string;
   } | null>(null);
   const [memberNames, setMemberNames] = useState<Record<number, string>>({});
+
+  const currentLocationIcon = L.divIcon({
+  html: `
+    <div style="
+      width: 20px;
+      height: 20px;
+      background: #4285F4;
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      position: relative;
+    ">
+      <div style="
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: rgba(66, 133, 244, 0.2);
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 2s infinite;
+      "></div>
+    </div>
+  `,
+  className: 'current-location-marker',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+  });
+
+// ✅ Hàm lấy vị trí hiện tại
+const getCurrentLocation = () => {
+  if (!navigator.geolocation) {
+    setLocationError('Trình duyệt không hỗ trợ Geolocation');
+    return;
+  }
+
+  setIsGettingLocation(true);
+  setLocationError(null);
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      console.log('📍 Current location:', latitude, longitude);
+      
+      setCurrentLocation({ lat: latitude, lon: longitude });
+      setSelectedLocation({ lat: latitude, lon: longitude });
+      setIsGettingLocation(false);
+
+      // Hiển thị thông tin trong InfoPanel
+      setSelectedInfo({
+        category: 'location',
+        title: '📍 Vị trí hiện tại của bạn',
+        subtitle: 'Được xác định bởi GPS',
+        coordinates: [longitude, latitude],
+        rows: [
+          { label: 'Vĩ độ', value: latitude.toFixed(6) },
+          { label: 'Kinh độ', value: longitude.toFixed(6) },
+          { label: 'Độ chính xác', value: `${position.coords.accuracy.toFixed(0)}m` }
+        ]
+      });
+    },
+    (error) => {
+      setIsGettingLocation(false);
+      
+      let errorMessage = 'Không thể lấy vị trí';
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          errorMessage = 'Bạn đã từ chối quyền truy cập vị trí';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMessage = 'Thông tin vị trí không khả dụng';
+          break;
+        case error.TIMEOUT:
+          errorMessage = 'Yêu cầu lấy vị trí bị timeout';
+          break;
+      }
+      
+      setLocationError(errorMessage);
+      alert(errorMessage);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+  };
 
   // ✅ ĐỊNH NGHĨA handleNearbyPlacesChange NGAY SAU CÁC STATE
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
@@ -707,6 +799,41 @@ out geom;
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <Search onSelectLocation={handleSelectLocation} />
 
+      {/* ✅ Nút lấy vị trí hiện tại */}
+      <button
+        onClick={getCurrentLocation}
+        disabled={isGettingLocation}
+        style={{
+          position: 'absolute',
+          bottom: '100px',
+          right: '10px',
+          zIndex: 1000,
+          width: '40px',
+          height: '40px',
+          borderRadius: '4px',
+          border: '2px solid rgba(0,0,0,0.2)',
+          background: 'white',
+          cursor: isGettingLocation ? 'wait' : 'pointer',
+          boxShadow: '0 1px 5px rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '20px',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseEnter={(e) => {
+          if (!isGettingLocation) {
+            e.currentTarget.style.background = '#f5f5f5';
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'white';
+        }}
+        title="Vị trí hiện tại"
+      >
+        {isGettingLocation ? '⏳' : '📍'}
+      </button>
+
       {selectedInfo && (
         <InfoPanel
           data={selectedInfo}
@@ -715,11 +842,11 @@ out geom;
             setOutlineGeoJSON(null);
             setMemberOutline(null);
             setMemberNames({});
-            setNearbyPlaces([]); // 
+            setNearbyPlaces([]);
           }}
           onMemberClick={handleMemberClick}
           memberNames={memberNames}
-          onNearbyPlacesChange={handleNearbyPlacesChange} // 
+          onNearbyPlacesChange={handleNearbyPlacesChange}
         />
       )}
 
@@ -815,6 +942,22 @@ out geom;
             data={outlineGeoJSON}
             style={outlineStyle}
           />
+        )}
+
+        {/* ✅ Marker vị trí hiện tại */}
+        {currentLocation && (
+          <Marker
+            position={[currentLocation.lat, currentLocation.lon]}
+            icon={currentLocationIcon}
+          >
+            <Popup>
+              <div style={{ textAlign: 'center' }}>
+                <strong>📍 Vị trí của bạn</strong>
+                <br />
+                <small>{currentLocation.lat.toFixed(6)}, {currentLocation.lon.toFixed(6)}</small>
+              </div>
+            </Popup>
+          </Marker>
         )}
       </MapContainer>
     </div>
