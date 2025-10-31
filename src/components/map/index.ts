@@ -15,27 +15,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
-import Home from './components/home/Home';
-import SimpleMap from './components/map/SimpleMap';
-import { Query } from './components/query/Query';
-import Chatbot from './components/chatbot/Chatbot';
+// Main component
+export { default as SimpleMap } from './SimpleMap';
 
+// Map-specific sub-components
+export { FlyToLocation } from './FlyToLocation';
+export { NearbyMarkers } from './NearbyMarkers';
+export { MemberOutlines } from './MemberOutlines';
+export { Search } from './Search';
+export { default as MapChatbot } from './MapChatbot';
 
-function App() {
-  return (
-    <Router>
-      <div style={{ height: "100%", width: "100%" }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/map" element={<SimpleMap />} />
-          <Route path="/query" element={<Query />} />
-          <Route path="/chatbot" element={<Chatbot />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-}
+// Utils
+export * from './MapUtils';
+export * from './MapIcons';
 
-export default App;
+// Types
+export * from './types';

@@ -179,10 +179,10 @@ export const generateRDF = (data: ExportData): string => {
   
   rdf += `  <rdf:Description rdf:about="${entityUri}">\n`;
   rdf += `    <rdf:type rdf:resource="http://opendatafithou.org/ontology#Entity"/>\n`;
-  rdf += `    <rdfs:label xml:lang="vi">${escapeXml(data.title)}</rdfs:label>\n`;
+  rdf += `    <rdfs:label xml:lang="en">${escapeXml(data.title)}</rdfs:label>\n`;
   
   if (data.subtitle) {
-    rdf += `    <dcterms:description xml:lang="vi">${escapeXml(data.subtitle)}</dcterms:description>\n`;
+    rdf += `    <dcterms:description xml:lang="en">${escapeXml(data.subtitle)}</dcterms:description>\n`;
   }
   
   rdf += `    <ex:category>${escapeXml(data.category)}</ex:category>\n`;
@@ -265,7 +265,7 @@ export const generateRDF = (data: ExportData): string => {
       }
       
       if (data.memberNames?.[member.ref]) {
-        rdf += `    <rdfs:label xml:lang="vi">${escapeXml(data.memberNames[member.ref])}</rdfs:label>\n`;
+        rdf += `    <rdfs:label xml:lang="en">${escapeXml(data.memberNames[member.ref])}</rdfs:label>\n`;
       }
       
       if (member.tags) {

@@ -15,477 +15,90 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, useMap, Polyline, Popup, Polygon } from "react-leaflet";
+import React, { useEffect, useState, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, Popup } from "react-leaflet";
+import { useLocation } from 'react-router-dom';
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import React, { useEffect, useState, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+
+// Components
 import { Search } from "./Search";
-import { SearchResult as SearchResultComponent } from "./SearchResult";
-import { InfoPanel } from './InfoPanel';
-import { loadATMsWithStats } from "../../utils/rdfParser";
-import { fetchOutlineByOSMRelationId } from '../../utils/overpass';
-import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi'; 
-import type { NearbyPlace } from '../../utils/nearbyApi'; // 
+import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
+import MapChatbot from './MapChatbot';
+import { FlyToLocation } from './FlyToLocation';
+import { NearbyMarkers } from './NearbyMarkers';
+import { MemberOutlines } from './MemberOutlines';
 
-const calculatePolygonArea = (coordinates: number[][]): number => {
-  if (coordinates.length < 3) return 0;
-  
-  let area = 0;
-  const earthRadius = 6371;
-  
-  for (let i = 0; i < coordinates.length; i++) {
-    const j = (i + 1) % coordinates.length;
-    const lat1 = coordinates[i][1] * Math.PI / 180;
-    const lat2 = coordinates[j][1] * Math.PI / 180;
-    const lon1 = coordinates[i][0] * Math.PI / 180;
-    const lon2 = coordinates[j][0] * Math.PI / 180;
-    
-    area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
-  }
-  
-  area = Math.abs(area * earthRadius * earthRadius / 2);
-  return area;
-};
+// Hooks
+import { useCurrentLocation } from '../../hooks';
 
-// Hàm lấy dân số từ Wikidata (thông qua OSM relation ID)
-const fetchPopulationData = async (osmId: number) => {
-  try {
-    // Query Wikidata để tìm thông tin dân số
-    const wikidataQuery = `
-      SELECT ?population ?area WHERE {
-        ?item wdt:P402 "${osmId}" .
-        OPTIONAL { ?item wdt:P1082 ?population . }
-        OPTIONAL { ?item wdt:P2046 ?area . }
-      }
-    `;
-    
-    const response = await fetch('https://query.wikidata.org/sparql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `query=${encodeURIComponent(wikidataQuery)}&format=json`
-    });
-    
-    const data = await response.json();
-    
-    if (data.results?.bindings?.length > 0) {
-      const binding = data.results.bindings[0];
-      return {
-        population: binding.population?.value ? parseInt(binding.population.value) : null,
-        officialArea: binding.area?.value ? parseFloat(binding.area.value) : null
-      };
-    }
-    
-    return { population: null, officialArea: null };
-  } catch (error) {
-    console.error('Error fetching population data:', error);
-    return { population: null, officialArea: null };
-  }
-};
-
-// Custom icons cho các loại POI - THU NHỎ SIZE
-const schoolIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
-  iconSize: [20, 33],      // Giảm từ [25, 41]
-  iconAnchor: [10, 33],    // Giảm từ [12, 41]
-  popupAnchor: [0, -33],   // Điều chỉnh vị trí popup
-});
-
-const hospitalIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
-});
-
-const restaurantIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
-});
-
-const bankIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
-});
-
-const searchIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
-  iconSize: [25, 41],      // Giữ nguyên cho search marker (nổi bật hơn)
-  iconAnchor: [12, 41],
-  popupAnchor: [0, -41],
-});
-
-// Component để fly to location
-const FlyToLocation: React.FC<{ lat: number; lon: number; zoom?: number }> = ({ lat, lon, zoom = 15 }) => {
-  const map = useMap();
-  
-  useEffect(() => {
-    map.flyTo([lat, lon], zoom, {
-      duration: 1.5
-    });
-  }, [lat, lon, zoom, map]);
-
-  return null;
-};
-
-interface SearchResult {
-  id: string;
-  name: string;
-  type: string;
-  lat: number;
-  lon: number;
-  displayName: string;
-  source: 'wikidata';
-  wikidataId: string;
-  description?: string;
-  image?: string;
-  instanceOf?: string;
-  identifiers?: {
-    osmRelationId?: string;
-    osmNodeId?: string;
-    osmWayId?: string;
-    viafId?: string;
-    gndId?: string;
-  };
-  statements?: {
-    inception?: string;
-    population?: string;
-    area?: string;
-    website?: string;
-    phone?: string;
-    email?: string;
-    address?: string;
-    postalCode?: string;
-  };
-  osmId?: number;
-  osmType?: string;
-}
-
-interface LocationState {
-  searchResult?: SearchResult; // ✅ Nhận SearchResult đầy đủ từ Home
-}
-
-
-const NearbyMarkers: React.FC<{ places: NearbyPlace[] }> = ({ places }) => {
-  return (
-    <>
-      {places.map((place, idx) => {
-        // ✅ Tạo custom icon với emoji
-        const icon = L.divIcon({
-          html: `<div class="nearby-marker">${getAmenityIcon(place)}</div>`,
-          className: 'nearby-marker-wrapper',
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
-          popupAnchor: [0, -30]
-        });
-
-        return (
-          <Marker
-            key={idx}
-            position={[place.lat, place.lon]}
-            icon={icon}
-          >
-            <Popup>
-              <div className="nearby-popup">
-                <div className="nearby-popup-title">
-                  {getAmenityIcon(place)} {getPlaceName(place, idx)}
-                </div>
-                <div className="nearby-popup-content">
-                  <div><strong>Loại:</strong> {place.highway || place.amenity || 'N/A'}</div>
-                  {place.brand && <div><strong>Thương hiệu:</strong> {place.brand}</div>}
-                  {place.operator && <div><strong>Vận hành:</strong> {place.operator}</div>}
-                  <div><strong>Khoảng cách:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
-                  <div className="nearby-popup-coords">
-                    <a 
-                      href={`https://www.google.com/maps?q=${place.lat},${place.lon}`} 
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {place.lat.toFixed(6)}, {place.lon.toFixed(6)} ↗
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        );
-      })}
-    </>
-  );
-};
+// Utils & Types
+import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapIcons';
+import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
+import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
+import type { NearbyPlace } from '../../utils/nearbyApi';
 
 const SimpleMap: React.FC = () => {
   const location = useLocation();
   const [map, setMap] = useState<L.Map | null>(null);
+  
+  // Ward related state
   const [wardData, setWardData] = useState<any>(null);
-  
-  // ✅ State cho nearby places
-  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
-  
-  const [wardMembers, setWardMembers] = useState<{
-    innerWays: any[];
-    outerWays: any[];
-    nodes: any[];
-    subAreas: any[];
-  }>({
+  const [wardId, setWardId] = useState<number | null>(null);
+  const [, setWardMembers] = useState<WardMembers>({
     innerWays: [],
     outerWays: [],
     nodes: [],
     subAreas: []
   });
-
-
-  const [currentLocation, setCurrentLocation] = useState<{lat: number, lon: number} | null>(null);
-  const [isGettingLocation, setIsGettingLocation] = useState(false);
-  const [locationError, setLocationError] = useState<string | null>(null);
-  const [wardId, setWardId] = useState<number | null>(null);
-  const [selectedLocation, setSelectedLocation] = useState<{lat: number, lon: number} | null>(null);
-  const [searchMarker, setSearchMarker] = useState<{lat: number, lon: number, name: string} | null>(null);
-  const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
-  const [highlightName, setHighlightName] = useState<string>("");
-  const [isLoadingBoundary, setIsLoadingBoundary] = useState(false);
-  const [wardStats, setWardStats] = useState<{
-    calculatedArea: number;
-    population: number | null;
-    officialArea: number | null;
-    density: number | null;
-  }>({
+  const [, setWardStats] = useState<WardStats>({
     calculatedArea: 0,
     population: null,
     officialArea: null,
     density: null
   });
-  const [atmStats, setAtmStats] = useState<Record<string, number>>({});
-  const [isLoadingATM, setIsLoadingATM] = useState(false);
-  const [selectedInfo, setSelectedInfo] = useState<{
-    category: string;
-    title: string;
-    subtitle?: string;
-    rows: { label: string; value: string }[];
-    wikidataId?: string;
-    coordinates?: [number, number];
-    identifiers?: any;
-    statements?: any;
-    osmId?: string;
-    osmType?: string;
-    members?: any;
-  } | null>(null);
 
+  // Location & marker state
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [searchMarker, setSearchMarker] = useState<SearchMarker | null>(null);
+  const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
+  const [highlightName, setHighlightName] = useState<string>("");
+  
+  // Nearby places
+  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
+  
+  // Info panel
+  const [selectedInfo, setSelectedInfo] = useState<SelectedInfo | null>(null);
+  
+  // Outline related
   const [outlineGeoJSON, setOutlineGeoJSON] = useState<any>(null);
-  const [memberOutline, setMemberOutline] = useState<{
-    coordinates: number[][];
-    name: string;
-    type: string;
-  } | null>(null);
+  const [memberOutline, setMemberOutline] = useState<MemberOutline | null>(null);
   const [memberNames, setMemberNames] = useState<Record<number, string>>({});
+  
+  // Loading states
+  const [, setIsLoadingBoundary] = useState(false);
 
-  const currentLocationIcon = L.divIcon({
-  html: `
-    <div style="
-      width: 20px;
-      height: 20px;
-      background: #4285F4;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      position: relative;
-    ">
-      <div style="
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        background: rgba(66, 133, 244, 0.2);
-        border-radius: 50%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        animation: pulse 2s infinite;
-      "></div>
-    </div>
-  `,
-  className: 'current-location-marker',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-  });
+  // Use custom hook for current location
+  const { 
+    currentLocation, 
+    isGettingLocation, 
+    getCurrentLocation: getLocation 
+  } = useCurrentLocation();
 
-// ✅ Hàm lấy vị trí hiện tại
-const getCurrentLocation = () => {
-  if (!navigator.geolocation) {
-    setLocationError('Trình duyệt không hỗ trợ Geolocation');
-    return;
-  }
+  const handleCurrentLocation = useCallback(() => {
+    getLocation((loc, info) => {
+      setSelectedLocation(loc);
+      setSelectedInfo(info);
+    });
+  }, [getLocation]);
 
-  setIsGettingLocation(true);
-  setLocationError(null);
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      console.log('📍 Current location:', latitude, longitude);
-      
-      setCurrentLocation({ lat: latitude, lon: longitude });
-      setSelectedLocation({ lat: latitude, lon: longitude });
-      setIsGettingLocation(false);
-
-      // Hiển thị thông tin trong InfoPanel
-      setSelectedInfo({
-        category: 'location',
-        title: '📍 Vị trí hiện tại của bạn',
-        subtitle: 'Được xác định bởi GPS',
-        coordinates: [longitude, latitude],
-        rows: [
-          { label: 'Vĩ độ', value: latitude.toFixed(6) },
-          { label: 'Kinh độ', value: longitude.toFixed(6) },
-          { label: 'Độ chính xác', value: `${position.coords.accuracy.toFixed(0)}m` }
-        ]
-      });
-    },
-    (error) => {
-      setIsGettingLocation(false);
-      
-      let errorMessage = 'Không thể lấy vị trí';
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          errorMessage = 'Bạn đã từ chối quyền truy cập vị trí';
-          break;
-        case error.POSITION_UNAVAILABLE:
-          errorMessage = 'Thông tin vị trí không khả dụng';
-          break;
-        case error.TIMEOUT:
-          errorMessage = 'Yêu cầu lấy vị trí bị timeout';
-          break;
-      }
-      
-      setLocationError(errorMessage);
-      alert(errorMessage);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
-    }
-  );
-  };
-
-  // ✅ ĐỊNH NGHĨA handleNearbyPlacesChange NGAY SAU CÁC STATE
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
     console.log('📍 Nearby places updated:', places.length);
     setNearbyPlaces(places);
   }, []);
 
-  const handleOutlineLoaded = useCallback((geo: any) => {
-    setOutlineGeoJSON(geo);
-  }, []);
-
-
-  // Hàm nối các way thành polygon hoàn chỉnh
-  const connectWays = (ways: any[]) => {
-    if (ways.length === 0) return [];
-    
-    const connectedCoords: number[][] = [];
-    const usedWays = new Set<number>();
-    
-    // Bắt đầu với way đầu tiên
-    let currentWay = ways[0];
-    connectedCoords.push(...currentWay.map((node: any) => [node.lon, node.lat]));
-    usedWays.add(0);
-    
-    // Nối các way còn lại
-    while (usedWays.size < ways.length) {
-      const lastPoint = connectedCoords[connectedCoords.length - 1];
-      let foundConnection = false;
-      
-      for (let i = 0; i < ways.length; i++) {
-        if (usedWays.has(i)) continue;
-        
-        const way = ways[i];
-        const wayCoords = way.map((node: any) => [node.lon, node.lat]);
-        const firstPoint = wayCoords[0];
-        const lastPointOfWay = wayCoords[wayCoords.length - 1];
-        
-        // Kiểm tra nếu way này nối tiếp với điểm cuối
-        if (Math.abs(lastPoint[0] - firstPoint[0]) < 0.0001 && 
-            Math.abs(lastPoint[1] - firstPoint[1]) < 0.0001) {
-          connectedCoords.push(...wayCoords.slice(1)); // Bỏ điểm đầu vì trùng
-          usedWays.add(i);
-          foundConnection = true;
-          break;
-        }
-        // Kiểm tra ngược lại
-        else if (Math.abs(lastPoint[0] - lastPointOfWay[0]) < 0.0001 && 
-                 Math.abs(lastPoint[1] - lastPointOfWay[1]) < 0.0001) {
-          connectedCoords.push(...wayCoords.reverse().slice(1)); // Đảo ngược và bỏ điểm đầu
-          usedWays.add(i);
-          foundConnection = true;
-          break;
-        }
-      }
-      
-      if (!foundConnection) break; // Không tìm được way nối tiếp
-    }
-    
-    return connectedCoords;
-  };
-
-  // Hàm lấy tọa độ từ element OSM
-  const getCoordinates = (element: any) => {
-    if (element.lat && element.lon) {
-      return [element.lat, element.lon];
-    } else if (element.center) {
-      return [element.center.lat, element.center.lon];
-    }
-    return null;
-  };
-
-  const wardStyle = {
-    fillColor: '#00ff00',
-    weight: 2,
-    opacity: 1,
-    color: 'blue',
-    dashArray: '0',
-    fillOpacity: 0.2
-  };
-
-  // Thay load outline: ưu tiên dùng 1 API (relation id)
-  const loadOutlineByResult = async (result: any) => {
-    try {
-      let relId: number | null = null;
-
-      // Lấy từ identifiers.osmRelationId hoặc osmId nếu osmType=relation
-      if (result.identifiers?.osmRelationId) {
-        relId = Number(result.identifiers.osmRelationId);
-      } else if (result.osmType === 'relation' && result.osmId) {
-        relId = Number(result.osmId);
-      }
-
-      if (!relId) {
-        console.warn('Không có OSM Relation ID để vẽ outline');
-        setOutlineGeoJSON(null);
-        return;
-      }
-
-      const outline = await fetchOutlineByOSMRelationId(relId);
-      if (outline.geojson) {
-        setOutlineGeoJSON(outline.geojson);
-        setWardId(relId);
-      } else {
-        console.warn('Outline rỗng:', outline.source);
-        setOutlineGeoJSON(null);
-      }
-    } catch (e) {
-      console.error('Lỗi fetch outline:', e);
-      setOutlineGeoJSON(null);
-    }
-  };
-
-  // HANDLER KHI USER CLICK VÀO KẾT QUẢ TÌM KIẾM
-  const handleSelectLocation = async (result: SearchResult) => {
+  // HANDLER: Select location from search
+  const handleSelectLocation = useCallback(async (result: SearchResult) => {
     setOutlineGeoJSON(null);
     setMemberNames({});
 
@@ -500,8 +113,8 @@ const getCurrentLocation = () => {
       osmId: result.osmId?.toString() || result.identifiers?.osmRelationId || result.identifiers?.osmNodeId || result.identifiers?.osmWayId,
       osmType: result.osmType || (result.identifiers?.osmRelationId ? 'relation' : result.identifiers?.osmNodeId ? 'node' : result.identifiers?.osmWayId ? 'way' : undefined),
       rows: makeRows({
-        'Loại': result.instanceOf,
-        'Nguồn': 'Wikidata SPARQL'
+        'Type': result.instanceOf,
+        'Source': 'Wikidata SPARQL'
       })
     });
     
@@ -522,7 +135,7 @@ const getCurrentLocation = () => {
     }
 
     if (!osmRelationId) {
-      console.warn('Không có OSM Relation ID để fetch boundary');
+      console.warn('No OSM Relation ID to fetch boundary');
       setIsLoadingBoundary(false);
       return;
     }
@@ -564,7 +177,7 @@ out geom;
 
           setWardMembers({ innerWays, outerWays, nodes, subAreas });
 
-          // Fetch tên cho sub-areas
+          // Fetch names for sub-areas
           if (subAreas.length > 0) {
             const relationIds = subAreas.map((m: any) => m.ref).join(',');
             const nameQuery = `
@@ -648,8 +261,8 @@ out tags;
                 properties: { 
                   name: result.name,
                   area: `${Math.round(calculatedArea * 100) / 100} km²`,
-                  population: population || 'Không có dữ liệu',
-                  density: density ? `${density.toLocaleString()} người/km²` : 'Không có dữ liệu'
+                  population: population || 'No data',
+                  density: density ? `${density.toLocaleString()} people/km²` : 'No data'
                 },
                 geometry: {
                   type: "Polygon",
@@ -668,10 +281,10 @@ out tags;
     } finally {
       setIsLoadingBoundary(false);
     }
-  };
+  }, []);
 
-  // HANDLER KHI USER CLICK VÀO MEMBER TRONG INFO PANEL
-  const handleMemberClick = async (member: { type: string; ref: number; role?: string }) => {
+  // HANDLER: Member click
+  const handleMemberClick = useCallback(async (member: { type: string; ref: number; role?: string }) => {
     console.log('Fetching member:', member);
     
     const query = `
@@ -700,7 +313,6 @@ out geom;
         const element = data.elements[0];
         
         if (member.type === 'node') {
-          // Hiển thị marker cho node
           if (element.lat && element.lon) {
             setSelectedLocation({ lat: element.lat, lon: element.lon });
             setSearchMarker({
@@ -711,7 +323,6 @@ out geom;
             setMemberOutline(null);
           }
         } else if (member.type === 'way') {
-          // Vẽ outline cho way - màu xanh da trời
           if (element.geometry) {
             const coords = element.geometry.map((g: any) => [g.lon, g.lat]);
             setMemberOutline({
@@ -720,7 +331,6 @@ out geom;
               type: 'way'
             });
             
-            // Center map
             if (coords.length > 0) {
               const centerLat = coords.reduce((sum: number, c: number[]) => sum + c[1], 0) / coords.length;
               const centerLon = coords.reduce((sum: number, c: number[]) => sum + c[0], 0) / coords.length;
@@ -728,7 +338,6 @@ out geom;
             }
           }
         } else if (member.type === 'relation') {
-          // Vẽ outline cho relation - màu vàng
           if (element.members) {
             const outerWays = element.members
               .filter((m: any) => m.role === 'outer' && m.geometry);
@@ -738,7 +347,6 @@ out geom;
               const connectedCoords = connectWays(wayGeometries);
 
               if (connectedCoords.length > 0) {
-                // Đóng polygon
                 const firstPoint = connectedCoords[0];
                 const lastPoint = connectedCoords[connectedCoords.length - 1];
                 if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
@@ -751,7 +359,6 @@ out geom;
                   type: 'relation'
                 });
 
-                // Center map
                 const centerLat = connectedCoords.reduce((sum, c) => sum + c[1], 0) / connectedCoords.length;
                 const centerLon = connectedCoords.reduce((sum, c) => sum + c[0], 0) / connectedCoords.length;
                 setSelectedLocation({ lat: centerLat, lon: centerLon });
@@ -763,76 +370,26 @@ out geom;
     } catch (error) {
       console.error('Error fetching member:', error);
     }
-  };
+  }, []);
 
-  const makeRows = (obj: Record<string, any>): { label: string; value: string }[] =>
-    Object.entries(obj)
-      .filter(([, v]) => v !== undefined && v !== null && v !== "")
-      .map(([k, v]) => ({ label: k, value: String(v) }));
-
-  // ✅ STYLE CHO OUTLINE (ĐỎ, NÉT ĐỨT)
-  const outlineStyle = {
-    color: '#ff0000',
-    weight: 3,
-    opacity: 0.8,
-    dashArray: '10, 5',
-    fillOpacity: 0
-  };
-
-  // ✅ Handle search result from Home page
+  // Handle search result from Home page
   useEffect(() => {
     const state = location.state as LocationState;
     if (state?.searchResult && map) {
       console.log('🏠 Received FULL DATA from Home:', state.searchResult);
-      console.log('📍 Identifiers:', state.searchResult.identifiers);
-      console.log('📊 Statements:', state.searchResult.statements);
-      
-      // ✅ Gọi trực tiếp với data đầy đủ
       handleSelectLocation(state.searchResult);
-      
-      // Clear state
       window.history.replaceState({}, document.title);
     }
-  }, [map, location.state]);
+  }, [map, location.state, handleSelectLocation]);
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <Search onSelectLocation={handleSelectLocation} />
 
-      {/* ✅ Nút lấy vị trí hiện tại */}
-      <button
-        onClick={getCurrentLocation}
-        disabled={isGettingLocation}
-        style={{
-          position: 'absolute',
-          bottom: '100px',
-          right: '10px',
-          zIndex: 1000,
-          width: '40px',
-          height: '40px',
-          borderRadius: '4px',
-          border: '2px solid rgba(0,0,0,0.2)',
-          background: 'white',
-          cursor: isGettingLocation ? 'wait' : 'pointer',
-          boxShadow: '0 1px 5px rgba(0,0,0,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '20px',
-          transition: 'all 0.2s ease'
-        }}
-        onMouseEnter={(e) => {
-          if (!isGettingLocation) {
-            e.currentTarget.style.background = '#f5f5f5';
-          }
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'white';
-        }}
-        title="Vị trí hiện tại"
-      >
-        {isGettingLocation ? '⏳' : '📍'}
-      </button>
+      <CurrentLocationButton 
+        isGettingLocation={isGettingLocation}
+        onClick={handleCurrentLocation}
+      />
 
       {selectedInfo && (
         <InfoPanel
@@ -871,40 +428,7 @@ out geom;
           />
         )}
 
-        {/* Member outline với màu theo type */}
-        {memberOutline && memberOutline.type === 'way' && (
-          <Polyline
-            positions={memberOutline.coordinates.map(c => [c[1], c[0]])}
-            color="#2196F3"
-            weight={4}
-            opacity={0.9}
-          >
-            <Popup>
-              <strong>{memberOutline.name}</strong>
-              <br />
-              Type: Way
-            </Popup>
-          </Polyline>
-        )}
-
-        {memberOutline && memberOutline.type === 'relation' && (
-          <Polygon
-            positions={memberOutline.coordinates.map(c => [c[1], c[0]])}
-            pathOptions={{
-              color: '#FFA000',
-              fillColor: '#FFC107',
-              weight: 3,
-              opacity: 0.9,
-              fillOpacity: 0.4
-            }}
-          >
-            <Popup>
-              <strong>{memberOutline.name}</strong>
-              <br />
-              Type: Relation
-            </Popup>
-          </Polygon>
-        )}
+        <MemberOutlines memberOutline={memberOutline} />
 
         {searchMarker && (
           <Marker
@@ -915,7 +439,6 @@ out geom;
           </Marker>
         )}
 
-        {/* ✅ Hiển thị Nearby Markers */}
         {nearbyPlaces.length > 0 && (
           <NearbyMarkers places={nearbyPlaces} />
         )}
@@ -944,7 +467,6 @@ out geom;
           />
         )}
 
-        {/* ✅ Marker vị trí hiện tại */}
         {currentLocation && (
           <Marker
             position={[currentLocation.lat, currentLocation.lon]}
@@ -952,7 +474,7 @@ out geom;
           >
             <Popup>
               <div style={{ textAlign: 'center' }}>
-                <strong>📍 Vị trí của bạn</strong>
+                <strong>📍 Your Location</strong>
                 <br />
                 <small>{currentLocation.lat.toFixed(6)}, {currentLocation.lon.toFixed(6)}</small>
               </div>
@@ -960,6 +482,8 @@ out geom;
           </Marker>
         )}
       </MapContainer>
+
+      <MapChatbot />
     </div>
   );
 };

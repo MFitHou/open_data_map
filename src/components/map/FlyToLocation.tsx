@@ -15,27 +15,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
-import Home from './components/home/Home';
-import SimpleMap from './components/map/SimpleMap';
-import { Query } from './components/query/Query';
-import Chatbot from './components/chatbot/Chatbot';
+import { useEffect } from 'react';
+import { useMap } from 'react-leaflet';
 
-
-function App() {
-  return (
-    <Router>
-      <div style={{ height: "100%", width: "100%" }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/map" element={<SimpleMap />} />
-          <Route path="/query" element={<Query />} />
-          <Route path="/chatbot" element={<Chatbot />} />
-        </Routes>
-      </div>
-    </Router>
-  );
+interface FlyToLocationProps {
+  lat: number;
+  lon: number;
+  zoom?: number;
 }
 
-export default App;
+export const FlyToLocation: React.FC<FlyToLocationProps> = ({ lat, lon, zoom = 15 }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.flyTo([lat, lon], zoom, {
+      duration: 1.5
+    });
+  }, [lat, lon, zoom, map]);
+
+  return null;
+};

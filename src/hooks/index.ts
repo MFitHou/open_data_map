@@ -15,10 +15,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { useTour } from '../hooks';
-export type { TourType } from '../hooks';
-export { HelpButton } from './HelpButton';
-export { homeTour, queryTour, driverConfig } from './tourConfig';
-
-// Import CSS
-import './driverStyles.css';
+export { useCurrentLocation } from './useCurrentLocation';
+export { useTour } from './useTour';
+export type { TourType } from './useTour';

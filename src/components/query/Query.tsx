@@ -16,8 +16,22 @@
  */
 
 import React, { useState, useRef } from 'react';
-import '../../styles/Query.css';
+import '../../styles/pages/Query.css';
 import { HelpButton } from '../../tours';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faSearch,
+  faPlay,
+  faCircleXmark,
+  faCircleCheck,
+  faTable,
+  faFileCode,
+  faTrash,
+  faSpinner,
+  faChartBar,
+  faClipboardList,
+  faDownload
+} from '@fortawesome/free-solid-svg-icons';
 
 interface QueryResult {
   count: number;
@@ -40,7 +54,7 @@ export const Query: React.FC = () => {
   // ✅ Query mẫu
   const sampleQueries = [
     {
-      name: '🏧 Lấy 10 ATM đầu tiên',
+      name: '🏧 Get first 10 ATMs',
       query: `PREFIX ex: <http://opendatafithou.org/poi/>
 PREFIX geo1: <http://www.opendatafithou.net/ont/geosparql#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -62,7 +76,7 @@ LIMIT 20`
   // ✅ Thực thi query
   const executeQuery = async () => {
     if (!query.trim()) {
-      setError({ message: 'Query trống', error: 'Vui lòng nhập SPARQL query' });
+      setError({ message: 'Empty query', error: 'Please enter a SPARQL query' });
       return;
     }
 
@@ -89,7 +103,7 @@ LIMIT 20`
       setActiveTab('table');
     } catch (err: any) {
       setError({
-        message: 'Lỗi thực thi query',
+        message: 'Query execution error',
         error: err.message || 'Unknown error'
       });
     } finally {
@@ -111,15 +125,6 @@ LIMIT 20`
     setError(null);
   };
 
-  // ✅ Format query (thêm indent)
-  const formatQuery = () => {
-    const formatted = query
-      .split('\n')
-      .map(line => line.trim())
-      .join('\n');
-    setQuery(formatted);
-  };
-
   // ✅ Download JSON
   const downloadJSON = () => {
     if (!results) return;
@@ -139,7 +144,7 @@ LIMIT 20`
   // ✅ Render bảng kết quả
   const renderTable = () => {
     if (!results || results.count === 0) {
-      return <div className="no-results">❌ Không có kết quả</div>;
+      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> No results</div>;
     }
 
     const columns = Object.keys(results.data[0]);
@@ -147,7 +152,7 @@ LIMIT 20`
     return (
       <div className="results-table-wrapper">
         <div className="results-header">
-          ✅ Tìm thấy <strong>{results.count}</strong> kết quả
+          <FontAwesomeIcon icon={faCircleCheck} /> Found <strong>{results.count}</strong> results
         </div>
         <table className="results-table">
           <thead>
@@ -184,7 +189,7 @@ LIMIT 20`
   // ✅ Render JSON
   const renderJSON = () => {
     if (!results) {
-      return <div className="no-results">❌ Không có kết quả</div>;
+      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> No results</div>;
     }
 
     return (
@@ -194,7 +199,7 @@ LIMIT 20`
         </pre>
         <div className="json-footer">
           <button className="download-json-btn" onClick={downloadJSON}>
-            💾 Download JSON
+            <FontAwesomeIcon icon={faDownload} /> Download JSON
           </button>
         </div>
       </>
@@ -204,13 +209,13 @@ LIMIT 20`
   return (
     <div className="query-container">
       <div className="query-header">
-        <h1>🔍 SPARQL Query </h1>
-        <p>Truy vấn dữ liệu MFithou</p>
+        <h1><FontAwesomeIcon icon={faSearch} /> SPARQL Query </h1>
+        <p>Query MFithou data</p>
       </div>
 
       {/* Sample Queries */}
       <div id="query-examples" className="sample-queries">
-        <div className="sample-header">📋 Query mẫu:</div>
+        <div className="sample-header"><FontAwesomeIcon icon={faClipboardList} /> Sample queries:</div>
         <div className="sample-buttons">
           {sampleQueries.map((sample, idx) => (
             <button
@@ -232,7 +237,7 @@ LIMIT 20`
             <span>✏️ SPARQL Query Editor</span>
             <div className="editor-actions">
               <button className="action-btn" onClick={clearAll} title="Clear all">
-                🗑️ Clear
+                <FontAwesomeIcon icon={faTrash} /> Clear
               </button>
             </div>
           </div>
@@ -242,7 +247,7 @@ LIMIT 20`
             className="query-textarea"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Nhập SPARQL query tại đây..."
+            placeholder="Enter SPARQL query here..."
             spellCheck={false}
           />
           <div className="editor-footer">
@@ -252,10 +257,14 @@ LIMIT 20`
               onClick={executeQuery}
               disabled={isLoading || !query.trim()}
             >
-              {isLoading ? '⏳ Đang thực thi...' : '▶️ Thực thi Query'}
+              {isLoading ? (
+                <><FontAwesomeIcon icon={faSpinner} spin /> Executing...</>
+              ) : (
+                <><FontAwesomeIcon icon={faPlay} /> Execute Query</>
+              )}
             </button>
             <span className="query-length">
-              {query.length} ký tự
+              {query.length} characters
             </span>
           </div>
         </div>
@@ -265,7 +274,7 @@ LIMIT 20`
           {/* Error Display */}
           {error && (
             <div className="error-display">
-              <div className="error-title">❌ {error.message}</div>
+              <div className="error-title"><FontAwesomeIcon icon={faCircleXmark} /> {error.message}</div>
               <div className="error-detail">{error.error}</div>
             </div>
           )}
@@ -278,13 +287,13 @@ LIMIT 20`
                   className={`tab-btn ${activeTab === 'table' ? 'active' : ''}`}
                   onClick={() => setActiveTab('table')}
                 >
-                  📊 Bảng
+                  <FontAwesomeIcon icon={faTable} /> Table
                 </button>
                 <button
                   className={`tab-btn ${activeTab === 'json' ? 'active' : ''}`}
                   onClick={() => setActiveTab('json')}
                 >
-                  📄 JSON
+                  <FontAwesomeIcon icon={faFileCode} /> JSON
                 </button>
               </div>
 
@@ -297,9 +306,9 @@ LIMIT 20`
           {/* Placeholder khi chưa có kết quả */}
           {!results && !error && (
             <div className="results-placeholder">
-              <div className="placeholder-icon">📊</div>
+              <div className="placeholder-icon"><FontAwesomeIcon icon={faChartBar} size="3x" /></div>
               <div className="placeholder-text">
-                Nhập query và nhấn "Thực thi" để xem kết quả
+                Enter query and click "Execute" to see results
               </div>
             </div>
           )}

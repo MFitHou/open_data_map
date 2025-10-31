@@ -34,13 +34,13 @@ export interface ReferenceInfo {
 export const fetchLabels = async (ids: Set<string>): Promise<Record<string, string>> => {
   if (ids.size === 0) return {};
   const allIds = Array.from(ids).slice(0, 450);
-  const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&props=labels&ids=${allIds.join('|')}&languages=vi|en&format=json&origin=*`;
+  const url = `https://www.wikidata.org/w/api.php?action=wbgetentities&props=labels&ids=${allIds.join('|')}&languages=en|vi&format=json&origin=*`;
   const res = await fetch(url);
   const json = await res.json();
   const out: Record<string, string> = {};
   if (json.entities) {
     Object.entries(json.entities).forEach(([id, entity]: any) => {
-      out[id] = entity.labels?.vi?.value || entity.labels?.en?.value || id;
+      out[id] = entity.labels?.en?.value || entity.labels?.vi?.value || id;
     });
   }
   return out;
@@ -82,7 +82,7 @@ export const fetchWikidataInfo = async (qid: string): Promise<{
 
     const info: WikidataInfo = {
       label: labels[qid] || qid,
-      description: entity.descriptions?.vi?.value || entity.descriptions?.en?.value,
+      description: entity.descriptions?.en?.value || entity.descriptions?.vi?.value,
       claims: entity.claims,
       allProperties: {},
       propertyUrls: {},

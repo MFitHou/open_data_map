@@ -28,6 +28,9 @@ export interface NearbyPlace {
   distanceKm: number;
   access?: string;
   fee?: string;
+  bottle?: string;       // ✅ Thêm field bottle (cho drinking_water)
+  fountain?: string;     // ✅ Thêm field fountain (cho drinking_water)
+  leisure?: string;      // ✅ Thêm field leisure (cho playground)
 }
 
 export interface NearbyResponse {
@@ -45,7 +48,7 @@ export interface NearbyResponse {
  * @param lon - Kinh độ
  * @param lat - Vĩ độ  
  * @param radiusKm - Bán kính (km)
- * @param amenity - Loại địa điểm (toilets, hospitals, bus-stops, atms...)
+ * @param amenity - Loại địa điểm (toilets, hospitals, bus-stops, atms, drinking-water, playgrounds...)
  */
 export const fetchNearbyPlaces = async (
   lon: number,
@@ -57,7 +60,7 @@ export const fetchNearbyPlaces = async (
     // ✅ API động: /fuseki/{amenity}/nearby
     const url = `http://localhost:3000/fuseki/${amenity}/nearby?lon=${lon}&lat=${lat}&radiusKm=${radiusKm}`;
     
-    console.log(`🔍 Fetching nearby ${amenity}:`, url);
+    console.log(`Fetching nearby ${amenity}:`, url);
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -66,11 +69,11 @@ export const fetchNearbyPlaces = async (
     
     const data: NearbyResponse = await response.json();
     
-    console.log(`✅ Found ${data.count} ${amenity}:`, data);
+    console.log(`Found ${data.count} ${amenity}:`, data);
     
     return data;
   } catch (error) {
-    console.error('❌ Error fetching nearby places:', error);
+    console.error('Error fetching nearby places:', error);
     return null;
   }
 };
@@ -91,10 +94,19 @@ export const getAmenityIcon = (place: NearbyPlace): string => {
   if (place.amenity) {
     const amenityIcons: Record<string, string> = {
       toilets: '🚻',
-      atm: '🏧',        // ✅ Sửa từ 'atms' thành 'atm' (singular)
-      hospital: '🏥',   // ✅ Sửa từ 'hospitals' thành 'hospital' (singular)
+      atm: '🏧',
+      hospital: '🏥',
+      drinking_water: '💧',   // ✅ Thêm icon cho drinking water
     };
     return amenityIcons[place.amenity] || '📍';
+  }
+
+  // ✅ Kiểm tra leisure (playground)
+  if (place.leisure) {
+    const leisureIcons: Record<string, string> = {
+      playground: '🎮',
+    };
+    return leisureIcons[place.leisure] || '🎯';
   }
   
   return '📍';
@@ -109,9 +121,72 @@ export const getPlaceName = (place: NearbyPlace, index: number): string => {
   // ✅ Nếu có brand, hiển thị brand (cho ATMs)
   if (place.brand) return place.brand;
   
+  // ✅ Fallback name cho drinking water với thông tin chi tiết
+  if (place.amenity === 'drinking_water') {
+    const details: string[] = [];
+    if (place.fountain) details.push(place.fountain);
+    if (place.bottle === 'yes') details.push('bottle refill');
+    if (place.fee === 'no') details.push('free');
+    
+    if (details.length > 0) {
+      return `Drinking Water (${details.join(', ')})`;
+    }
+    return `Drinking Water #${index + 1}`;
+  }
+  
+  // ✅ Fallback name cho playground
+  if (place.leisure === 'playground') {
+    return `Playground #${index + 1}`;
+  }
+  
   // ✅ Fallback name
   if (place.highway) return `${place.highway} #${index + 1}`;
   if (place.amenity) return `${place.amenity} #${index + 1}`;
   
   return `Place #${index + 1}`;
+};
+
+/**
+ * ✅ Helper: Lấy thông tin chi tiết của drinking water
+ */
+export const getDrinkingWaterDetails = (place: NearbyPlace): string[] => {
+  const details: string[] = [];
+  
+  if (place.fountain) {
+    const fountainTypes: Record<string, string> = {
+      bubbler: '🚰 Bubbler fountain',
+      drinking: '⛲ Drinking fountain',
+    };
+    details.push(fountainTypes[place.fountain] || `Fountain: ${place.fountain}`);
+  }
+  
+  if (place.bottle === 'yes') {
+    details.push('🍶 Bottle refill available');
+  }
+  
+  if (place.fee === 'no') {
+    details.push('💰 Free');
+  } else if (place.fee === 'yes') {
+    details.push('💵 Fee required');
+  }
+  
+  if (place.access) {
+    details.push(`🚪 Access: ${place.access}`);
+  }
+  
+  return details;
+};
+
+/**
+ * ✅ Helper: Kiểm tra xem place có phải là drinking water không
+ */
+export const isDrinkingWater = (place: NearbyPlace): boolean => {
+  return place.amenity === 'drinking_water';
+};
+
+/**
+ * ✅ Helper: Kiểm tra xem place có phải là playground không
+ */
+export const isPlayground = (place: NearbyPlace): boolean => {
+  return place.leisure === 'playground';
 };
