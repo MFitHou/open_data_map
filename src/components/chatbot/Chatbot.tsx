@@ -17,6 +17,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { getApiEndpoint } from '../../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPaperPlane, 
@@ -80,7 +81,7 @@ const Chatbot: React.FC = () => {
 
     try {
       // Using POST method with body
-      const apiUrl = `http://localhost:3000/chat/main`;
+      const apiUrl = getApiEndpoint.chat();
       
       const response = await fetch(apiUrl, {
         method: 'POST',

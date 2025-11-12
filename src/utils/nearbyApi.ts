@@ -15,6 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { getApiEndpoint } from '../config/api';
+
 export interface NearbyPlace {
   poi: string;
   amenity?: string;      // ✅ Optional vì bus_stop dùng highway
@@ -58,7 +60,7 @@ export const fetchNearbyPlaces = async (
 ): Promise<NearbyResponse | null> => {
   try {
     // ✅ API động: /fuseki/{amenity}/nearby
-    const url = `http://localhost:3000/fuseki/${amenity}/nearby?lon=${lon}&lat=${lat}&radiusKm=${radiusKm}`;
+    const url = `${getApiEndpoint.fusekiNearby(amenity)}?lon=${lon}&lat=${lat}&radiusKm=${radiusKm}`;
     
     console.log(`Fetching nearby ${amenity}:`, url);
     

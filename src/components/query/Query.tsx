@@ -17,6 +17,7 @@
 
 import React, { useState, useRef } from 'react';
 import '../../styles/pages/Query.css';
+import { getApiEndpoint } from '../../config/api';
 import { HelpButton } from '../../tours';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -85,7 +86,7 @@ LIMIT 20`
     setResults(null);
 
     try {
-      const response = await fetch('http://localhost:3000/fuseki/query', {
+      const response = await fetch(getApiEndpoint.fusekiQuery(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

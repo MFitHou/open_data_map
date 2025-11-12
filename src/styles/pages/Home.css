@@ -53,7 +53,7 @@
 .main-slogan {
   font-size: 18px;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 20px;
+  margin: 0;
   font-weight: 400;
   letter-spacing: 0.15px;
 }
@@ -1076,4 +1076,17 @@
   .license-badge, .license-links, .copyright-info, .license-footer {
     padding: 16px;
   }
+}
+
+.hero-header{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo_hou_home{
+  width: 80px;
+  height: auto;
+  margin-right: 20px;
 }

@@ -15,6 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { getApiEndpoint } from '../config/api';
+
 // Định nghĩa kiểu dữ liệu ATM
 export interface ATMData {
   id: string;
@@ -29,7 +31,7 @@ export interface ATMData {
 
 // Hàm chính: lấy trực tiếp triples từ API và chuyển thành danh sách ATM
 export const loadATMsFromAPI = async (
-  apiEndpoint: string = 'http://localhost:3000/fuseki/atms'
+  apiEndpoint: string = getApiEndpoint.fusekiAtms()
 ): Promise<ATMData[]> => {
   try {
     console.log('🔍 Fetching ATM triples from API (no SPARQL)...');

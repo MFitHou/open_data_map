@@ -17,6 +17,7 @@
 
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { getApiEndpoint } from '../../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
@@ -29,7 +30,7 @@ interface ChatInputProps {
 export const ChatInput: React.FC<ChatInputProps> = ({ 
   onMessageSent,
   placeholder = "Ask me anything about Vietnam's locations, landmarks, or geography...",
-  apiUrl = 'http://localhost:3000/chat/main'
+  apiUrl = getApiEndpoint.chat()
 }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);

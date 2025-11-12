@@ -357,11 +357,16 @@ const Home: React.FC = () => {
       {/* Section 1: Hero with OpenDataFitHou + Slogan */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 id="app-title" className="main-title">
-            <span className="title-icon">🌍</span>
-            OpenDataFitHou
-          </h1>
-          <p className="main-slogan">Open Data for Digital Transformation</p>
+          <div className="hero-header">
+            <img className='logo_hou_home' src="https://hou.edu.vn/wp-content/uploads/2023/09/logo-footer-249x300.png" alt="" />
+            <div>
+              <h1 id="app-title" className="main-title">
+              {/* <span className="title-icon">🌍</span> */}
+              OpenDataFitHou
+              </h1>
+              <p className="main-slogan">Open Data for Digital Transformation</p>
+            </div>
+          </div>
           
           {/* Keep current search section */}
           <div className="search-section">
