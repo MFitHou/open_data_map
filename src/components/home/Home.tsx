@@ -358,7 +358,7 @@ const Home: React.FC = () => {
       <section className="hero-section">
         <div className="hero-content">
           <div className="hero-header">
-            <img className='logo_hou_home' src="https://hou.edu.vn/wp-content/uploads/2023/09/logo-footer-249x300.png" alt="" />
+            <img className='logo_hou_home' src="/logo-hou-249x300.png" alt="" />
             <div>
               <h1 id="app-title" className="main-title">
               {/* <span className="title-icon">🌍</span> */}
@@ -556,6 +556,22 @@ const Home: React.FC = () => {
                 <span className="feature-icon">🌍</span>
                 <span>Query data with SPARQL</span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Introduction Video Section */}
+        <div className='container intro_video'>
+          <h3>Introduction Video</h3>
+          <div className="video-wrapper">
+            <div className="video-container">
+              <iframe
+                src="https://www.youtube.com/embed/N6JpxWiIIIc?si=lHN1Kfgf-4Zt6YH2"
+                title="Project Introduction Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
         </div>
