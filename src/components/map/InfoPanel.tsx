@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/InfoPanel.css';
 import { DownloadButton } from './DownloadButton';
 import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
@@ -81,6 +82,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   memberNames = {},
   onNearbyPlacesChange
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
   const [references, setReferences] = useState<ReferenceInfo[]>([]);
@@ -202,22 +204,22 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         {/* Filters */}
         <div className="nearby-filters">
           <div className="filter-group">
-            <label htmlFor="amenity-select">🏷️ Loại địa điểm:</label>
+            <label htmlFor="amenity-select">{t('map.nearby.selectType')}</label>
             <select 
               id="amenity-select"
               value={nearbyAmenity} 
               onChange={(e) => handleAmenityChange(e.target.value)}
               className="nearby-select"
             >
-              <option value="toilets">🚻 Nhà vệ sinh</option>
-              <option value="atms">🏧 ATM</option>
-              <option value="hospitals">🏥 Bệnh viện</option>
-              <option value="bus-stops">🚌 Trạm xe buýt</option>
+              <option value="toilets">{t('map.nearby.toilets')}</option>
+              <option value="atms">{t('map.nearby.atms')}</option>
+              <option value="hospitals">{t('map.nearby.hospitals')}</option>
+              <option value="bus-stops">{t('map.nearby.busStops')}</option>
             </select>
           </div>
 
           <div className="filter-group">
-            <label htmlFor="radius-select">📏 Bán kính:</label>
+            <label htmlFor="radius-select">{t('map.nearby.selectRadius')}</label>
             <select 
               id="radius-select"
               value={nearbyRadius} 
@@ -238,24 +240,24 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             onClick={handleSearchNearby}
             disabled={isLoadingNearby}
           >
-            {isLoadingNearby ? '⏳ Đang tìm...' : '🔍 Tìm kiếm'}
+            {isLoadingNearby ? `⏳ ${t('common.status.searching')}` : `🔍 ${t('common.button.search')}`}
           </button>
         </div>
 
         {/* Results */}
         {isLoadingNearby ? (
-          <div className="loading">⏳ Đang tìm kiếm địa điểm gần...</div>
+          <div className="loading">{t('map.nearby.searching')}</div>
         ) : nearbyPlaces.length === 0 ? (
           <div className="no-data">
             {!hasSearchedNearby
-              ? 'ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn "Tìm kiếm"'
-              : `❌ Không tìm thấy ${nearbyAmenity} trong bán kính ${nearbyRadius} km`
+              ? t('map.nearby.selectAndSearch')
+              : `${t('map.nearby.noPlacesFound')} ${nearbyAmenity} ${t('map.nearby.inRadius')} ${nearbyRadius} ${t('map.nearby.km')}`
             }
           </div>
         ) : (
           <div className="reference-group">
             <div className="reference-title">
-              ✅ Tìm thấy {nearbyPlaces.length} {nearbyAmenity} trong bán kính {nearbyRadius} km
+              {t('map.nearby.found')} {nearbyPlaces.length} {nearbyAmenity} {t('map.nearby.inRadius')} {nearbyRadius} {t('map.nearby.km')}
             </div>
             
             {nearbyPlaces.map((place, idx) => (
@@ -273,7 +275,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                 <div className="nearby-details">
                   {/* Type */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Loại:</span>
+                    <span className="detail-label">{t('map.nearby.type')}:</span>
                     <span className="detail-value">
                       {place.highway || place.amenity || 'N/A'}
                     </span>
@@ -282,7 +284,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Brand */}
                   {place.brand && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Thương hiệu:</span>
+                      <span className="detail-label">{t('map.nearby.brand')}:</span>
                       <span className="detail-value">{place.brand}</span>
                     </div>
                   )}
@@ -290,7 +292,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Operator */}
                   {place.operator && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Vận hành:</span>
+                      <span className="detail-label">{t('map.nearby.operator')}:</span>
                       <span className="detail-value">{place.operator}</span>
                     </div>
                   )}
@@ -315,7 +317,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   
                   {/* Coordinates */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Tọa độ:</span>
+                    <span className="detail-label">{t('map.info.coordinates')}:</span>
                     <a 
                       href={`https://www.google.com/maps?q=${place.lat},${place.lon}`}
                       target="_blank"
@@ -757,13 +759,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
           onClick={() => setActiveTab('basic')}
         >
-          📋 Cơ bản
+          {t('map.info.basicTab')}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'identifiers' ? 'active' : ''}`}
           onClick={() => setActiveTab('identifiers')}
         >
-          🔗 Định danh
+          {t('map.info.identifiersTab')}
         </button>
         {data.wikidataId && (
           <>
@@ -771,13 +773,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               className={`tab-btn ${activeTab === 'statements' ? 'active' : ''}`}
               onClick={() => setActiveTab('statements')}
             >
-              📊 Thuộc tính
+              {t('map.info.statementsTab')}
             </button>
             <button 
               className={`tab-btn ${activeTab === 'references' ? 'active' : ''}`}
               onClick={() => setActiveTab('references')}
             >
-              📚 Tham chiếu
+              {t('map.info.referencesTab')}
             </button>
           </>
         )}
@@ -786,7 +788,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
             onClick={() => setActiveTab('members')}
           >
-            👥 Thành viên
+            {t('map.info.membersTab')}
           </button>
         )}
         {/* ✅ Tasks Tab */}
@@ -794,7 +796,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
           onClick={() => setActiveTab('tasks')}
         >
-          ⚡ Tác vụ
+          {t('map.info.tasksTab')}
         </button>
       </div>
 

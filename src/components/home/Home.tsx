@@ -17,8 +17,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import '../../styles/Home.css';
 import { HelpButton } from '../../tours';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 
 interface SearchResult {
   id: string;
@@ -52,6 +54,7 @@ interface SearchResult {
 }
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -347,11 +350,14 @@ const Home: React.FC = () => {
       {/* Section 1: Hero với OpenDataFitHou + Slogan */}
       <section className="hero-section">
         <div className="hero-content">
-          <h1 id="app-title" className="main-title">
-            <span className="title-icon">🌍</span>
-            OpenDataFitHou
-          </h1>
-          <p className="main-slogan">Open Data for Digital Transformation</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h1 id="app-title" className="main-title" style={{ margin: 0 }}>
+              <span className="title-icon">🌍</span>
+              OpenDataFitHou
+            </h1>
+            <LanguageSwitcher />
+          </div>
+          <p className="main-slogan">{t('home.slogan')}</p>
           
           
 
@@ -367,7 +373,7 @@ const Home: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   onFocus={() => setShowResults(true)}
-                  placeholder="Tìm địa điểm trong nước... (VD: Hồ Gươm, Văn Miếu, BIDV)"
+                  placeholder={t('home.searchPlaceholder')}
                   className="home-search-input"
                 />
                 {isLoading && <span className="search-loading">📚</span>}
@@ -379,10 +385,10 @@ const Home: React.FC = () => {
                   📚 GitHub
                 </a>
                 <a href="/map" className="quick-link-button">
-                  🗺️ Bản đồ
+                  🗺️ {t('nav.map')}
                 </a>
                 <a href="/query" className="quick-link-button">
-                  🔍 Truy vấn dữ liệu
+                  🔍 {t('nav.query')}
                 </a>
               </div>
 
@@ -391,7 +397,7 @@ const Home: React.FC = () => {
               {showResults && (
                 <div className="home-search-results">
                   {error ? (
-                    <div className="search-error">⚠️ {error}</div>
+                    <div className="search-error">⚠️ {t('common.status.error')}</div>
                   ) : results.length > 0 ? (
                     results.map((result) => (
                       <div

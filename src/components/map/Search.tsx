@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 import "../../styles/Search.css";
 
 interface SearchResult {
@@ -55,13 +56,14 @@ interface SearchProps {
 }
 
 export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -347,7 +349,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
         <input
           type="text"
           className="search-input"
-          placeholder="Tìm địa điểm trên (VD: Hồ Gươm, Văn Miếu, BIDV)"
+          placeholder={t('map.search.placeholder')}
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setShowResults(true)}
@@ -359,7 +361,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       {showResults && (
         <div className="search-results">
           {error ? (
-            <div className="search-error">⚠️ {error}</div>
+            <div className="search-error">⚠️ {t('common.status.error')}</div>
           ) : results.length > 0 ? (
             results.map((result) => (
               <div
@@ -407,7 +409,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             ))
           ) : searchTerm.length === 0 ? (
             <>
-              <div className="search-suggestions-header">💡 Gợi ý tìm kiếm phổ biến:</div>
+              <div className="search-suggestions-header">{t('home.suggestionsTitle')}</div>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
@@ -426,7 +428,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             </>
           ) : (
             <div className="search-no-results">
-              🔍 Không tìm thấy "{searchTerm}"
+              🔍 {t('home.noResultsFor')} "{searchTerm}"
             </div>
           )}
         </div>

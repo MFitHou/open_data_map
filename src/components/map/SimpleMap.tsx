@@ -20,6 +20,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search } from "./Search";
 import { SearchResult as SearchResultComponent } from "./SearchResult";
 import { InfoPanel } from './InfoPanel';
@@ -221,6 +222,7 @@ const NearbyMarkers: React.FC<{ places: NearbyPlace[] }> = ({ places }) => {
 };
 
 const SimpleMap: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [map, setMap] = useState<L.Map | null>(null);
   const [wardData, setWardData] = useState<any>(null);
@@ -336,13 +338,13 @@ const getCurrentLocation = () => {
       // Hiển thị thông tin trong InfoPanel
       setSelectedInfo({
         category: 'location',
-        title: '📍 Vị trí hiện tại của bạn',
-        subtitle: 'Được xác định bởi GPS',
+        title: t('map.currentLocation'),
+        subtitle: t('map.detectedByGPS'),
         coordinates: [longitude, latitude],
         rows: [
-          { label: 'Vĩ độ', value: latitude.toFixed(6) },
-          { label: 'Kinh độ', value: longitude.toFixed(6) },
-          { label: 'Độ chính xác', value: `${position.coords.accuracy.toFixed(0)}m` }
+          { label: t('map.latitude'), value: latitude.toFixed(6) },
+          { label: t('map.longitude'), value: longitude.toFixed(6) },
+          { label: t('map.accuracy'), value: `${position.coords.accuracy.toFixed(0)}m` }
         ]
       });
     },
@@ -829,7 +831,7 @@ out geom;
         onMouseLeave={(e) => {
           e.currentTarget.style.background = 'white';
         }}
-        title="Vị trí hiện tại"
+        title={t('common.button.getCurrentLocation')}
       >
         {isGettingLocation ? '⏳' : '📍'}
       </button>

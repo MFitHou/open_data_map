@@ -16,8 +16,10 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/Query.css';
 import { HelpButton } from '../../tours';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 
 interface QueryResult {
   count: number;
@@ -30,6 +32,7 @@ interface QueryError {
 }
 
 export const Query: React.FC = () => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<QueryResult | null>(null);
   const [error, setError] = useState<QueryError | null>(null);
@@ -204,13 +207,18 @@ LIMIT 20`
   return (
     <div className="query-container">
       <div className="query-header">
-        <h1>🔍 SPARQL Query </h1>
-        <p>Truy vấn dữ liệu MFithou</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div>
+            <h1>🔍 {t('query.title')}</h1>
+            <p>{t('query.subtitle')}</p>
+          </div>
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* Sample Queries */}
       <div id="query-examples" className="sample-queries">
-        <div className="sample-header">📋 Query mẫu:</div>
+        <div className="sample-header">{t('query.examples.title')}</div>
         <div className="sample-buttons">
           {sampleQueries.map((sample, idx) => (
             <button
@@ -229,10 +237,10 @@ LIMIT 20`
         {/* Query Editor - Left Side */}
         <div className="query-editor">
           <div className="editor-header">
-            <span>✏️ SPARQL Query Editor</span>
+            <span>✏️ {t('query.title')} Editor</span>
             <div className="editor-actions">
-              <button className="action-btn" onClick={clearAll} title="Clear all">
-                🗑️ Clear
+              <button className="action-btn" onClick={clearAll} title={t('common.button.clear')}>
+                🗑️ {t('common.button.clear')}
               </button>
             </div>
           </div>
@@ -242,7 +250,7 @@ LIMIT 20`
             className="query-textarea"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Nhập SPARQL query tại đây..."
+            placeholder={t('query.placeholder')}
             spellCheck={false}
           />
           <div className="editor-footer">
@@ -252,10 +260,10 @@ LIMIT 20`
               onClick={executeQuery}
               disabled={isLoading || !query.trim()}
             >
-              {isLoading ? '⏳ Đang thực thi...' : '▶️ Thực thi Query'}
+              {isLoading ? `⏳ ${t('common.status.loading')}` : `▶️ ${t('query.execute')}`}
             </button>
             <span className="query-length">
-              {query.length} ký tự
+              {query.length} {t('query.characters')}
             </span>
           </div>
         </div>
@@ -278,7 +286,7 @@ LIMIT 20`
                   className={`tab-btn ${activeTab === 'table' ? 'active' : ''}`}
                   onClick={() => setActiveTab('table')}
                 >
-                  📊 Bảng
+                  📊 {t('query.tableView')}
                 </button>
                 <button
                   className={`tab-btn ${activeTab === 'json' ? 'active' : ''}`}
@@ -299,7 +307,7 @@ LIMIT 20`
             <div className="results-placeholder">
               <div className="placeholder-icon">📊</div>
               <div className="placeholder-text">
-                Nhập query và nhấn "Thực thi" để xem kết quả
+                {t('query.placeholderText')}
               </div>
             </div>
           )}
