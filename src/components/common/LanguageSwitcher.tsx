@@ -38,7 +38,7 @@ export const LanguageSwitcher: React.FC = () => {
         className={`language-switcher__button ${i18n.language === 'en' ? 'language-switcher__button--active' : ''}`}
         onClick={() => changeLanguage('en')}
       >
-        🇬🇧 {t('common.language.en')}
+        EN {t('common.language.en')}
       </button>
     </div>
   );
