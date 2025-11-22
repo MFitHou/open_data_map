@@ -15,16 +15,23 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { useEffect } from 'react';
+import { useMap } from 'react-leaflet';
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  base: '/',
-  build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: false,
-  },
-})
+interface FlyToLocationProps {
+  lat: number;
+  lon: number;
+  zoom?: number;
+}
+
+export const FlyToLocation: React.FC<FlyToLocationProps> = ({ lat, lon, zoom = 15 }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    map.flyTo([lat, lon], zoom, {
+      duration: 1.5
+    });
+  }, [lat, lon, zoom, map]);
+
+  return null;
+};

@@ -17,7 +17,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'react-i18next';
-import "../../styles/Search.css";
+import "../../styles/components/Search.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faSearch, 
+  faSpinner,
+  faCircleXmark,
+  faLightbulb
+} from '@fortawesome/free-solid-svg-icons';
 
 interface SearchResult {
   id: string;
@@ -99,7 +106,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             bd:serviceParam wikibase:api "EntitySearch" .
             bd:serviceParam wikibase:endpoint "www.wikidata.org" .
             bd:serviceParam mwapi:search "${searchTerm}" .
-            bd:serviceParam mwapi:language "vi" .
+            bd:serviceParam mwapi:language "en" .
             ?place wikibase:apiOutputItem mwapi:item .
             bd:serviceParam mwapi:limit "20" .
           }
@@ -134,7 +141,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
           OPTIONAL { ?place wdt:P227 ?gnd . }
           
           SERVICE wikibase:label { 
-            bd:serviceParam wikibase:language "vi,en" . 
+            bd:serviceParam wikibase:language "en,vi" . 
           }
         }
         ORDER BY DESC(?image)
@@ -151,11 +158,11 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       });
 
       if (!response.ok) {
-        throw new Error(`Wikidata API error: ${response.status}`);
+        throw new Error(`API error: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('📊 Wikidata results:', data.results.bindings.length);
+      console.log('Results:', data.results.bindings.length);
 
       const wikidataResults: SearchResult[] = data.results.bindings.map((binding: any) => {
         // Parse coordinate string "Point(lon lat)"
@@ -236,11 +243,11 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       // Filter out invalid coordinates
       const validResults = wikidataResults.filter(r => r.lat !== 0 && r.lon !== 0);
 
-      console.log(`✅ Found ${validResults.length} valid results with metadata`);
+      console.log(`Found ${validResults.length} valid results with metadata`);
       return validResults;
 
     } catch (error) {
-      console.error('❌ Wikidata search error:', error);
+      console.error('search error:', error);
       throw error;
     }
   };
@@ -278,11 +285,11 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       setShowResults(true);
 
       if (sortedResults.length === 0) {
-        setError("Không tìm thấy kết quả. Thử từ khóa khác.");
+        setError("No results found. Try different keywords.");
       }
     } catch (error) {
       console.error("Error searching:", error);
-      setError("Có lỗi khi kết nối Wikidata. Vui lòng thử lại sau.");
+      setError("Error connecting to Wikidata. Please try again later.");
       setResults([]);
       setShowResults(true);
     } finally {
@@ -303,9 +310,9 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   };
 
   const handleSelectResult = (result: SearchResult) => {
-    console.log('🎯 Selected:', result);
-    console.log('📍 Identifiers:', result.identifiers);
-    console.log('📊 Statements:', result.statements);
+    console.log('Selected:', result);
+    console.log('Identifiers:', result.identifiers);
+    console.log('Statements:', result.statements);
     setSearchTerm(result.name);
     setShowResults(false);
     setError(null);
@@ -331,16 +338,16 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   };
 
   const suggestions = [
-    "Hồ Gươm",
-    "Văn Miếu Quốc Tử Giám",
-    "Lăng Chủ tịch Hồ Chí Minh",
-    "Chùa Một Cột",
-    "Nhà hát Lớn Hà Nội",
-    "Hoàng Thành Thăng Long",
+    "Hoan Kiem Lake",
+    "Temple of Literature",
+    "Ho Chi Minh Mausoleum",
+    "One Pillar Pagoda",
+    "Hanoi Opera House",
+    "Imperial Citadel of Thang Long",
     "Vietcombank",
     "BIDV",
-    "Trường Đại học Bách Khoa Hà Nội",
-    "Bệnh viện Bạch Mai"
+    "Hanoi University of Science and Technology",
+    "Bach Mai Hospital"
   ];
 
   return (
@@ -354,14 +361,14 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setShowResults(true)}
         />
-        {isLoading && <div className="search-loading">📚</div>}
+        {isLoading && <div className="search-loading"><FontAwesomeIcon icon={faSpinner} spin /></div>}
       </div>
 
 
       {showResults && (
         <div className="search-results">
           {error ? (
-            <div className="search-error">⚠️ {t('common.status.error')}</div>
+            <div className="search-error"><FontAwesomeIcon icon={faCircleXmark} /> {t('common.status.error')}</div>
           ) : results.length > 0 ? (
             results.map((result) => (
               <div
@@ -388,7 +395,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
                     <span className="wikidata-badge">{result.wikidataId}</span>
                   </div>
                   <div className="result-type">
-                    {result.description || result.instanceOf || 'Địa điểm'}
+                    {result.description || result.instanceOf || 'Location'}
                   </div>
                   <div className="result-metadata">
                     {result.instanceOf && (
@@ -409,7 +416,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             ))
           ) : searchTerm.length === 0 ? (
             <>
-              <div className="search-suggestions-header">{t('home.suggestionsTitle')}</div>
+              <div className="search-suggestions-header"><FontAwesomeIcon icon={faLightbulb} /> {t('home.suggestionsTitle')}</div>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
@@ -419,7 +426,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
                     handleSuggestionClick(suggestion);
                   }}
                 >
-                  <div className="result-icon">📚</div>
+                  <div className="result-icon"><FontAwesomeIcon icon={faSearch} /></div>
                   <div className="result-info">
                     <div className="result-name">{suggestion}</div>
                   </div>
@@ -428,7 +435,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             </>
           ) : (
             <div className="search-no-results">
-              🔍 {t('home.noResultsFor')} "{searchTerm}"
+              <FontAwesomeIcon icon={faSearch} /> {t('home.noResultsFor')} "{searchTerm}"
             </div>
           )}
         </div>

@@ -19,18 +19,22 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Home from './components/home/Home';
 import SimpleMap from './components/map/SimpleMap';
-import { Query } from './components/query/Query'; 
+import { Query } from './components/query/Query';
+import Chatbot from './components/chatbot/Chatbot';
 import './i18n/config';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/map" element={<SimpleMap />} />
-        <Route path="/query" element={<Query />} />
-      </Routes>
+      <div style={{ height: "100%", width: "100%" }}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/map" element={<SimpleMap />} />
+          <Route path="/query" element={<Query />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

@@ -53,7 +53,7 @@
 .main-slogan {
   font-size: 18px;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 20px;
+  margin: 0;
   font-weight: 400;
   letter-spacing: 0.15px;
 }
@@ -506,8 +506,16 @@
 
 /* ===== SECTION 4: FEATURES ===== */
 .features-section {
+  display: flex;
+  flex-direction: row;
+  gap: 30px;
+  justify-content: center;
   padding: 48px 16px;
   background: white;
+}
+
+.features-section > .container {
+  margin: 0;
 }
 
 .data-types, .features-list {
@@ -1000,6 +1008,10 @@
     padding: 40px 16px;
   }
 
+  .features-section {
+    flex-direction: column;
+  }
+
   .architecture-flow {
     flex-direction: column;
     gap: 12px;
@@ -1076,4 +1088,131 @@
   .license-badge, .license-links, .copyright-info, .license-footer {
     padding: 16px;
   }
+
+  /* Video responsive */
+  .intro_video {
+    margin: 32px auto;
+    padding: 0 12px;
+  }
+
+  .intro_video h3 {
+    font-size: 22px;
+    margin-bottom: 24px;
+  }
+
+  .video-wrapper {
+    padding: 0 16px;
+  }
+
+  .video-container {
+    height: 30vh;
+    min-height: 280px;
+    max-height: 450px;
+    min-width: unset; /* Ghi đè min-width: 600px để responsive mobile */
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .video-container iframe {
+    border-radius: 8px;
+  }
+}
+
+/* Tablet responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .video-wrapper {
+    padding: 0 24px;
+  }
+
+  .intro_video h3 {
+    font-size: 26px;
+  }
+
+  .video-container {
+    height: 32vh;
+    min-height: 380px;
+    max-height: 550px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .intro_video {
+    margin: 24px auto;
+  }
+
+  .intro_video h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .video-wrapper {
+    padding: 0 12px;
+  }
+
+  .video-container {
+    height: 40vh; /* Chiếm 40% trên điện thoại nhỏ */
+    min-height: 240px;
+    max-height: 360px;
+    min-width: unset !important; /* Ghi đè min-width: 600px để responsive mobile */
+    border-radius: 8px;
+  }
+
+  .video-container iframe {
+    border-radius: 8px;
+  }
+}
+
+.hero-header{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo_hou_home{
+  width: 80px;
+  height: auto;
+  margin-right: 20px;
+}
+
+/* ===== VIDEO SECTION ===== */
+.intro_video {
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.intro_video h3 {
+  font-size: 28px;
+  font-weight: 500;
+  color: #212121;
+  margin-bottom: 32px;
+  text-align: center;
+  letter-spacing: 0.15px;
+}
+
+.video-wrapper {
+  max-width: 100%;
+  width: 100%;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  min-height: 295px; 
+  min-width: 600px;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: #000;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
 }

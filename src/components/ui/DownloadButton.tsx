@@ -17,6 +17,9 @@
 
 import React, { useState } from 'react';
 import { generateXML, generateRDF, downloadFile } from '../../utils/dataExport';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload, faFileCode, faLink } from '@fortawesome/free-solid-svg-icons';
+import '../../styles/components/DownloadButton.css';
 
 interface DownloadButtonProps {
   data: any;
@@ -60,22 +63,22 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className="download-button-container">
       <button 
         className="download-btn"
         onClick={() => setShowMenu(!showMenu)}
         title="Download data"
       >
-        ⬇️
+        <FontAwesomeIcon icon={faDownload} />
       </button>
       
       {showMenu && (
         <div className="download-menu">
           <button onClick={handleDownloadXML}>
-            📄 Download as XML
+            <FontAwesomeIcon icon={faFileCode} /> Download as XML
           </button>
           <button onClick={handleDownloadRDF}>
-            🔗 Download as RDF/XML
+            <FontAwesomeIcon icon={faLink} /> Download as RDF/XML
           </button>
         </div>
       )}

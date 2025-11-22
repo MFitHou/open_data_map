@@ -16,7 +16,9 @@
  */
 
 import React from "react";
-import "../../styles/Info.css";
+import "../../styles/components/Info.css";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChartBar, faSpinner, faSearch } from '@fortawesome/free-solid-svg-icons';
 
 interface InfoProps {
   wardName?: string;
@@ -45,13 +47,15 @@ export const Info: React.FC<InfoProps> = ({
   return (
     <div className="info-container">
       <div className="info-header">
-        <h4>📊 Thông tin phường</h4>
+        <h4><FontAwesomeIcon icon={faChartBar} /> Ward Information</h4>
       </div>
 
       {isLoadingBoundary ? (
         <div className="info-loading">
-          <div className="loading-spinner">⏳</div>
-          <p>Đang tải ranh giới...</p>
+          <div className="loading-spinner">
+            <FontAwesomeIcon icon={faSpinner} spin />
+          </div>
+          <p>Loading boundary...</p>
         </div>
       ) : wardName ? (
         <div className="info-content">
@@ -66,7 +70,7 @@ export const Info: React.FC<InfoProps> = ({
             <div className="stat-item">
               <div className="stat-icon">📏</div>
               <div className="stat-details">
-                <div className="stat-label">Diện tích</div>
+                <div className="stat-label">Area</div>
                 <div className="stat-value">{stats.calculatedArea} km²</div>
               </div>
             </div>
@@ -75,7 +79,7 @@ export const Info: React.FC<InfoProps> = ({
               <div className="stat-item">
                 <div className="stat-icon">👥</div>
                 <div className="stat-details">
-                  <div className="stat-label">Dân số</div>
+                  <div className="stat-label">Population</div>
                   <div className="stat-value">
                     {stats.population.toLocaleString()}
                   </div>
@@ -87,9 +91,9 @@ export const Info: React.FC<InfoProps> = ({
               <div className="stat-item">
                 <div className="stat-icon">🏘️</div>
                 <div className="stat-details">
-                  <div className="stat-label">Mật độ</div>
+                  <div className="stat-label">Density</div>
                   <div className="stat-value">
-                    {stats.density.toLocaleString()} người/km²
+                    {stats.density.toLocaleString()} people/km²
                   </div>
                 </div>
               </div>
@@ -98,36 +102,38 @@ export const Info: React.FC<InfoProps> = ({
 
           {/* POIs */}
           <div className="info-section">
-            <div className="section-title">Dịch vụ công cộng</div>
+            <div className="section-title">Public Services</div>
             
             {isLoadingPOIs ? (
               <div className="poi-loading">
-                <div className="loading-spinner">⏳</div>
-                <span>Đang tải dịch vụ...</span>
+                <div className="loading-spinner">
+                  <FontAwesomeIcon icon={faSpinner} spin />
+                </div>
+                <span>Loading services...</span>
               </div>
             ) : (
               <div className="poi-grid">
                 <div className="poi-item">
                   <span className="poi-icon">🏫</span>
-                  <span className="poi-label">Trường học</span>
+                  <span className="poi-label">Schools</span>
                   <span className="poi-count">{pois.schools}</span>
                 </div>
 
                 <div className="poi-item">
                   <span className="poi-icon">🏥</span>
-                  <span className="poi-label">Y tế</span>
+                  <span className="poi-label">Healthcare</span>
                   <span className="poi-count">{pois.hospitals}</span>
                 </div>
 
                 <div className="poi-item">
                   <span className="poi-icon">🍴</span>
-                  <span className="poi-label">Ăn uống</span>
+                  <span className="poi-label">Restaurants</span>
                   <span className="poi-count">{pois.restaurants}</span>
                 </div>
 
                 <div className="poi-item">
                   <span className="poi-icon">🏦</span>
-                  <span className="poi-label">Ngân hàng</span>
+                  <span className="poi-label">Banks</span>
                   <span className="poi-count">{pois.banks}</span>
                 </div>
               </div>
@@ -136,8 +142,10 @@ export const Info: React.FC<InfoProps> = ({
         </div>
       ) : (
         <div className="info-empty">
-          <div className="empty-icon">🔍</div>
-          <p>Tìm kiếm và chọn một phường để xem thông tin chi tiết</p>
+          <div className="empty-icon">
+            <FontAwesomeIcon icon={faSearch} size="2x" />
+          </div>
+          <p>Search and select a ward to view detailed information</p>
         </div>
       )}
     </div>
