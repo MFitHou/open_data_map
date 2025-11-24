@@ -21,6 +21,12 @@ export interface OverpassGeoJSON {
   features: any[];
 }
 
+export interface OutlineResult {
+  geojson: OverpassGeoJSON | null;
+  source: string;
+  relationId?: number;
+}
+
 const ADMIN_REL_QUERY = (qid: string) => `[out:json][timeout:25];
 relation
   ["wikidata"="${qid}"]
@@ -149,6 +155,77 @@ export async function fetchOverpassOutline(qid: string): Promise<OverpassGeoJSON
   const raw = await fetchOverpassRaw(qid);
   if (!raw) return null;
   return overpassToGeoJSON(raw, qid);
+}
+
+// Helper function to convert raw Overpass response to OutlineResult
+function rawToOutline(raw: any): OutlineResult {
+  if (!raw?.elements?.length) {
+    return { geojson: null, source: 'no-elements' };
+  }
+
+  // Try to build GeoJSON from relation
+  const rel = raw.elements.find((e: any) => e.type === 'relation');
+  if (rel && rel.members) {
+    const memberWays = rel.members
+      .map((m: any) => {
+        if (m.geometry) return m;
+        return raw.elements.find((e: any) => e.type === m.type && e.id === m.ref && e.geometry) || m;
+      })
+      .filter((m: any) => m.geometry);
+
+    const rings = buildPolygonsFromMembers(memberWays);
+    if (rings.length) {
+      const geojson: OverpassGeoJSON = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: { source: 'overpass-osm-id', kind: 'relation-boundary', id: rel.id },
+            geometry: rings.length === 1
+              ? { type: 'Polygon', coordinates: rings }
+              : { type: 'MultiPolygon', coordinates: rings.map(r => [r]) }
+          }
+        ]
+      };
+      return { geojson, source: 'relation-polygon' };
+    }
+
+    // Fallback: MultiLineString
+    const lines = waysToMultiLine(memberWays);
+    if (lines.length) {
+      const geojson: OverpassGeoJSON = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: { source: 'overpass-osm-id', kind: 'relation-lines', id: rel.id },
+            geometry: { type: 'MultiLineString', coordinates: lines }
+          }
+        ]
+      };
+      return { geojson, source: 'relation-lines' };
+    }
+  }
+
+  // Try ways directly
+  const wayLines = waysToMultiLine(raw.elements);
+  if (wayLines.length) {
+    const geojson: OverpassGeoJSON = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { source: 'overpass-osm-id', kind: 'way-lines' },
+          geometry: wayLines.length === 1
+            ? { type: 'LineString', coordinates: wayLines[0] }
+            : { type: 'MultiLineString', coordinates: wayLines }
+        }
+      ]
+    };
+    return { geojson, source: 'way-lines' };
+  }
+
+  return { geojson: null, source: 'no-geometry' };
 }
 
 export async function fetchOutlineByOSMRelationId(osmRelationId: number): Promise<OutlineResult> {

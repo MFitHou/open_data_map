@@ -1,0 +1,35 @@
+/**
+ * Copyright (C) 2025 MFitHou
+ */
+
+.language-switcher {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.language-switcher__button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.language-switcher__button:hover {
+  background-color: #f0f0f0;
+  border-color: #999;
+}
+
+.language-switcher__button--active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+.language-switcher__button--active:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}

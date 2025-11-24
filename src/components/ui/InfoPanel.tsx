@@ -16,7 +16,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import '../../styles/InfoPanel.css';
+import { useTranslation } from 'react-i18next';
+import '../../styles/components/InfoPanel.css';
 import { DownloadButton } from './DownloadButton';
 import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
 import type { WikidataInfo, ReferenceInfo } from '../../utils/wikidataUtils';
@@ -24,6 +25,23 @@ import { resolveValueLink, generateExternalLinks } from '../../utils/linkResolve
 import type { ExternalLink } from '../../utils/linkResolver';
 import { fetchNearbyPlaces, getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faSearch,
+  faSpinner,
+  faCircleXmark,
+  faCircleCheck,
+  faXmark,
+  faMapLocationDot,
+  faRoute,
+  faChartBar,
+  faList,
+  faLink,
+  faFileLines,
+  faBook,
+  faUsers,
+  faBolt
+} from '@fortawesome/free-solid-svg-icons';
 
 
 interface InfoPanelProps {
@@ -81,6 +99,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   memberNames = {},
   onNearbyPlacesChange
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
   const [references, setReferences] = useState<ReferenceInfo[]>([]);
@@ -194,7 +213,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   // ✅ Render Nearby content với nút Search
   const renderNearbyContent = () => {
     if (!data.coordinates) {
-      return <div className="no-data">❌ Không có tọa độ để tìm kiếm địa điểm gần</div>;
+      return <div className="no-data"><FontAwesomeIcon icon={faCircleXmark} /> No coordinates available for nearby search</div>;
     }
 
     return (
@@ -202,22 +221,23 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         {/* Filters */}
         <div className="nearby-filters">
           <div className="filter-group">
-            <label htmlFor="amenity-select">🏷️ Loại địa điểm:</label>
+            <label htmlFor="amenity-select">🏷️{t('map.nearby.selectType')}</label>
             <select 
               id="amenity-select"
               value={nearbyAmenity} 
               onChange={(e) => handleAmenityChange(e.target.value)}
               className="nearby-select"
             >
-              <option value="toilets">🚻 Nhà vệ sinh</option>
-              <option value="atms">🏧 ATM</option>
-              <option value="hospitals">🏥 Bệnh viện</option>
-              <option value="bus-stops">🚌 Trạm xe buýt</option>
+              <option value="drinking-water">💧 Drinking Water</option>
+              <option value="toilets">🚻 Toilets</option>
+              <option value="atms">🏧 ATMs</option>
+              <option value="hospitals">🏥 Hospitals</option>
+              <option value="bus-stops">🚌 Bus stops</option>
             </select>
           </div>
 
           <div className="filter-group">
-            <label htmlFor="radius-select">📏 Bán kính:</label>
+            <label htmlFor="radius-select">{t('map.nearby.selectRadius')}</label>
             <select 
               id="radius-select"
               value={nearbyRadius} 
@@ -238,24 +258,28 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             onClick={handleSearchNearby}
             disabled={isLoadingNearby}
           >
-            {isLoadingNearby ? '⏳ Đang tìm...' : '🔍 Tìm kiếm'}
+            {isLoadingNearby ? (
+              <><FontAwesomeIcon icon={faSpinner} spin /> Searching...</>
+            ) : (
+              <><FontAwesomeIcon icon={faSearch} /> Search</>
+            )}
           </button>
         </div>
 
         {/* Results */}
         {isLoadingNearby ? (
-          <div className="loading">⏳ Đang tìm kiếm địa điểm gần...</div>
+          <div className="loading"><FontAwesomeIcon icon={faSpinner} spin /> Searching for nearby places...</div>
         ) : nearbyPlaces.length === 0 ? (
           <div className="no-data">
             {!hasSearchedNearby
-              ? 'ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn "Tìm kiếm"'
-              : `❌ Không tìm thấy ${nearbyAmenity} trong bán kính ${nearbyRadius} km`
+              ? 'ℹ️ Select place type and radius, then click "Search"'
+              : <><FontAwesomeIcon icon={faCircleXmark} /> No {nearbyAmenity} found within {nearbyRadius} km radius</>
             }
           </div>
         ) : (
           <div className="reference-group">
             <div className="reference-title">
-              ✅ Tìm thấy {nearbyPlaces.length} {nearbyAmenity} trong bán kính {nearbyRadius} km
+              <FontAwesomeIcon icon={faCircleCheck} /> Found {nearbyPlaces.length} {nearbyAmenity} within {nearbyRadius} km radius
             </div>
             
             {nearbyPlaces.map((place, idx) => (
@@ -266,14 +290,14 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                     {getPlaceName(place, idx)}
                   </span>
                   <span className="nearby-distance">
-                    📍 {(place.distanceKm * 1000).toFixed(0)}m
+                    <FontAwesomeIcon icon={faMapLocationDot} /> {(place.distanceKm * 1000).toFixed(0)}m
                   </span>
                 </div>
 
                 <div className="nearby-details">
                   {/* Type */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Loại:</span>
+                    <span className="detail-label">{t('map.nearby.type')}:</span>
                     <span className="detail-value">
                       {place.highway || place.amenity || 'N/A'}
                     </span>
@@ -282,7 +306,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Brand */}
                   {place.brand && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Thương hiệu:</span>
+                      <span className="detail-label">{t('map.nearby.brand')}:</span>
                       <span className="detail-value">{place.brand}</span>
                     </div>
                   )}
@@ -290,7 +314,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Operator */}
                   {place.operator && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Vận hành:</span>
+                      <span className="detail-label">{t('map.nearby.operator')}:</span>
                       <span className="detail-value">{place.operator}</span>
                     </div>
                   )}
@@ -298,7 +322,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Access */}
                   {place.access && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Truy cập:</span>
+                      <span className="detail-label">Access:</span>
                       <span className="detail-value">{place.access}</span>
                     </div>
                   )}
@@ -306,16 +330,16 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Fee */}
                   {place.fee && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Phí:</span>
+                      <span className="detail-label">Fee:</span>
                       <span className="detail-value">
-                        {place.fee === 'yes' ? 'Có phí' : 'Miễn phí'}
+                        {place.fee === 'yes' ? 'Paid' : 'Free'}
                       </span>
                     </div>
                   )}
                   
                   {/* Coordinates */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Tọa độ:</span>
+                    <span className="detail-label">{t('map.info.coordinates')}:</span>
                     <a 
                       href={`https://www.google.com/maps?q=${place.lat},${place.lon}`}
                       target="_blank"
@@ -352,7 +376,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const renderRouteContent = () => {
     return (
       <div className="no-data">
-        🚧 Chức năng tính đường đi đang được phát triển...
+        🚧 Route calculation feature is under development...
       </div>
     );
   };
@@ -361,7 +385,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const renderStatisticsContent = () => {
     return (
       <div className="no-data">
-        📊 Chức năng thống kê đang được phát triển...
+        <FontAwesomeIcon icon={faChartBar} size="2x" /> Statistics feature is under development...
       </div>
     );
   };
@@ -376,21 +400,21 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             className={`sub-tab-btn ${activeTaskTab === 'nearby' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('nearby')}
           >
-            📍 Địa điểm gần
+            <FontAwesomeIcon icon={faMapLocationDot} /> Nearby Places
           </button>
           <button 
             className={`sub-tab-btn ${activeTaskTab === 'route' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('route')}
             disabled
           >
-            🗺️ Tính đường đi
+            <FontAwesomeIcon icon={faRoute} /> Route Calculator
           </button>
           <button 
             className={`sub-tab-btn ${activeTaskTab === 'statistics' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('statistics')}
             disabled
           >
-            📊 Thống kê
+            <FontAwesomeIcon icon={faChartBar} /> Statistics
           </button>
         </div>
 
@@ -616,9 +640,11 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       <div className="tab-content">
         {/* Thống kê tổng quan */}
         <div className="reference-group">
-          <div className="reference-title">📊 Tổng quan Members</div>
+          <div className="reference-title">
+            <FontAwesomeIcon icon={faChartBar} /> Members Overview
+          </div>
           <div className="data-row">
-            <span className="data-label">Tổng số</span>
+            <span className="data-label">Total</span>
             <span className="data-value">{total} members</span>
           </div>
           <div className="data-row">
@@ -714,7 +740,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               })}
               {members.length > 20 && (
                 <div className="no-data" style={{ padding: '10px', fontSize: '12px' }}>
-                  Hiển thị 20/{members.length} items
+                  Showing 20/{members.length} items
                 </div>
               )}
             </div>
@@ -747,7 +773,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             wikidataProperties={wikidataInfo?.allProperties}
             rowPropLabels={rowPropLabels}
           />
-          <button className="close-btn" onClick={onClose}><span>✕</span></button>
+          <button className="close-btn" onClick={onClose}>
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
         </div>
       </div>
 
@@ -757,13 +785,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
           onClick={() => setActiveTab('basic')}
         >
-          📋 Cơ bản
+          <FontAwesomeIcon icon={faList} /> Basic
         </button>
         <button 
           className={`tab-btn ${activeTab === 'identifiers' ? 'active' : ''}`}
           onClick={() => setActiveTab('identifiers')}
         >
-          🔗 Định danh
+          <FontAwesomeIcon icon={faLink} /> Identifiers
         </button>
         {data.wikidataId && (
           <>
@@ -771,13 +799,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               className={`tab-btn ${activeTab === 'statements' ? 'active' : ''}`}
               onClick={() => setActiveTab('statements')}
             >
-              📊 Thuộc tính
+              <FontAwesomeIcon icon={faFileLines} /> Statements
             </button>
             <button 
               className={`tab-btn ${activeTab === 'references' ? 'active' : ''}`}
               onClick={() => setActiveTab('references')}
             >
-              📚 Tham chiếu
+              <FontAwesomeIcon icon={faBook} /> References
             </button>
           </>
         )}
@@ -786,7 +814,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
             onClick={() => setActiveTab('members')}
           >
-            👥 Thành viên
+            <FontAwesomeIcon icon={faUsers} /> Members
           </button>
         )}
         {/* ✅ Tasks Tab */}
@@ -794,7 +822,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
           onClick={() => setActiveTab('tasks')}
         >
-          ⚡ Tác vụ
+          <FontAwesomeIcon icon={faBolt} /> Tasks
         </button>
       </div>
 
