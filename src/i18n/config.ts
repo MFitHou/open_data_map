@@ -29,14 +29,14 @@ i18n
             vi: { translation: vi },
             en: { translation: en }
         },
-        lng: 'vi', // Ngôn ngữ mặc định
         fallbackLng: 'vi', // Fallback nếu không tìm thấy translation
         interpolation: {
             escapeValue: false // React đã escape XSS
         },
         detection: {
             order: ['localStorage', 'navigator'], // Ưu tiên localStorage > browser setting
-            caches: ['localStorage']
+            caches: ['localStorage'],
+            lookupLocalStorage: 'i18nextLng' // Key trong localStorage
         }
     });
 export default i18n;

@@ -108,6 +108,7 @@
       "selectType": "🏷️ Place Type:",
       "selectRadius": "📏 Radius:",
       "toilets": "🚻 Toilets",
+      "drinkingWater": "Drinking Water",
       "atms": "🏧 ATMs",
       "hospitals": "🏥 Hospitals",
       "busStops": "🚌 Bus Stops",
@@ -138,16 +139,67 @@
       "distance": "Distance",
       "viewOnWikidata": "View on Wikidata",
       "viewOnOSM": "View on OpenStreetMap",
-      "noData": "No data available"
+      "noData": "No data available",
+      "wardInfo": "Ward Information",
+      "loadingBoundary": "Loading boundary...",
+      "area": "Area",
+      "population": "Population",
+      "density": "Density",
+      "peoplePerKm": "people/km²",
+      "publicServices": "Public Services",
+      "loadingServices": "Loading services...",
+      "schools": "Schools",
+      "healthcare": "Healthcare",
+      "restaurants": "Restaurants",
+      "banks": "Banks",
+      "emptyState": "Search and select a ward to view detailed information",
+      "noCoordinates": "No coordinates available for nearby search",
+      "nearbyPlaces": "Nearby Places",
+      "routeCalculator": "Route Calculator",
+      "statistics": "Statistics",
+      "routeUnderDev": "Route calculation feature is under development...",
+      "statsUnderDev": "Statistics feature is under development...",
+      "access": "Access",
+      "fee": "Fee",
+      "paid": "Paid",
+      "free": "Free",
+      "poiUri": "POI URI",
+      "noIdentifiers": "No identifiers available",
+      "inception": "Inception",
+      "areaKm": "Area (km²)",
+      "postalCode": "Postal Code",
+      "noStatements": "No statements available",
+      "noReferences": "No references or external links available",
+      "externalLinks": "External Links",
+      "references": "References",
+      "reference": "Reference",
+      "noMembers": "No members data available",
+      "outerWays": "Outer Ways",
+      "innerWays": "Inner Ways",
+      "nodes": "Nodes",
+      "subAreas": "Sub-areas (Relations)",
+      "membersOverview": "Members Overview",
+      "total": "Total",
+      "members": "members",
+      "type": "Type",
+      "id": "ID",
+      "tags": "Tags",
+      "showingItems": "Showing {{shown}}/{{total}} items"
     },
     "download": {
       "button": "Download Data",
+      "downloadXML": "Download as XML",
+      "downloadRDF": "Download as RDF/XML",
       "formats": {
         "json": "JSON",
         "csv": "CSV",
         "geojson": "GeoJSON"
       }
-    }
+    },
+    "yourLocation": "Your Location",
+    "memberType": "Type",
+    "memberWay": "Way",
+    "memberRelation": "Relation"
   },
   "query": {
     "title": "SPARQL Query",
@@ -165,7 +217,14 @@
       "allATMs": "🏧 Get first 10 ATMs"
     },
     "prefixes": "Prefixes",
-    "count": "results"
+    "count": "results",
+    "emptyQueryError": "Empty query",
+    "emptyQueryMessage": "Please enter a SPARQL query",
+    "executionError": "Query execution error",
+    "unknownError": "Unknown error",
+    "foundResults": "Found <strong>{{count}}</strong> results",
+    "downloadJSON": "Download JSON",
+    "editorTitle": "Query Editor"
   },
   "tour": {
     "startTour": "Start Tour",
@@ -190,5 +249,20 @@
         "description": "Export data to different formats"
       }
     }
+  },
+  "chatbot": {
+    "welcomeMessage": "Hello! I am your AI assistant. How can I help you today?",
+    "mapWelcomeMessage": "Hello! I can help you with information about locations, landmarks, and geography. What would you like to know?",
+    "inputPlaceholder": "Ask me anything about Vietnam's locations, landmarks, or geography...",
+    "mapInputPlaceholder": "Ask about locations...",
+    "thinking": "Thinking...",
+    "sendButton": "Send message",
+    "processingError": "Sorry, I could not process your request.",
+    "errorMessage": "⚠️ Sorry, I encountered an error. Please try again later.",
+    "noResponse": "No response received",
+    "failedResponse": "⚠️ Failed to get response. Please try again.",
+    "responseLabel": "Response:",
+    "aiAssistant": "AI Assistant",
+    "openAiAssistant": "Open AI Assistant"
   }
 }

@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationCrosshairs, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/components/CurrentLocationButton.css';
@@ -29,12 +30,14 @@ export const CurrentLocationButton: React.FC<CurrentLocationButtonProps> = ({
   isGettingLocation,
   onClick
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <button
       className="current-location-button"
       onClick={onClick}
       disabled={isGettingLocation}
-      title="Current Location"
+      title={t('common.button.getCurrentLocation')}
     >
       {isGettingLocation ? (
         <FontAwesomeIcon icon={faSpinner} spin />

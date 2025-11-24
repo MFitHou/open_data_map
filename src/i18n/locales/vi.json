@@ -108,6 +108,7 @@
       "selectType": "🏷️ Loại địa điểm:",
       "selectRadius": "📏 Bán kính:",
       "toilets": "🚻 Nhà vệ sinh",
+      "drinkingWater": "Nước uống",
       "atms": "🏧 ATM",
       "hospitals": "🏥 Bệnh viện",
       "busStops": "🚌 Trạm xe buýt",
@@ -138,16 +139,67 @@
       "distance": "Khoảng cách",
       "viewOnWikidata": "Xem trên Wikidata",
       "viewOnOSM": "Xem trên OpenStreetMap",
-      "noData": "Không có dữ liệu"
+      "noData": "Không có dữ liệu",
+      "wardInfo": "Thông tin phường/xã",
+      "loadingBoundary": "Đang tải ranh giới...",
+      "area": "Diện tích",
+      "population": "Dân số",
+      "density": "Mật độ",
+      "peoplePerKm": "người/km²",
+      "publicServices": "Dịch vụ công cộng",
+      "loadingServices": "Đang tải dịch vụ...",
+      "schools": "Trường học",
+      "healthcare": "Y tế",
+      "restaurants": "Nhà hàng",
+      "banks": "Ngân hàng",
+      "emptyState": "Tìm kiếm và chọn một phường/xã để xem thông tin chi tiết",
+      "noCoordinates": "Không có tọa độ để tìm kiếm gần đây",
+      "nearbyPlaces": "Địa điểm gần đây",
+      "routeCalculator": "Tính toán lộ trình",
+      "statistics": "Thống kê",
+      "routeUnderDev": "Tính năng tính toán lộ trình đang được phát triển...",
+      "statsUnderDev": "Tính năng thống kê đang được phát triển...",
+      "access": "Truy cập",
+      "fee": "Phí",
+      "paid": "Có phí",
+      "free": "Miễn phí",
+      "poiUri": "POI URI",
+      "noIdentifiers": "Không có định danh",
+      "inception": "Thành lập",
+      "areaKm": "Diện tích (km²)",
+      "postalCode": "Mã bưu điện",
+      "noStatements": "Không có thuộc tính",
+      "noReferences": "Không có tham chiếu hoặc liên kết ngoài",
+      "externalLinks": "Liên kết ngoài",
+      "references": "Tham chiếu",
+      "reference": "Tham chiếu",
+      "noMembers": "Không có dữ liệu thành viên",
+      "outerWays": "Outer Ways",
+      "innerWays": "Inner Ways",
+      "nodes": "Nodes",
+      "subAreas": "Sub-areas (Relations)",
+      "membersOverview": "Tổng quan thành viên",
+      "total": "Tổng",
+      "members": "thành viên",
+      "type": "Loại",
+      "id": "ID",
+      "tags": "Tags",
+      "showingItems": "Hiển thị {{shown}}/{{total}} mục"
     },
     "download": {
       "button": "Tải xuống dữ liệu",
+      "downloadXML": "Tải xuống dưới dạng XML",
+      "downloadRDF": "Tải xuống dưới dạng RDF/XML",
       "formats": {
         "json": "JSON",
         "csv": "CSV",
         "geojson": "GeoJSON"
       }
-    }
+    },
+    "yourLocation": "Vị trí của bạn",
+    "memberType": "Loại",
+    "memberWay": "Đường",
+    "memberRelation": "Quan hệ"
   },
   "query": {
     "title": "Truy vấn SPARQL",
@@ -165,7 +217,14 @@
       "allATMs": "🏧 Lấy 10 ATM đầu tiên"
     },
     "prefixes": "Prefixes",
-    "count": "số kết quả"
+    "count": "số kết quả",
+    "emptyQueryError": "Truy vấn trống",
+    "emptyQueryMessage": "Vui lòng nhập truy vấn SPARQL",
+    "executionError": "Lỗi thực thi truy vấn",
+    "unknownError": "Lỗi không xác định",
+    "foundResults": "Tìm thấy <strong>{{count}}</strong> kết quả",
+    "downloadJSON": "Tải xuống JSON",
+    "editorTitle": "Trình soạn thảo truy vấn"
   },
   "tour": {
     "startTour": "Hướng dẫn sử dụng",
@@ -190,5 +249,20 @@
         "description": "Xuất dữ liệu ra các định dạng khác nhau"
       }
     }
+  },
+  "chatbot": {
+    "welcomeMessage": "Xin chào! Tôi là trợ lý AI của bạn. Tôi có thể giúp gì cho bạn hôm nay?",
+    "mapWelcomeMessage": "Xin chào! Tôi có thể giúp bạn thông tin về địa điểm, danh lam thắng cảnh và địa lý. Bạn muốn biết gì?",
+    "inputPlaceholder": "Hỏi tôi bất cứ điều gì về địa điểm, danh lam thắng cảnh hoặc địa lý Việt Nam...",
+    "mapInputPlaceholder": "Hỏi về địa điểm...",
+    "thinking": "Đang suy nghĩ...",
+    "sendButton": "Gửi tin nhắn",
+    "processingError": "Xin lỗi, tôi không thể xử lý yêu cầu của bạn.",
+    "errorMessage": "⚠️ Xin lỗi, tôi gặp lỗi. Vui lòng thử lại sau.",
+    "noResponse": "Không nhận được phản hồi",
+    "failedResponse": "⚠️ Không thể nhận phản hồi. Vui lòng thử lại.",
+    "responseLabel": "Phản hồi:",
+    "aiAssistant": "Trợ lý AI",
+    "openAiAssistant": "Mở trợ lý AI"
   }
 }

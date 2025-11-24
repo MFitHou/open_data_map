@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Polyline, Popup, Polygon } from 'react-leaflet';
 import type { MemberOutline } from './types';
 
@@ -24,6 +25,8 @@ interface MemberOutlinesProps {
 }
 
 export const MemberOutlines: React.FC<MemberOutlinesProps> = ({ memberOutline }) => {
+  const { t } = useTranslation();
+  
   if (!memberOutline) return null;
 
   if (memberOutline.type === 'way') {
@@ -37,7 +40,7 @@ export const MemberOutlines: React.FC<MemberOutlinesProps> = ({ memberOutline })
         <Popup>
           <strong>{memberOutline.name}</strong>
           <br />
-          Type: Way
+          {t('map.memberType')}: {t('map.memberWay')}
         </Popup>
       </Polyline>
     );
@@ -58,7 +61,7 @@ export const MemberOutlines: React.FC<MemberOutlinesProps> = ({ memberOutline })
         <Popup>
           <strong>{memberOutline.name}</strong>
           <br />
-          Type: Relation
+          {t('map.memberType')}: {t('map.memberRelation')}
         </Popup>
       </Polygon>
     );

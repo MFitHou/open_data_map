@@ -17,6 +17,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import { getApiEndpoint } from '../../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -36,11 +37,12 @@ interface Message {
 }
 
 const MapChatbot: React.FC = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I can help you with information about locations, landmarks, and geography. What would you like to know?',
+      content: t('chatbot.mapWelcomeMessage'),
       isUser: false,
       timestamp: new Date()
     }
@@ -100,7 +102,7 @@ const MapChatbot: React.FC = () => {
 
       const data = await response.json();
       
-      let botResponseText = 'Sorry, I could not process your request.';
+      let botResponseText = t('chatbot.processingError');
       
       if (Array.isArray(data) && data.length > 0) {
         const firstItem = data[0];
@@ -131,7 +133,7 @@ const MapChatbot: React.FC = () => {
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: '⚠️ Sorry, I encountered an error. Please try again later.',
+        content: t('chatbot.errorMessage'),
         isUser: false,
         timestamp: new Date()
       };
@@ -164,12 +166,12 @@ const MapChatbot: React.FC = () => {
           <div className="map-chatbot-header">
             <div className="map-chatbot-title">
               <FontAwesomeIcon icon={faRobot} className="map-chatbot-icon" />
-              <span>AI Assistant</span>
+              <span>{t('chatbot.aiAssistant')}</span>
             </div>
             <button 
               onClick={() => setIsOpen(false)}
               className="map-chatbot-close-btn"
-              title="Close"
+              title={t('common.button.close')}
             >
               <FontAwesomeIcon icon={faXmark} />
             </button>
@@ -217,7 +219,7 @@ const MapChatbot: React.FC = () => {
                 <div className="map-message-content">
                   <div className="map-message-text map-typing-indicator">
                     <FontAwesomeIcon icon={faSpinner} spin />
-                    <span>Thinking...</span>
+                    <span>{t('chatbot.thinking')}</span>
                   </div>
                 </div>
               </div>
@@ -233,7 +235,7 @@ const MapChatbot: React.FC = () => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about locations..."
+              placeholder={t('chatbot.mapInputPlaceholder')}
               disabled={isLoading}
               className="map-chatbot-input"
             />
@@ -241,7 +243,7 @@ const MapChatbot: React.FC = () => {
               onClick={sendMessage}
               disabled={!inputValue.trim() || isLoading}
               className="map-send-btn"
-              title="Send message"
+              title={t('chatbot.sendButton')}
             >
               <FontAwesomeIcon icon={faPaperPlane} />
             </button>
@@ -254,7 +256,7 @@ const MapChatbot: React.FC = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="map-chatbot-toggle"
-          title="Open AI Assistant"
+          title={t('chatbot.openAiAssistant')}
         >
           <FontAwesomeIcon icon={faRobot} />
           {messages.length > 1 && (

@@ -57,7 +57,7 @@ export const Query: React.FC = () => {
   // ✅ Query mẫu
   const sampleQueries = [
     {
-      name: '🏧 Get first 10 ATMs',
+      name: t('query.examples.allATMs'),
       query: `PREFIX ex: <http://opendatafithou.org/poi/>
 PREFIX geo1: <http://www.opendatafithou.net/ont/geosparql#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -79,7 +79,7 @@ LIMIT 20`
   // ✅ Thực thi query
   const executeQuery = async () => {
     if (!query.trim()) {
-      setError({ message: 'Empty query', error: 'Please enter a SPARQL query' });
+      setError({ message: t('query.emptyQueryError'), error: t('query.emptyQueryMessage') });
       return;
     }
 
@@ -106,8 +106,8 @@ LIMIT 20`
       setActiveTab('table');
     } catch (err: any) {
       setError({
-        message: 'Query execution error',
-        error: err.message || 'Unknown error'
+        message: t('query.executionError'),
+        error: err.message || t('query.unknownError')
       });
     } finally {
       setIsLoading(false);
@@ -147,7 +147,7 @@ LIMIT 20`
   // ✅ Render bảng kết quả
   const renderTable = () => {
     if (!results || results.count === 0) {
-      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> No results</div>;
+      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> {t('query.noResults')}</div>;
     }
 
     const columns = Object.keys(results.data[0]);
@@ -155,7 +155,7 @@ LIMIT 20`
     return (
       <div className="results-table-wrapper">
         <div className="results-header">
-          <FontAwesomeIcon icon={faCircleCheck} /> Found <strong>{results.count}</strong> results
+          <FontAwesomeIcon icon={faCircleCheck} /> <span dangerouslySetInnerHTML={{ __html: t('query.foundResults', { count: results.count }) }} />
         </div>
         <table className="results-table">
           <thead>
@@ -177,7 +177,7 @@ LIMIT 20`
                         {row[col]}
                       </a>
                     ) : (
-                      String(row[col] || 'N/A')
+                      String(row[col] || t('common.status.noData'))
                     )}
                   </td>
                 ))}
@@ -192,7 +192,7 @@ LIMIT 20`
   // ✅ Render JSON
   const renderJSON = () => {
     if (!results) {
-      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> No results</div>;
+      return <div className="no-results"><FontAwesomeIcon icon={faCircleXmark} /> {t('query.noResults')}</div>;
     }
 
     return (
@@ -202,7 +202,7 @@ LIMIT 20`
         </pre>
         <div className="json-footer">
           <button className="download-json-btn" onClick={downloadJSON}>
-            <FontAwesomeIcon icon={faDownload} /> Download JSON
+            <FontAwesomeIcon icon={faDownload} /> {t('query.downloadJSON')}
           </button>
         </div>
       </>
@@ -237,7 +237,7 @@ LIMIT 20`
         {/* Query Editor - Left Side */}
         <div className="query-editor">
           <div className="editor-header">
-            <span>✏️ {t('query.title')} Editor</span>
+            <span>✏️ {t('query.editorTitle')}</span>
             <div className="editor-actions">
               <button className="action-btn" onClick={clearAll} title={t('common.button.clear')}>
                 <FontAwesomeIcon icon={faTrash} /> {t('common.button.clear')}
