@@ -479,16 +479,8 @@ const Home: React.FC = () => {
             </div>
           </div>
           <div className="description">
-            <p>
-              OpenDataFitHou is an open-source project that collects and links open data from Wikidata, 
-              OpenStreetMap, and many other sources. We standardize data into 
-              Linked Open Data (RDF) format and visualize it on maps, making 
-              queries, analysis, and application development easier.
-            </p>
-            <p>
-              The project contributes to digital transformation and opens up opportunities 
-              to exploit open data for research, education, and the community. 🌍✨
-            </p>
+            <p>{t('home.description')}</p>
+            <p>{t('home.descriptionExtra')}</p>
           </div>
         </div>
       </section>
@@ -496,22 +488,22 @@ const Home: React.FC = () => {
       {/* Section 2: Project Introduction */}
       <section className="intro-section">
         <div className="container">
-          <h2 className="section-title">📋 Project Introduction</h2>
+          <h2 className="section-title">{t('home.intro.title')}</h2>
           <div className="intro-grid">
             <div className="intro-card">
               <div className="intro-icon">🎯</div>
-              <h3>Objective</h3>
-              <p>Collect, standardize, and provide open data in Linked Open Data format</p>
+              <h3>{t('home.intro.objectiveTitle')}</h3>
+              <p>{t('home.intro.objective')}</p>
             </div>
             <div className="intro-card">
               <div className="intro-icon">🌟</div>
-              <h3>Context</h3>
-              <p>Part of OLP PMNM 2025, serving research & digital transformation</p>
+              <h3>{t('home.intro.contextTitle')}</h3>
+              <p>{t('home.intro.context')}</p>
             </div>
             <div className="intro-card">
               <div className="intro-icon">🔮</div>
-              <h3>Vision</h3>
-              <p>Data transparency, community support, easy reuse</p>
+              <h3>{t('home.intro.visionTitle')}</h3>
+              <p>{t('home.intro.vision')}</p>
             </div>
           </div>
         </div>
@@ -521,7 +513,7 @@ const Home: React.FC = () => {
       <section className="features-section">
         <div className="container">
           <div className="data-types">
-            <h3>📊 Data Types</h3>
+            <h3>{t('home.features.dataTypesTitle')}</h3>
             <div className="data-tags">
               <span className="data-tag">🚌 Bus Stop</span>
               <span className="data-tag">🏧 ATM</span>
@@ -534,31 +526,31 @@ const Home: React.FC = () => {
           </div>
 
           <div className="features-list">
-            <h3>⭐ Key Features</h3>
+            <h3>{t('home.features.title')}</h3>
             <div className="features-grid">
               <div className="feature-item">
                 <span className="feature-icon">🔍</span>
-                <span>Search places in Vietnam</span>
+                <span>{t('home.features.search')}</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">📍</span>
-                <span>Display and highlight places on map</span>
+                <span>{t('home.features.display')}</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">📋</span>
-                <span>Display detailed place information</span>
+                <span>{t('home.features.details')}</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">🔄</span>
-                <span>Find nearby services like ATMs, Bus stops</span>
+                <span>{t('home.features.nearby')}</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">⬇️</span>
-                <span>Download place data in XML or RDF format</span>
+                <span>{t('home.features.download')}</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">🌍</span>
-                <span>Query data with SPARQL</span>
+                <span>{t('home.features.query')}</span>
               </div>
             </div>
           </div>
@@ -566,7 +558,7 @@ const Home: React.FC = () => {
 
         {/* Introduction Video Section */}
         <div className='container intro_video'>
-          <h3>Introduction Video</h3>
+          <h3>{t('home.video.title')}</h3>
           <div className="video-wrapper">
             <div className="video-container">
               <iframe
@@ -584,58 +576,55 @@ const Home: React.FC = () => {
       {/* Section 6: License Information */}
       <section className="license-section">
         <div className="container">
-          <h2 className="section-title">📄 License Information</h2>
+          <h2 className="section-title">{t('home.license.title')}</h2>
           
           <div className="license-content">
             <div className="license-main">
               <div className="license-header">
                 <span className="license-icon">⚖️</span>
                 <div className="license-info">
-                  <h3>GNU General Public License v3.0</h3>
-                  <p className="license-subtitle">Open Source License</p>
+                  <h3>{t('home.license.name')}</h3>
+                  <p className="license-subtitle">{t('home.license.subtitle')}</p>
                 </div>
               </div>
               
               <div className="license-description">
-                <p>
-                  OpenDataFitHou is released under the <strong>GNU GPL v3.0</strong> license, 
-                  ensuring openness and freedom for the community. You can:
-                </p>
+                <p dangerouslySetInnerHTML={{ __html: t('home.license.description') }} />
                 
                 <div className="license-permissions">
                   <div className="permission-item">
                     <span className="permission-icon">✅</span>
-                    <span><strong>Use</strong> - Run the program for any purpose</span>
+                    <span dangerouslySetInnerHTML={{ __html: t('home.license.permissions.use') }} />
                   </div>
                   <div className="permission-item">
                     <span className="permission-icon">✅</span>
-                    <span><strong>Study</strong> - View and learn from the source code</span>
+                    <span dangerouslySetInnerHTML={{ __html: t('home.license.permissions.study') }} />
                   </div>
                   <div className="permission-item">
                     <span className="permission-icon">✅</span>
-                    <span><strong>Distribute</strong> - Share with others</span>
+                    <span dangerouslySetInnerHTML={{ __html: t('home.license.permissions.distribute') }} />
                   </div>
                   <div className="permission-item">
                     <span className="permission-icon">✅</span>
-                    <span><strong>Modify</strong> - Change and improve</span>
+                    <span dangerouslySetInnerHTML={{ __html: t('home.license.permissions.modify') }} />
                   </div>
                 </div>
               </div>
               
               <div className="license-requirements">
-                <h4>📋 Usage Requirements:</h4>
+                <h4>{t('home.license.requirementsTitle')}</h4>
                 <div className="requirement-list">
                   <div className="requirement-item">
                     <span className="requirement-icon">📝</span>
-                    <span>Preserve copyright and license notices</span>
+                    <span>{t('home.license.requirements.preserve')}</span>
                   </div>
                   <div className="requirement-item">
                     <span className="requirement-icon">🔄</span>
-                    <span>Distributions must use the same GPL v3.0 license</span>
+                    <span>{t('home.license.requirements.sameLicense')}</span>
                   </div>
                   <div className="requirement-item">
                     <span className="requirement-icon">📖</span>
-                    <span>Disclose source code when distributing software</span>
+                    <span>{t('home.license.requirements.disclose')}</span>
                   </div>
                 </div>
               </div>
@@ -651,38 +640,32 @@ const Home: React.FC = () => {
                    target="_blank" 
                    rel="noopener noreferrer"
                    className="license-link">
-                  📖 Read full license text
+                  {t('home.license.links.readFull')}
                 </a>
                 <a href="https://github.com/MFitHou/open_data_map/blob/main/LICENSE" 
                    target="_blank" 
                    rel="noopener noreferrer"
                    className="license-link">
-                  📄 View LICENSE file
+                  {t('home.license.links.viewFile')}
                 </a>
                 <a href="https://choosealicense.com/licenses/gpl-3.0/" 
                    target="_blank" 
                    rel="noopener noreferrer"
                    className="license-link">
-                  ❓ Learn more about GPL v3.0
+                  {t('home.license.links.learnMore')}
                 </a>
               </div>
               
               <div className="copyright-info">
-                <h5>© 2025 OpenDataFitHou</h5>
-                <p>All contributors</p>
-                <p className="copyright-note">
-                  Project under <strong>OLP PMNM 2025</strong> program
-                </p>
+                <h5>{t('home.license.copyright')}</h5>
+                <p>{t('home.license.contributors')}</p>
+                <p className="copyright-note" dangerouslySetInnerHTML={{ __html: t('home.license.program') }} />
               </div>
             </div>
           </div>
           
           <div className="license-footer">
-            <p className="disclaimer">
-              <strong>Note:</strong> This is only a summary of the license information. 
-              Please read the full <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank" rel="noopener noreferrer">GNU GPL v3.0</a> 
-              to fully understand your rights and obligations.
-            </p>
+            <p className="disclaimer" dangerouslySetInnerHTML={{ __html: t('home.license.disclaimer') }} />
           </div>
         </div>
       </section>
@@ -697,12 +680,12 @@ const Home: React.FC = () => {
             </div>
             <div className="footer-links">
               <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a id="map-navigation" href="/map">Map</a>
-              <a id="query-navigation" href="/query">Query Data</a>
+              <a id="map-navigation" href="/map">{t('nav.map')}</a>
+              <a id="query-navigation" href="/query">{t('home.footer.queryData')}</a>
             </div>
             <div className="footer-copyright">
-              <p>© 2025 OpenDataFitHou. Licensed under GNU General Public License.</p>
-              <p>Open Data for Digital Transformation 🌍✨</p>
+              <p>{t('home.footer.copyright')}</p>
+              <p>{t('home.footer.tagline')}</p>
             </div>
           </div>
         </div>

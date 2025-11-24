@@ -33,13 +33,62 @@
     "searchPlaceholder": "Tìm địa điểm trong nước... (VD: Hồ Gươm, Văn Miếu, BIDV)",
     "suggestionsTitle": "💡 Gợi ý tìm kiếm phổ biến:",
     "noResultsFor": "Không tìm thấy",
+    "description": "OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu, phân tích và phát triển ứng dụng trở nên dễ dàng hơn.",
+    "descriptionExtra": "Dự án góp phần chuyển đổi số và mở ra cơ hội khai thác dữ liệu mở cho nghiên cứu, giáo dục và cộng đồng. 🌍✨",
     "intro": {
       "title": "📋 Giới thiệu dự án",
+      "objectiveTitle": "Mục tiêu",
       "objective": "Thu thập, chuẩn hóa, và cung cấp dữ liệu mở dạng Linked Open Data",
+      "contextTitle": "Bối cảnh",
       "context": "Thuộc OLP PMNM 2025, phục vụ nghiên cứu & chuyển đổi số",
+      "visionTitle": "Tầm nhìn",
       "vision": "Minh bạch dữ liệu, hỗ trợ cộng đồng, dễ tái sử dụng"
     },
-    "description": "OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu – phân tích – phát triển ứng dụng trở nên dễ dàng hơn."
+    "features": {
+      "dataTypesTitle": "📊 Các loại dữ liệu",
+      "title": "⭐ Tính năng nổi bật",
+      "search": "Tìm kiếm địa điểm trong Việt Nam",
+      "display": "Hiển thị và đánh dấu địa điểm trên bản đồ",
+      "details": "Hiển thị thông tin chi tiết địa điểm",
+      "nearby": "Tìm dịch vụ xung quanh như ATM, trạm xe buýt",
+      "download": "Tải xuống dữ liệu địa điểm ở định dạng XML hoặc RDF",
+      "query": "Truy vấn dữ liệu với SPARQL"
+    },
+    "video": {
+      "title": "Video giới thiệu"
+    },
+    "license": {
+      "title": "📄 Thông tin giấy phép",
+      "name": "GNU General Public License v3.0",
+      "subtitle": "Giấy phép mã nguồn mở",
+      "description": "OpenDataFitHou được phát hành theo giấy phép <strong>GNU GPL v3.0</strong>, đảm bảo tính mở và tự do cho cộng đồng. Bạn có thể:",
+      "permissions": {
+        "use": "<strong>Sử dụng</strong> - Chạy chương trình cho bất kỳ mục đích nào",
+        "study": "<strong>Nghiên cứu</strong> - Xem và học từ mã nguồn",
+        "distribute": "<strong>Phân phối</strong> - Chia sẻ với người khác",
+        "modify": "<strong>Chỉnh sửa</strong> - Thay đổi và cải tiến"
+      },
+      "requirementsTitle": "📋 Yêu cầu sử dụng:",
+      "requirements": {
+        "preserve": "Giữ nguyên thông tin bản quyền và giấy phép",
+        "sameLicense": "Phân phối phải dùng cùng giấy phép GPL v3.0",
+        "disclose": "Tiết lộ mã nguồn khi phân phối phần mềm"
+      },
+      "links": {
+        "readFull": "📖 Đọc toàn văn giấy phép",
+        "viewFile": "📄 Xem file LICENSE",
+        "learnMore": "❓ Tìm hiểu thêm về GPL v3.0"
+      },
+      "copyright": "© 2025 OpenDataFitHou",
+      "contributors": "Tất cả các cộng tác viên",
+      "program": "Dự án thuộc chương trình <strong>OLP PMNM 2025</strong>",
+      "disclaimer": "<strong>Lưu ý:</strong> Đây chỉ là tóm tắt thông tin giấy phép. Vui lòng đọc toàn văn <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">GNU GPL v3.0</a> để hiểu đầy đủ quyền và nghĩa vụ của bạn."
+    },
+    "footer": {
+      "queryData": "Truy vấn dữ liệu",
+      "copyright": "© 2025 OpenDataFitHou. Được cấp phép theo GNU General Public License.",
+      "tagline": "Open Data for Digital Transformation 🌍✨"
+    }
   },
   "map": {
     "title": "Bản đồ",
