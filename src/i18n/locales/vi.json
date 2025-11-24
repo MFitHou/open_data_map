@@ -1,0 +1,145 @@
+{
+  "common": {
+    "button": {
+      "search": "Tìm kiếm",
+      "close": "Đóng",
+      "download": "Tải xuống",
+      "findNearby": "Tìm địa điểm gần đây",
+      "execute": "Thực thi",
+      "cancel": "Hủy",
+      "clear": "Xóa",
+      "getCurrentLocation": "Vị trí hiện tại"
+    },
+    "status": {
+      "loading": "Đang tải...",
+      "noData": "Không có dữ liệu",
+      "error": "Có lỗi xảy ra",
+      "searching": "Đang tìm kiếm...",
+      "noResults": "Không tìm thấy kết quả"
+    },
+    "language": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "map": "Bản đồ",
+    "query": "Truy vấn"
+  },
+  "home": {
+    "title": "OpenDataFitHou",
+    "slogan": "Open Data for Digital Transformation",
+    "searchPlaceholder": "Tìm địa điểm trong nước... (VD: Hồ Gươm, Văn Miếu, BIDV)",
+    "suggestionsTitle": "💡 Gợi ý tìm kiếm phổ biến:",
+    "noResultsFor": "Không tìm thấy",
+    "intro": {
+      "title": "📋 Giới thiệu dự án",
+      "objective": "Thu thập, chuẩn hóa, và cung cấp dữ liệu mở dạng Linked Open Data",
+      "context": "Thuộc OLP PMNM 2025, phục vụ nghiên cứu & chuyển đổi số",
+      "vision": "Minh bạch dữ liệu, hỗ trợ cộng đồng, dễ tái sử dụng"
+    },
+    "description": "OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu – phân tích – phát triển ứng dụng trở nên dễ dàng hơn."
+  },
+  "map": {
+    "title": "Bản đồ",
+    "currentLocation": "📍 Vị trí hiện tại của bạn",
+    "detectedByGPS": "Được xác định bởi GPS",
+    "latitude": "Vĩ độ",
+    "longitude": "Kinh độ",
+    "accuracy": "Độ chính xác",
+    "search": {
+      "placeholder": "Tìm địa điểm trên bản đồ... (VD: Hồ Gươm, Văn Miếu, BIDV)",
+      "noResults": "Không tìm thấy kết quả",
+      "searching": "Đang tìm kiếm..."
+    },
+    "nearby": {
+      "title": "Địa điểm gần đây",
+      "radius": "Bán kính",
+      "selectType": "🏷️ Loại địa điểm:",
+      "selectRadius": "📏 Bán kính:",
+      "toilets": "🚻 Nhà vệ sinh",
+      "atms": "🏧 ATM",
+      "hospitals": "🏥 Bệnh viện",
+      "busStops": "🚌 Trạm xe buýt",
+      "distance": "Khoảng cách",
+      "type": "Loại",
+      "brand": "Thương hiệu",
+      "operator": "Vận hành",
+      "km": "km",
+      "noResults": "Không tìm thấy địa điểm nào",
+      "searching": "⏳ Đang tìm kiếm địa điểm gần...",
+      "found": "✅ Tìm thấy",
+      "inRadius": "trong bán kính",
+      "selectAndSearch": "ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn \"Tìm kiếm\"",
+      "noPlacesFound": "❌ Không tìm thấy"
+    },
+    "info": {
+      "title": "Thông tin địa điểm",
+      "basicTab": "📋 Cơ bản",
+      "identifiersTab": "🔗 Định danh",
+      "statementsTab": "📊 Thuộc tính",
+      "referencesTab": "📚 Tham chiếu",
+      "membersTab": "👥 Thành viên",
+      "tasksTab": "⚡ Tác vụ",
+      "name": "Tên",
+      "address": "Địa chỉ",
+      "coordinates": "Tọa độ",
+      "properties": "Thuộc tính",
+      "distance": "Khoảng cách",
+      "viewOnWikidata": "Xem trên Wikidata",
+      "viewOnOSM": "Xem trên OpenStreetMap",
+      "noData": "Không có dữ liệu"
+    },
+    "download": {
+      "button": "Tải xuống dữ liệu",
+      "formats": {
+        "json": "JSON",
+        "csv": "CSV",
+        "geojson": "GeoJSON"
+      }
+    }
+  },
+  "query": {
+    "title": "Truy vấn SPARQL",
+    "subtitle": "Truy vấn dữ liệu MFithou",
+    "placeholder": "Nhập truy vấn SPARQL tại đây...",
+    "execute": "Thực thi Query",
+    "results": "Kết quả",
+    "noResults": "Không có kết quả",
+    "error": "Lỗi truy vấn",
+    "characters": "ký tự",
+    "tableView": "Bảng",
+    "placeholderText": "Nhập query và nhấn \"Thực thi\" để xem kết quả",
+    "examples": {
+      "title": "📋 Query mẫu:",
+      "allATMs": "🏧 Lấy 10 ATM đầu tiên"
+    },
+    "prefixes": "Prefixes",
+    "count": "số kết quả"
+  },
+  "tour": {
+    "startTour": "Hướng dẫn sử dụng",
+    "next": "Tiếp theo",
+    "previous": "Quay lại",
+    "close": "Đóng",
+    "steps": {
+      "welcome": {
+        "title": "Chào mừng đến OpenDataFitHou!",
+        "description": "Khám phá tính năng bản đồ tương tác với dữ liệu mở"
+      },
+      "search": {
+        "title": "Tìm kiếm địa điểm",
+        "description": "Nhập tên địa điểm để tìm kiếm trên bản đồ"
+      },
+      "nearby": {
+        "title": "Tìm địa điểm gần đây",
+        "description": "Chọn loại địa điểm và bán kính để tìm kiếm"
+      },
+      "download": {
+        "title": "Tải xuống dữ liệu",
+        "description": "Xuất dữ liệu ra các định dạng khác nhau"
+      }
+    }
+  }
+}

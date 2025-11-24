@@ -1,0 +1,145 @@
+{
+  "common": {
+    "button": {
+      "search": "Search",
+      "close": "Close",
+      "download": "Download",
+      "findNearby": "Find Nearby Places",
+      "execute": "Execute",
+      "cancel": "Cancel",
+      "clear": "Clear",
+      "getCurrentLocation": "Current Location"
+    },
+    "status": {
+      "loading": "Loading...",
+      "noData": "No data available",
+      "error": "An error occurred",
+      "searching": "Searching...",
+      "noResults": "No results found"
+    },
+    "language": {
+      "vi": "Vietnamese",
+      "en": "English"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "query": "Query"
+  },
+  "home": {
+    "title": "OpenDataFitHou",
+    "slogan": "Open Data for Digital Transformation",
+    "searchPlaceholder": "Search locations in Vietnam... (e.g. Hoan Kiem Lake, Temple of Literature, BIDV)",
+    "suggestionsTitle": "💡 Popular search suggestions:",
+    "noResultsFor": "No results found for",
+    "intro": {
+      "title": "📋 Project Introduction",
+      "objective": "Collect, standardize, and provide open data in Linked Open Data format",
+      "context": "Part of OLP PMNM 2025, serving research & digital transformation",
+      "vision": "Data transparency, community support, easy reuse"
+    },
+    "description": "OpenDataFitHou is an open-source project that collects and links open data from Wikidata, OpenStreetMap and other sources. We standardize data into Linked Open Data (RDF) format and visualize it on maps, making lookup, analysis, and application development easier."
+  },
+  "map": {
+    "title": "Map",
+    "currentLocation": "📍 Your Current Location",
+    "detectedByGPS": "Detected by GPS",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "accuracy": "Accuracy",
+    "search": {
+      "placeholder": "Search locations on map... (e.g. Hoan Kiem Lake, Temple of Literature, BIDV)",
+      "noResults": "No results found",
+      "searching": "Searching..."
+    },
+    "nearby": {
+      "title": "Nearby Places",
+      "radius": "Radius",
+      "selectType": "🏷️ Place Type:",
+      "selectRadius": "📏 Radius:",
+      "toilets": "🚻 Toilets",
+      "atms": "🏧 ATMs",
+      "hospitals": "🏥 Hospitals",
+      "busStops": "🚌 Bus Stops",
+      "distance": "Distance",
+      "type": "Type",
+      "brand": "Brand",
+      "operator": "Operator",
+      "km": "km",
+      "noResults": "No places found",
+      "searching": "⏳ Searching nearby places...",
+      "found": "✅ Found",
+      "inRadius": "within radius",
+      "selectAndSearch": "ℹ️ Select place type and radius, then press \"Search\"",
+      "noPlacesFound": "❌ No places found"
+    },
+    "info": {
+      "title": "Place Information",
+      "basicTab": "📋 Basic",
+      "identifiersTab": "🔗 Identifiers",
+      "statementsTab": "📊 Statements",
+      "referencesTab": "📚 References",
+      "membersTab": "👥 Members",
+      "tasksTab": "⚡ Tasks",
+      "name": "Name",
+      "address": "Address",
+      "coordinates": "Coordinates",
+      "properties": "Properties",
+      "distance": "Distance",
+      "viewOnWikidata": "View on Wikidata",
+      "viewOnOSM": "View on OpenStreetMap",
+      "noData": "No data available"
+    },
+    "download": {
+      "button": "Download Data",
+      "formats": {
+        "json": "JSON",
+        "csv": "CSV",
+        "geojson": "GeoJSON"
+      }
+    }
+  },
+  "query": {
+    "title": "SPARQL Query",
+    "subtitle": "Query MFithou data",
+    "placeholder": "Enter SPARQL query here...",
+    "execute": "Execute Query",
+    "results": "Results",
+    "noResults": "No results",
+    "error": "Query error",
+    "characters": "characters",
+    "tableView": "Table",
+    "placeholderText": "Enter query and press \"Execute\" to see results",
+    "examples": {
+      "title": "📋 Sample Queries:",
+      "allATMs": "🏧 Get first 10 ATMs"
+    },
+    "prefixes": "Prefixes",
+    "count": "results"
+  },
+  "tour": {
+    "startTour": "Start Tour",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to OpenDataFitHou!",
+        "description": "Explore interactive map with open data"
+      },
+      "search": {
+        "title": "Search Places",
+        "description": "Enter place name to search on map"
+      },
+      "nearby": {
+        "title": "Find Nearby Places",
+        "description": "Select place type and radius to search"
+      },
+      "download": {
+        "title": "Download Data",
+        "description": "Export data to different formats"
+      }
+    }
+  }
+}

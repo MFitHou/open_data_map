@@ -18,6 +18,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, Popup } from "react-leaflet";
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -39,6 +40,7 @@ import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo,
 import type { NearbyPlace } from '../../utils/nearbyApi';
 
 const SimpleMap: React.FC = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const [map, setMap] = useState<L.Map | null>(null);
   

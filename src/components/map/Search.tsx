@@ -16,6 +16,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 import "../../styles/components/Search.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -62,13 +63,14 @@ interface SearchProps {
 }
 
 export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const debounceTimer = useRef<number | null>(null);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -354,7 +356,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
         <input
           type="text"
           className="search-input"
-          placeholder="Search for locations (e.g., Hoan Kiem Lake, Temple of Literature, BIDV)"
+          placeholder={t('map.search.placeholder')}
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
           onFocus={() => setShowResults(true)}
@@ -366,7 +368,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       {showResults && (
         <div className="search-results">
           {error ? (
-            <div className="search-error"><FontAwesomeIcon icon={faCircleXmark} /> {error}</div>
+            <div className="search-error"><FontAwesomeIcon icon={faCircleXmark} /> {t('common.status.error')}</div>
           ) : results.length > 0 ? (
             results.map((result) => (
               <div
@@ -414,7 +416,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             ))
           ) : searchTerm.length === 0 ? (
             <>
-              <div className="search-suggestions-header"><FontAwesomeIcon icon={faLightbulb} /> Popular search suggestions:</div>
+              <div className="search-suggestions-header"><FontAwesomeIcon icon={faLightbulb} /> {t('home.suggestionsTitle')}</div>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}
@@ -433,7 +435,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
             </>
           ) : (
             <div className="search-no-results">
-              <FontAwesomeIcon icon={faSearch} /> No results found for "{searchTerm}"
+              <FontAwesomeIcon icon={faSearch} /> {t('home.noResultsFor')} "{searchTerm}"
             </div>
           )}
         </div>

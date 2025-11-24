@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/pages/Query.css';
 import { getApiEndpoint } from '../../config/api';
 import { HelpButton } from '../../tours';
@@ -45,6 +46,7 @@ interface QueryError {
 }
 
 export const Query: React.FC = () => {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<QueryResult | null>(null);
   const [error, setError] = useState<QueryError | null>(null);
@@ -210,13 +212,13 @@ LIMIT 20`
   return (
     <div className="query-container">
       <div className="query-header">
-        <h1><FontAwesomeIcon icon={faSearch} /> SPARQL Query </h1>
-        <p>Query MFithou data</p>
+        <h1><FontAwesomeIcon icon={faSearch} /> {t('query.title')} </h1>
+        <p>{t('query.subtitle')}</p>
       </div>
 
       {/* Sample Queries */}
       <div id="query-examples" className="sample-queries">
-        <div className="sample-header"><FontAwesomeIcon icon={faClipboardList} /> Sample queries:</div>
+        <div className="sample-header"><FontAwesomeIcon icon={faClipboardList} /> {t('query.examples.title')}</div>
         <div className="sample-buttons">
           {sampleQueries.map((sample, idx) => (
             <button
@@ -235,10 +237,10 @@ LIMIT 20`
         {/* Query Editor - Left Side */}
         <div className="query-editor">
           <div className="editor-header">
-            <span>✏️ SPARQL Query Editor</span>
+            <span>✏️ {t('query.title')} Editor</span>
             <div className="editor-actions">
-              <button className="action-btn" onClick={clearAll} title="Clear all">
-                <FontAwesomeIcon icon={faTrash} /> Clear
+              <button className="action-btn" onClick={clearAll} title={t('common.button.clear')}>
+                <FontAwesomeIcon icon={faTrash} /> {t('common.button.clear')}
               </button>
             </div>
           </div>
@@ -248,7 +250,7 @@ LIMIT 20`
             className="query-textarea"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Enter SPARQL query here..."
+            placeholder={t('query.placeholder')}
             spellCheck={false}
           />
           <div className="editor-footer">
@@ -259,13 +261,13 @@ LIMIT 20`
               disabled={isLoading || !query.trim()}
             >
               {isLoading ? (
-                <><FontAwesomeIcon icon={faSpinner} spin /> Executing...</>
+                <><FontAwesomeIcon icon={faSpinner} spin /> {t('common.status.loading')}</>
               ) : (
-                <><FontAwesomeIcon icon={faPlay} /> Execute Query</>
+                <><FontAwesomeIcon icon={faPlay} /> {t('query.execute')}</>
               )}
             </button>
             <span className="query-length">
-              {query.length} characters
+              {query.length} {t('query.characters')}
             </span>
           </div>
         </div>
@@ -288,7 +290,7 @@ LIMIT 20`
                   className={`tab-btn ${activeTab === 'table' ? 'active' : ''}`}
                   onClick={() => setActiveTab('table')}
                 >
-                  <FontAwesomeIcon icon={faTable} /> Table
+                  <FontAwesomeIcon icon={faTable} /> {t('query.tableView')}
                 </button>
                 <button
                   className={`tab-btn ${activeTab === 'json' ? 'active' : ''}`}
@@ -309,7 +311,7 @@ LIMIT 20`
             <div className="results-placeholder">
               <div className="placeholder-icon"><FontAwesomeIcon icon={faChartBar} size="3x" /></div>
               <div className="placeholder-text">
-                Enter query and click "Execute" to see results
+                {t('query.placeholderText')}
               </div>
             </div>
           )}

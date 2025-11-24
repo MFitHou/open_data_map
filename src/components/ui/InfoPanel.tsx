@@ -16,6 +16,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../../styles/components/InfoPanel.css';
 import { DownloadButton } from './DownloadButton';
 import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
@@ -98,6 +99,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   memberNames = {},
   onNearbyPlacesChange
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
   const [wikidataInfo, setWikidataInfo] = useState<WikidataInfo | null>(null);
   const [references, setReferences] = useState<ReferenceInfo[]>([]);
@@ -219,7 +221,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         {/* Filters */}
         <div className="nearby-filters">
           <div className="filter-group">
-            <label htmlFor="amenity-select">🏷️ Place type:</label>
+            <label htmlFor="amenity-select">🏷️{t('map.nearby.selectType')}</label>
             <select 
               id="amenity-select"
               value={nearbyAmenity} 
@@ -235,7 +237,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           </div>
 
           <div className="filter-group">
-            <label htmlFor="radius-select">📏 Radius:</label>
+            <label htmlFor="radius-select">{t('map.nearby.selectRadius')}</label>
             <select 
               id="radius-select"
               value={nearbyRadius} 
@@ -295,7 +297,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                 <div className="nearby-details">
                   {/* Type */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Type:</span>
+                    <span className="detail-label">{t('map.nearby.type')}:</span>
                     <span className="detail-value">
                       {place.highway || place.amenity || 'N/A'}
                     </span>
@@ -304,7 +306,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Brand */}
                   {place.brand && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Brand:</span>
+                      <span className="detail-label">{t('map.nearby.brand')}:</span>
                       <span className="detail-value">{place.brand}</span>
                     </div>
                   )}
@@ -312,7 +314,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Operator */}
                   {place.operator && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Operator:</span>
+                      <span className="detail-label">{t('map.nearby.operator')}:</span>
                       <span className="detail-value">{place.operator}</span>
                     </div>
                   )}
@@ -337,7 +339,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   
                   {/* Coordinates */}
                   <div className="nearby-detail">
-                    <span className="detail-label">Coordinates:</span>
+                    <span className="detail-label">{t('map.info.coordinates')}:</span>
                     <a 
                       href={`https://www.google.com/maps?q=${place.lat},${place.lon}`}
                       target="_blank"

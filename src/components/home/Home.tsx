@@ -19,7 +19,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/pages/Home.css';
+import { useTranslation } from 'react-i18next';
 import { HelpButton } from '../../tours';
+import { LanguageSwitcher } from '../common/LanguageSwitcher';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSearch, 
@@ -62,6 +64,7 @@ interface SearchResult {
 }
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -364,7 +367,8 @@ const Home: React.FC = () => {
               {/* <span className="title-icon">🌍</span> */}
               OpenDataFitHou
               </h1>
-              <p className="main-slogan">Open Data for Digital Transformation</p>
+              <LanguageSwitcher />
+              <p className="main-slogan">{t('home.slogan')}</p>
             </div>
           </div>
           
@@ -380,7 +384,7 @@ const Home: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => handleSearch(e.target.value)}
                   onFocus={() => setShowResults(true)}
-                  placeholder="Search places in Vietnam... (e.g. Hoan Kiem Lake, Temple of Literature, BIDV)"
+                  placeholder={t('home.searchPlaceholder')}
                   className="home-search-input"
                 />
                 {isLoading && <FontAwesomeIcon icon={faSpinner} spin className="search-loading" />}
@@ -392,10 +396,10 @@ const Home: React.FC = () => {
                   <FontAwesomeIcon icon={faBook} /> GitHub
                 </a>
                 <a href="/map" className="quick-link-button">
-                  <FontAwesomeIcon icon={faMapLocationDot} /> Map
+                  <FontAwesomeIcon icon={faMapLocationDot} /> {t('nav.map')}
                 </a>
                 <a href="/query" className="quick-link-button">
-                  <FontAwesomeIcon icon={faSearch} /> Query Data
+                  <FontAwesomeIcon icon={faSearch} /> {t('nav.query')}
                 </a>
                 <a href="/chatbot" className="quick-link-button">
                   <FontAwesomeIcon icon={faRobot} /> AI Chatbot
@@ -405,7 +409,7 @@ const Home: React.FC = () => {
               {showResults && (
                 <div className="home-search-results">
                   {error ? (
-                    <div className="search-error"><FontAwesomeIcon icon={faCircleXmark} /> {error}</div>
+                    <div className="search-error"><FontAwesomeIcon icon={faCircleXmark} /> {t('common.status.error')}</div>
                   ) : results.length > 0 ? (
                     results.map((result) => (
                       <div
