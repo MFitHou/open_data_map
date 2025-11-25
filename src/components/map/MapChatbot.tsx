@@ -19,6 +19,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { getApiEndpoint } from '../../config/api';
+import { fetchNearbyPlaces } from '../../utils/nearbyApi';
+import type { NearbyPlace } from '../../utils/nearbyApi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPaperPlane, 
@@ -38,6 +40,12 @@ interface Message {
 
 const MapChatbot: React.FC = () => {
   const { t } = useTranslation();
+interface MapChatbotProps {
+  onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
+  onLocationSelect?: (location: { lat: number; lon: number; name: string }) => void;
+}
+
+const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocationSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -70,6 +78,8 @@ const MapChatbot: React.FC = () => {
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
+    console.log('[MapChatbot] Sending message:', inputValue.trim());
+
     const userMessage: Message = {
       id: Date.now().toString(),
       content: inputValue.trim(),
@@ -82,8 +92,135 @@ const MapChatbot: React.FC = () => {
     setIsLoading(true);
     setError(null);
 
+    // Helper function to perform nearby search
+    const performNearbySearch = async (
+      searchParams: any,
+      amenities: string[],
+      radiusKm: number,
+      scope: string,
+      service: string,
+      location: string
+    ) => {
+      // Display initial search info
+      let initialText = `🔍 **Searching for public services**\n\n`;
+      initialText += `📍 **Location:** ${location || 'Your current location'}\n`;
+      initialText += `🏢 **Service:** ${service || amenities?.join(', ') || 'Unknown'}\n`;
+      initialText += `📏 **Radius:** ${radiusKm}km${scope ? ` (${scope})` : ''}\n`;
+      initialText += `\n⏳ Đang tìm kiếm...`;
+      
+      // Send initial message
+      const initialMessageId = (Date.now() + 1).toString();
+      const initialMessage: Message = {
+        id: initialMessageId,
+        content: initialText,
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, initialMessage]);
+      
+      // Fetch nearby places for each amenity
+      try {
+        const allResults: NearbyPlace[] = [];
+        
+        console.log('[MapChatbot] Starting search for amenities:', searchParams.amenities);
+        
+        for (const amenity of searchParams.amenities) {
+          console.log(`[MapChatbot] Fetching ${amenity}...`);
+          const nearbyResponse = await fetchNearbyPlaces(
+            searchParams.lon,
+            searchParams.lat,
+            searchParams.radiusKm,
+            amenity
+          );
+          
+          if (nearbyResponse && nearbyResponse.items) {
+            console.log(`[MapChatbot] Found ${nearbyResponse.items.length} ${amenity}`);
+            allResults.push(...nearbyResponse.items);
+          }
+        }
+        
+        console.log(`[MapChatbot] Total results: ${allResults.length}`);
+        
+        // Display results
+        if (allResults.length > 0) {
+          let resultText = `\n\n**Found ${allResults.length} results:**\n\n`;
+          
+          // Group by amenity type
+          const groupedResults: { [key: string]: NearbyPlace[] } = {};
+          allResults.forEach(place => {
+            const type = place.amenity || place.highway || place.leisure || 'unknown';
+            if (!groupedResults[type]) {
+              groupedResults[type] = [];
+            }
+            groupedResults[type].push(place);
+          });
+          
+          // Display grouped results
+          Object.entries(groupedResults).forEach(([type, places]) => {
+            resultText += `**${type.toUpperCase()}** (${places.length}):\n`;
+            places.slice(0, 5).forEach((place, idx) => {
+              const name = place.name || place.brand || `${type} ${idx + 1}`;
+              const distance = place.distanceKm.toFixed(2);
+              resultText += `  ${idx + 1}. ${name} - ${distance}km\n`;
+            });
+            if (places.length > 5) {
+              resultText += `  ... and ${places.length - 5} more results\n`;
+            }
+            resultText += `\n`;
+          });
+          
+          // Update the last message with results
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastIndex = updated.findIndex(m => m.id === initialMessageId);
+            if (lastIndex !== -1) {
+              updated[lastIndex] = {
+                ...updated[lastIndex],
+                content: initialText.replace('⏳ Đang tìm kiếm...', resultText)
+              };
+            }
+            return updated;
+          });
+          
+          // Send ALL places to parent component (Map) to display markers - ONLY ONCE
+          if (onNearbyPlacesChange) {
+            console.log('[MapChatbot] Sending ALL places to map:', allResults.length);
+            onNearbyPlacesChange(allResults);
+          }
+        } else {
+          // No results found
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastIndex = updated.findIndex(m => m.id === initialMessageId);
+            if (lastIndex !== -1) {
+              updated[lastIndex] = {
+                ...updated[lastIndex],
+                content: initialText.replace('Đang tìm kiếm...', '\n\nKhông tìm thấy kết quả nào.')
+              };
+            }
+            return updated;
+          });
+        }
+      } catch (searchError) {
+        console.error('[MapChatbot] Error fetching nearby places:', searchError);
+        setMessages(prev => {
+          const updated = [...prev];
+          const lastIndex = updated.findIndex(m => m.id === initialMessageId);
+          if (lastIndex !== -1) {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              content: initialText.replace('⏳ Đang tìm kiếm...', '\n\n⚠️ Có lỗi xảy ra khi tìm kiếm.')
+            };
+          }
+          return updated;
+        });
+      }
+    };
+
     try {
       const apiUrl = getApiEndpoint.chat();
+      
+      console.log('[MapChatbot] Calling API:', apiUrl);
       
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -101,10 +238,114 @@ const MapChatbot: React.FC = () => {
       }
 
       const data = await response.json();
+      console.log('[MapChatbot] Chat API response:', data);
+      console.log('[MapChatbot] questionType:', data.questionType);
+      console.log('[MapChatbot] searchParams:', data.searchParams);
       
       let botResponseText = t('chatbot.processingError');
       
-      if (Array.isArray(data) && data.length > 0) {
+      // Handle new backend response format with questionType
+      if (data.questionType) {
+        console.log('[MapChatbot] questionType detected:', data.questionType);
+        
+        if (data.questionType === 'public_service_search' && data.searchParams) {
+          console.log('[MapChatbot] public_service_search detected!');
+          console.log('[MapChatbot] searchParams:', JSON.stringify(data.searchParams, null, 2));
+          
+          // Handle public service search response
+          const { location, service, amenities, scope, radiusKm, searchParams } = data;
+          
+          // Check if location is empty or coordinates are 0
+          const isCurrentLocation = !location || searchParams.lat === 0 || searchParams.lon === 0;
+          
+          if (isCurrentLocation) {
+            // Need to get current location from browser
+            console.log('[MapChatbot] Location empty, requesting current location...');
+            
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                  const currentLat = position.coords.latitude;
+                  const currentLon = position.coords.longitude;
+                  
+                  console.log('[MapChatbot] Got current location:', currentLat, currentLon);
+                  
+                  // Update searchParams with current location
+                  searchParams.lat = currentLat;
+                  searchParams.lon = currentLon;
+                  
+                  // Fly to current location
+                  if (onLocationSelect) {
+                    console.log('[MapChatbot] Flying to current location');
+                    onLocationSelect({
+                      lat: currentLat,
+                      lon: currentLon,
+                      name: 'Vị trí hiện tại'
+                    });
+                  }
+                  
+                  // Continue with search using current location
+                  await performNearbySearch(searchParams, amenities, radiusKm, scope, service, 'Vị trí hiện tại của bạn');
+                },
+                (error) => {
+                  console.error('[MapChatbot] Geolocation error:', error);
+                  
+                  const errorMessage: Message = {
+                    id: (Date.now() + 1).toString(),
+                    content: 'Không thể lấy vị trí hiện tại. Vui lòng cho phép truy cập vị trí hoặc nhập địa điểm cụ thể.',
+                    isUser: false,
+                    timestamp: new Date()
+                  };
+                  setMessages(prev => [...prev, errorMessage]);
+                  setIsLoading(false);
+                }
+              );
+              
+              // Return early, will continue after geolocation
+              return;
+            } else {
+              const errorMessage: Message = {
+                id: (Date.now() + 1).toString(),
+                content: 'Trình duyệt không hỗ trợ định vị. Vui lòng nhập địa điểm cụ thể.',
+                isUser: false,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, errorMessage]);
+              setIsLoading(false);
+              return;
+            }
+          }
+          
+          // If location is provided, fly to it
+          if (onLocationSelect && searchParams.lat && searchParams.lon) {
+            const locationName = location || 'Vị trí hiện tại';
+            console.log('[MapChatbot] Flying to location:', locationName);
+            onLocationSelect({
+              lat: searchParams.lat,
+              lon: searchParams.lon,
+              name: locationName
+            });
+          }
+          
+          // Perform nearby search
+          await performNearbySearch(searchParams, amenities, radiusKm, scope, service, location);
+          
+          // Return early to skip adding another message
+          setIsLoading(false);
+          return;
+        } else if (data.questionType === 'greeting') {
+          // Handle greeting response
+          botResponseText = data.message || 'Hello! How can I help you today?';
+        } else if (data.questionType === 'normal_question') {
+          // Handle normal question
+          botResponseText = data.message || 'Let me help you with that question.';
+        } else {
+          // Handle other questionType cases
+          botResponseText = data.message || `Đã nhận diện: ${data.questionType}`;
+        }
+      }
+      // Keep existing logic for backward compatibility
+      else if (Array.isArray(data) && data.length > 0) {
         const firstItem = data[0];
         if (firstItem.content?.parts && Array.isArray(firstItem.content.parts)) {
           const textParts = firstItem.content.parts

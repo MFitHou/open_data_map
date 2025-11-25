@@ -95,8 +95,27 @@ const SimpleMap: React.FC = () => {
   }, [getLocation]);
 
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
-    console.log('📍 Nearby places updated:', places.length);
+    console.log('Nearby places updated:', places.length);
     setNearbyPlaces(places);
+  }, []);
+
+  const handleChatbotLocationSelect = useCallback((location: { lat: number; lon: number; name: string }) => {
+    console.log('Chatbot location select:', location);
+    
+    // Set search marker
+    setSearchMarker({
+      lat: location.lat,
+      lon: location.lon,
+      name: location.name
+    });
+    
+    // Fly to location (zoom will be handled by FlyToLocation component)
+    setSelectedLocation({
+      lat: location.lat,
+      lon: location.lon
+    });
+    
+    // Zoom level is passed to FlyToLocation as separate prop
   }, []);
 
   // HANDLER: Select location from search
@@ -485,7 +504,10 @@ out geom;
         )}
       </MapContainer>
 
-      <MapChatbot />
+      <MapChatbot 
+        onNearbyPlacesChange={handleNearbyPlacesChange}
+        onLocationSelect={handleChatbotLocationSelect}
+      />
     </div>
   );
 };
