@@ -213,7 +213,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   // ✅ Render Nearby content với nút Search
   const renderNearbyContent = () => {
     if (!data.coordinates) {
-      return <div className="no-data"><FontAwesomeIcon icon={faCircleXmark} /> No coordinates available for nearby search</div>;
+      return <div className="no-data"><FontAwesomeIcon icon={faCircleXmark} /> {t('map.info.noCoordinates')}</div>;
     }
 
     return (
@@ -228,8 +228,8 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               onChange={(e) => handleAmenityChange(e.target.value)}
               className="nearby-select"
             >
-              <option value="drinking-water">💧 Drinking Water</option>
-              <option value="toilets">🚻 Toilets</option>
+              <option value="drinking-water">💧 {t('map.nearby.drinkingWater')}</option>
+              <option value="toilets">{t('map.nearby.toilets')}</option>
               <option value="atms">🏧 ATMs</option>
               <option value="hospitals">🏥 Hospitals</option>
               <option value="bus-stops">🚌 Bus stops</option>
@@ -259,21 +259,21 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             disabled={isLoadingNearby}
           >
             {isLoadingNearby ? (
-              <><FontAwesomeIcon icon={faSpinner} spin /> Searching...</>
+              <><FontAwesomeIcon icon={faSpinner} spin /> {t('map.nearby.searching')}</>
             ) : (
-              <><FontAwesomeIcon icon={faSearch} /> Search</>
+              <><FontAwesomeIcon icon={faSearch} /> {t('common.button.search')}</>
             )}
           </button>
         </div>
 
         {/* Results */}
         {isLoadingNearby ? (
-          <div className="loading"><FontAwesomeIcon icon={faSpinner} spin /> Searching for nearby places...</div>
+          <div className="loading"><FontAwesomeIcon icon={faSpinner} spin /> {t('map.nearby.searching')}</div>
         ) : nearbyPlaces.length === 0 ? (
           <div className="no-data">
             {!hasSearchedNearby
-              ? 'ℹ️ Select place type and radius, then click "Search"'
-              : <><FontAwesomeIcon icon={faCircleXmark} /> No {nearbyAmenity} found within {nearbyRadius} km radius</>
+              ? t('map.nearby.selectAndSearch')
+              : <><FontAwesomeIcon icon={faCircleXmark} /> {t('map.nearby.noPlacesFound')} {nearbyAmenity} {t('map.nearby.inRadius')} {nearbyRadius} km</>
             }
           </div>
         ) : (
@@ -322,7 +322,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Access */}
                   {place.access && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Access:</span>
+                      <span className="detail-label">{t('map.info.access')}:</span>
                       <span className="detail-value">{place.access}</span>
                     </div>
                   )}
@@ -330,9 +330,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   {/* Fee */}
                   {place.fee && (
                     <div className="nearby-detail">
-                      <span className="detail-label">Fee:</span>
+                      <span className="detail-label">{t('map.info.fee')}:</span>
                       <span className="detail-value">
-                        {place.fee === 'yes' ? 'Paid' : 'Free'}
+                        {place.fee === 'yes' ? t('map.info.paid') : t('map.info.free')}
                       </span>
                     </div>
                   )}
@@ -352,7 +352,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                   
                   {/* POI URI */}
                   <div className="nearby-detail">
-                    <span className="detail-label">POI URI:</span>
+                    <span className="detail-label">{t('map.info.poiUri')}:</span>
                     <a 
                       href={place.poi}
                       target="_blank"
@@ -376,7 +376,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const renderRouteContent = () => {
     return (
       <div className="no-data">
-        🚧 Route calculation feature is under development...
+        🚧 {t('map.info.routeUnderDev')}
       </div>
     );
   };
@@ -385,7 +385,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const renderStatisticsContent = () => {
     return (
       <div className="no-data">
-        <FontAwesomeIcon icon={faChartBar} size="2x" /> Statistics feature is under development...
+        <FontAwesomeIcon icon={faChartBar} size="2x" /> {t('map.info.statsUnderDev')}
       </div>
     );
   };
@@ -400,21 +400,21 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             className={`sub-tab-btn ${activeTaskTab === 'nearby' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('nearby')}
           >
-            <FontAwesomeIcon icon={faMapLocationDot} /> Nearby Places
+            <FontAwesomeIcon icon={faMapLocationDot} /> {t('map.info.nearbyPlaces')}
           </button>
           <button 
             className={`sub-tab-btn ${activeTaskTab === 'route' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('route')}
             disabled
           >
-            <FontAwesomeIcon icon={faRoute} /> Route Calculator
+            <FontAwesomeIcon icon={faRoute} /> {t('map.info.routeCalculator')}
           </button>
           <button 
             className={`sub-tab-btn ${activeTaskTab === 'statistics' ? 'active' : ''}`}
             onClick={() => setActiveTaskTab('statistics')}
             disabled
           >
-            <FontAwesomeIcon icon={faChartBar} /> Statistics
+            <FontAwesomeIcon icon={faChartBar} /> {t('map.info.statistics')}
           </button>
         </div>
 
@@ -439,7 +439,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       const lat = data.coordinates[1].toFixed(6);
       const lon = data.coordinates[0].toFixed(6);
       rows.push({
-        label: 'Coordinates',
+        label: t('map.info.coordinates'),
         value: `${lat}, ${lon}`,
         link: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&zoom=16`
       });
@@ -479,7 +479,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       if (data.identifiers.gndId) identifiers.push({ label: 'GND ID', value: data.identifiers.gndId });
     }
 
-    if (identifiers.length === 0) return <div className="no-data">No identifiers available</div>;
+    if (identifiers.length === 0) return <div className="no-data">{t('map.info.noIdentifiers')}</div>;
 
     return (
       <div className="tab-content">
@@ -503,31 +503,31 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   };
 
   const renderStatementsTab = () => {
-    if (isLoading) return <div className="loading">Loading...</div>;
+    if (isLoading) return <div className="loading">{t('common.status.loading')}</div>;
 
     const statements: { label: string; value: string; link?: string }[] = [];
 
     if (data.statements) {
       if (data.statements.inception) {
         statements.push({
-          label: 'Inception',
+          label: t('map.info.inception'),
           value: new Date(data.statements.inception).toLocaleDateString('vi-VN')
         });
       }
       if (data.statements.population) {
         statements.push({
-          label: 'Population',
+          label: t('map.info.population'),
           value: parseInt(data.statements.population).toLocaleString('vi-VN')
         });
       }
       if (data.statements.area) {
         statements.push({
-          label: 'Area (km²)',
+          label: t('map.info.areaKm'),
           value: parseFloat(data.statements.area).toLocaleString('vi-VN')
         });
       }
-      if (data.statements.address) statements.push({ label: 'Address', value: data.statements.address });
-      if (data.statements.postalCode) statements.push({ label: 'Postal Code', value: data.statements.postalCode });
+      if (data.statements.address) statements.push({ label: t('map.info.address'), value: data.statements.address });
+      if (data.statements.postalCode) statements.push({ label: t('map.info.postalCode'), value: data.statements.postalCode });
     }
 
     if (wikidataInfo?.allProperties) {
@@ -545,7 +545,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       });
     }
 
-    if (statements.length === 0) return <div className="no-data">No statements available</div>;
+    if (statements.length === 0) return <div className="no-data">{t('map.info.noStatements')}</div>;
 
     return (
       <div className="tab-content">
@@ -569,16 +569,16 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   };
 
   const renderReferencesTab = () => {
-    if (isLoading) return <div className="loading">Loading...</div>;
+    if (isLoading) return <div className="loading">{t('common.status.loading')}</div>;
     const hasReferences = references.length > 0;
     const hasLinks = externalLinks.length > 0;
-    if (!hasReferences && !hasLinks) return <div className="no-data">No references or external links available</div>;
+    if (!hasReferences && !hasLinks) return <div className="no-data">{t('map.info.noReferences')}</div>;
 
     return (
       <div className="tab-content">
         {hasLinks && (
           <div className="reference-group">
-            <div className="reference-title">External Links</div>
+            <div className="reference-title">{t('map.info.externalLinks')}</div>
             {externalLinks.map((link, idx) => (
               <div key={idx} className="reference-item">
                 <div className="reference-detail">
@@ -595,10 +595,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           <>
             {references.map((refInfo, idx) => (
               <div key={idx} className="reference-group">
-                <div className="reference-title">{refInfo.propertyLabel} - References</div>
+                <div className="reference-title">{refInfo.propertyLabel} - {t('map.info.references')}</div>
                 {refInfo.references.map((ref, refIdx) => (
                   <div key={refIdx} className="reference-block">
-                    <div className="reference-index">Reference {refIdx + 1}</div>
+                    <div className="reference-index">{t('map.info.reference')} {refIdx + 1}</div>
                     {Object.entries(ref).map(([key, value], i) => {
                       const link = resolveValueLink(key, value) || (value.startsWith('http') ? value : undefined);
                       return (
@@ -625,15 +625,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   };
 
   const renderMembersTab = () => {
-    if (!data.members) return <div className="no-data">No members data available</div>;
+    if (!data.members) return <div className="no-data">{t('map.info.noMembers')}</div>;
 
     const { innerWays, outerWays, nodes, subAreas, total, details } = data.members;
 
     const groupedMembers = {
-      'Outer Ways': details.filter(m => m.type === 'way' && m.role === 'outer'),
-      'Inner Ways': details.filter(m => m.type === 'way' && m.role === 'inner'),
-      'Nodes': details.filter(m => m.type === 'node'),
-      'Sub-areas (Relations)': details.filter(m => m.type === 'relation')
+      [t('map.info.outerWays')]: details.filter(m => m.type === 'way' && m.role === 'outer'),
+      [t('map.info.innerWays')]: details.filter(m => m.type === 'way' && m.role === 'inner'),
+      [t('map.info.nodes')]: details.filter(m => m.type === 'node'),
+      [t('map.info.subAreas')]: details.filter(m => m.type === 'relation')
     };
 
     return (
@@ -641,26 +641,26 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         {/* Thống kê tổng quan */}
         <div className="reference-group">
           <div className="reference-title">
-            <FontAwesomeIcon icon={faChartBar} /> Members Overview
+            <FontAwesomeIcon icon={faChartBar} /> {t('map.info.membersOverview')}
           </div>
           <div className="data-row">
-            <span className="data-label">Total</span>
-            <span className="data-value">{total} members</span>
+            <span className="data-label">{t('map.info.total')}</span>
+            <span className="data-value">{total} {t('map.info.members')}</span>
           </div>
           <div className="data-row">
-            <span className="data-label">🔵 Outer Ways</span>
+            <span className="data-label">🔵 {t('map.info.outerWays')}</span>
             <span className="data-value">{outerWays}</span>
           </div>
           <div className="data-row">
-            <span className="data-label">🔴 Inner Ways</span>
+            <span className="data-label">🔴 {t('map.info.innerWays')}</span>
             <span className="data-value">{innerWays}</span>
           </div>
           <div className="data-row">
-            <span className="data-label">🟠 Nodes</span>
+            <span className="data-label">🟠 {t('map.info.nodes')}</span>
             <span className="data-value">{nodes}</span>
           </div>
           <div className="data-row">
-            <span className="data-label">🟡 Sub-areas</span>
+            <span className="data-label">🟡 {t('map.info.subAreas')}</span>
             <span className="data-value">{subAreas}</span>
           </div>
         </div>
@@ -708,11 +708,11 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                       )}
                     </div>
                     <div className="reference-detail">
-                      <span className="ref-prop">Type:</span>
+                      <span className="ref-prop">{t('map.info.type')}:</span>
                       <span className="ref-value">{member.type}</span>
                     </div>
                     <div className="reference-detail">
-                      <span className="ref-prop">ID:</span>
+                      <span className="ref-prop">{t('map.info.id')}:</span>
                       <a 
                         href={`https://www.openstreetmap.org/${member.type}/${member.ref}`}
                         target="_blank"
@@ -725,7 +725,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                     </div>
                     {member.tags && Object.keys(member.tags).length > 0 && (
                       <div className="reference-detail">
-                        <span className="ref-prop">Tags:</span>
+                        <span className="ref-prop">{t('map.info.tags')}:</span>
                         <span className="ref-value">
                           {Object.entries(member.tags)
                             .slice(0, 3)
@@ -740,7 +740,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               })}
               {members.length > 20 && (
                 <div className="no-data" style={{ padding: '10px', fontSize: '12px' }}>
-                  Showing 20/{members.length} items
+                  {t('map.info.showingItems', { shown: 20, total: members.length })}
                 </div>
               )}
             </div>
@@ -785,13 +785,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'basic' ? 'active' : ''}`}
           onClick={() => setActiveTab('basic')}
         >
-          <FontAwesomeIcon icon={faList} /> Basic
+          <FontAwesomeIcon icon={faList} /> {t('map.info.basicTab')}
         </button>
         <button 
           className={`tab-btn ${activeTab === 'identifiers' ? 'active' : ''}`}
           onClick={() => setActiveTab('identifiers')}
         >
-          <FontAwesomeIcon icon={faLink} /> Identifiers
+          <FontAwesomeIcon icon={faLink} /> {t('map.info.identifiersTab')}
         </button>
         {data.wikidataId && (
           <>
@@ -799,13 +799,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               className={`tab-btn ${activeTab === 'statements' ? 'active' : ''}`}
               onClick={() => setActiveTab('statements')}
             >
-              <FontAwesomeIcon icon={faFileLines} /> Statements
+              <FontAwesomeIcon icon={faFileLines} /> {t('map.info.statementsTab')}
             </button>
             <button 
               className={`tab-btn ${activeTab === 'references' ? 'active' : ''}`}
               onClick={() => setActiveTab('references')}
             >
-              <FontAwesomeIcon icon={faBook} /> References
+              <FontAwesomeIcon icon={faBook} /> {t('map.info.referencesTab')}
             </button>
           </>
         )}
@@ -814,7 +814,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             className={`tab-btn ${activeTab === 'members' ? 'active' : ''}`}
             onClick={() => setActiveTab('members')}
           >
-            <FontAwesomeIcon icon={faUsers} /> Members
+            <FontAwesomeIcon icon={faUsers} /> {t('map.info.membersTab')}
           </button>
         )}
         {/* ✅ Tasks Tab */}
@@ -822,7 +822,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
           onClick={() => setActiveTab('tasks')}
         >
-          <FontAwesomeIcon icon={faBolt} /> Tasks
+          <FontAwesomeIcon icon={faBolt} /> {t('map.info.tasksTab')}
         </button>
       </div>
 

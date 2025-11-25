@@ -495,7 +495,7 @@ out geom;
           >
             <Popup>
               <div style={{ textAlign: 'center' }}>
-                <strong>📍 Your Location</strong>
+                <strong>📍 {t('map.yourLocation')}</strong>
                 <br />
                 <small>{currentLocation.lat.toFixed(6)}, {currentLocation.lon.toFixed(6)}</small>
               </div>

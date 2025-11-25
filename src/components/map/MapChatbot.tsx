@@ -17,6 +17,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import { getApiEndpoint } from '../../config/api';
 import { fetchNearbyPlaces } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
@@ -37,6 +38,8 @@ interface Message {
   timestamp: Date;
 }
 
+const MapChatbot: React.FC = () => {
+  const { t } = useTranslation();
 interface MapChatbotProps {
   onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
   onLocationSelect?: (location: { lat: number; lon: number; name: string }) => void;
@@ -47,7 +50,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I can help you with information about locations, landmarks, and geography. What would you like to know?',
+      content: t('chatbot.mapWelcomeMessage'),
       isUser: false,
       timestamp: new Date()
     }
@@ -239,7 +242,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
       console.log('[MapChatbot] questionType:', data.questionType);
       console.log('[MapChatbot] searchParams:', data.searchParams);
       
-      let botResponseText = 'Sorry, I could not process your request.';
+      let botResponseText = t('chatbot.processingError');
       
       // Handle new backend response format with questionType
       if (data.questionType) {
@@ -371,7 +374,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: 'Sorry, I encountered an error. Please try again later.',
+        content: t('chatbot.errorMessage'),
         isUser: false,
         timestamp: new Date()
       };
@@ -404,12 +407,12 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
           <div className="map-chatbot-header">
             <div className="map-chatbot-title">
               <FontAwesomeIcon icon={faRobot} className="map-chatbot-icon" />
-              <span>AI Assistant</span>
+              <span>{t('chatbot.aiAssistant')}</span>
             </div>
             <button 
               onClick={() => setIsOpen(false)}
               className="map-chatbot-close-btn"
-              title="Close"
+              title={t('common.button.close')}
             >
               <FontAwesomeIcon icon={faXmark} />
             </button>
@@ -457,7 +460,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
                 <div className="map-message-content">
                   <div className="map-message-text map-typing-indicator">
                     <FontAwesomeIcon icon={faSpinner} spin />
-                    <span>Thinking...</span>
+                    <span>{t('chatbot.thinking')}</span>
                   </div>
                 </div>
               </div>
@@ -473,7 +476,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about locations..."
+              placeholder={t('chatbot.mapInputPlaceholder')}
               disabled={isLoading}
               className="map-chatbot-input"
             />
@@ -481,7 +484,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
               onClick={sendMessage}
               disabled={!inputValue.trim() || isLoading}
               className="map-send-btn"
-              title="Send message"
+              title={t('chatbot.sendButton')}
             >
               <FontAwesomeIcon icon={faPaperPlane} />
             </button>
@@ -494,7 +497,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
         <button
           onClick={() => setIsOpen(true)}
           className="map-chatbot-toggle"
-          title="Open AI Assistant"
+          title={t('chatbot.openAiAssistant')}
         >
           <FontAwesomeIcon icon={faRobot} />
           {messages.length > 1 && (

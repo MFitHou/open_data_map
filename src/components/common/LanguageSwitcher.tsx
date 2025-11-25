@@ -24,21 +24,26 @@ export const LanguageSwitcher: React.FC = () => {
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
+    // Đảm bảo lưu vào localStorage
+    localStorage.setItem('i18nextLng', lng);
   };
+
+  // Normalize language code (en-US -> en)
+  const currentLang = i18n.language.split('-')[0];
 
   return (
     <div className="language-switcher">
       <button 
-        className={`language-switcher__button ${i18n.language === 'vi' ? 'language-switcher__button--active' : ''}`}
+        className={`language-switcher__button ${currentLang === 'vi' ? 'language-switcher__button--active' : ''}`}
         onClick={() => changeLanguage('vi')}
       >
         🇻🇳 {t('common.language.vi')}
       </button>
       <button 
-        className={`language-switcher__button ${i18n.language === 'en' ? 'language-switcher__button--active' : ''}`}
+        className={`language-switcher__button ${currentLang === 'en' ? 'language-switcher__button--active' : ''}`}
         onClick={() => changeLanguage('en')}
       >
-        EN {t('common.language.en')}
+        🇬🇧 {t('common.language.en')}
       </button>
     </div>
   );

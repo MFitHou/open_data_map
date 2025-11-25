@@ -16,6 +16,7 @@
  */
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
@@ -26,6 +27,8 @@ interface NearbyMarkersProps {
 }
 
 export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places }) => {
+  const { t } = useTranslation();
+  
   return (
     <>
       {places.map((place, idx) => {
@@ -50,10 +53,10 @@ export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places }) => {
                   {getAmenityIcon(place)} {getPlaceName(place, idx)}
                 </div>
                 <div className="nearby-popup-content">
-                  <div><strong>Type:</strong> {place.highway || place.amenity || 'N/A'}</div>
-                  {place.brand && <div><strong>Brand:</strong> {place.brand}</div>}
-                  {place.operator && <div><strong>Operator:</strong> {place.operator}</div>}
-                  <div><strong>Distance:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
+                  <div><strong>{t('map.nearby.type')}:</strong> {place.highway || place.amenity || 'N/A'}</div>
+                  {place.brand && <div><strong>{t('map.nearby.brand')}:</strong> {place.brand}</div>}
+                  {place.operator && <div><strong>{t('map.nearby.operator')}:</strong> {place.operator}</div>}
+                  <div><strong>{t('map.nearby.distance')}:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
                   <div className="nearby-popup-coords">
                     <a 
                       href={`https://www.google.com/maps?q=${place.lat},${place.lon}`} 

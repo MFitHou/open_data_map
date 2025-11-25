@@ -33,13 +33,62 @@
     "searchPlaceholder": "Search locations in Vietnam... (e.g. Hoan Kiem Lake, Temple of Literature, BIDV)",
     "suggestionsTitle": "💡 Popular search suggestions:",
     "noResultsFor": "No results found for",
+    "description": "OpenDataFitHou is an open-source project that collects and links open data from Wikidata, OpenStreetMap, and many other sources. We standardize data into Linked Open Data (RDF) format and visualize it on maps, making queries, analysis, and application development easier.",
+    "descriptionExtra": "The project contributes to digital transformation and opens up opportunities to exploit open data for research, education, and the community. 🌍✨",
     "intro": {
       "title": "📋 Project Introduction",
+      "objectiveTitle": "Objective",
       "objective": "Collect, standardize, and provide open data in Linked Open Data format",
+      "contextTitle": "Context",
       "context": "Part of OLP PMNM 2025, serving research & digital transformation",
+      "visionTitle": "Vision",
       "vision": "Data transparency, community support, easy reuse"
     },
-    "description": "OpenDataFitHou is an open-source project that collects and links open data from Wikidata, OpenStreetMap and other sources. We standardize data into Linked Open Data (RDF) format and visualize it on maps, making lookup, analysis, and application development easier."
+    "features": {
+      "dataTypesTitle": "📊 Data Types",
+      "title": "⭐ Key Features",
+      "search": "Search places in Vietnam",
+      "display": "Display and highlight places on map",
+      "details": "Display detailed place information",
+      "nearby": "Find nearby services like ATMs, Bus stops",
+      "download": "Download place data in XML or RDF format",
+      "query": "Query data with SPARQL"
+    },
+    "video": {
+      "title": "Introduction Video"
+    },
+    "license": {
+      "title": "📄 License Information",
+      "name": "GNU General Public License v3.0",
+      "subtitle": "Open Source License",
+      "description": "OpenDataFitHou is released under the <strong>GNU GPL v3.0</strong> license, ensuring openness and freedom for the community. You can:",
+      "permissions": {
+        "use": "<strong>Use</strong> - Run the program for any purpose",
+        "study": "<strong>Study</strong> - View and learn from the source code",
+        "distribute": "<strong>Distribute</strong> - Share with others",
+        "modify": "<strong>Modify</strong> - Change and improve"
+      },
+      "requirementsTitle": "📋 Usage Requirements:",
+      "requirements": {
+        "preserve": "Preserve copyright and license notices",
+        "sameLicense": "Distributions must use the same GPL v3.0 license",
+        "disclose": "Disclose source code when distributing software"
+      },
+      "links": {
+        "readFull": "📖 Read full license text",
+        "viewFile": "📄 View LICENSE file",
+        "learnMore": "❓ Learn more about GPL v3.0"
+      },
+      "copyright": "© 2025 OpenDataFitHou",
+      "contributors": "All contributors",
+      "program": "Project under <strong>OLP PMNM 2025</strong> program",
+      "disclaimer": "<strong>Note:</strong> This is only a summary of the license information. Please read the full <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">GNU GPL v3.0</a> to fully understand your rights and obligations."
+    },
+    "footer": {
+      "queryData": "Query Data",
+      "copyright": "© 2025 OpenDataFitHou. Licensed under GNU General Public License.",
+      "tagline": "Open Data for Digital Transformation 🌍✨"
+    }
   },
   "map": {
     "title": "Map",
@@ -59,6 +108,7 @@
       "selectType": "🏷️ Place Type:",
       "selectRadius": "📏 Radius:",
       "toilets": "🚻 Toilets",
+      "drinkingWater": "Drinking Water",
       "atms": "🏧 ATMs",
       "hospitals": "🏥 Hospitals",
       "busStops": "🚌 Bus Stops",
@@ -89,16 +139,67 @@
       "distance": "Distance",
       "viewOnWikidata": "View on Wikidata",
       "viewOnOSM": "View on OpenStreetMap",
-      "noData": "No data available"
+      "noData": "No data available",
+      "wardInfo": "Ward Information",
+      "loadingBoundary": "Loading boundary...",
+      "area": "Area",
+      "population": "Population",
+      "density": "Density",
+      "peoplePerKm": "people/km²",
+      "publicServices": "Public Services",
+      "loadingServices": "Loading services...",
+      "schools": "Schools",
+      "healthcare": "Healthcare",
+      "restaurants": "Restaurants",
+      "banks": "Banks",
+      "emptyState": "Search and select a ward to view detailed information",
+      "noCoordinates": "No coordinates available for nearby search",
+      "nearbyPlaces": "Nearby Places",
+      "routeCalculator": "Route Calculator",
+      "statistics": "Statistics",
+      "routeUnderDev": "Route calculation feature is under development...",
+      "statsUnderDev": "Statistics feature is under development...",
+      "access": "Access",
+      "fee": "Fee",
+      "paid": "Paid",
+      "free": "Free",
+      "poiUri": "POI URI",
+      "noIdentifiers": "No identifiers available",
+      "inception": "Inception",
+      "areaKm": "Area (km²)",
+      "postalCode": "Postal Code",
+      "noStatements": "No statements available",
+      "noReferences": "No references or external links available",
+      "externalLinks": "External Links",
+      "references": "References",
+      "reference": "Reference",
+      "noMembers": "No members data available",
+      "outerWays": "Outer Ways",
+      "innerWays": "Inner Ways",
+      "nodes": "Nodes",
+      "subAreas": "Sub-areas (Relations)",
+      "membersOverview": "Members Overview",
+      "total": "Total",
+      "members": "members",
+      "type": "Type",
+      "id": "ID",
+      "tags": "Tags",
+      "showingItems": "Showing {{shown}}/{{total}} items"
     },
     "download": {
       "button": "Download Data",
+      "downloadXML": "Download as XML",
+      "downloadRDF": "Download as RDF/XML",
       "formats": {
         "json": "JSON",
         "csv": "CSV",
         "geojson": "GeoJSON"
       }
-    }
+    },
+    "yourLocation": "Your Location",
+    "memberType": "Type",
+    "memberWay": "Way",
+    "memberRelation": "Relation"
   },
   "query": {
     "title": "SPARQL Query",
@@ -116,7 +217,14 @@
       "allATMs": "🏧 Get first 10 ATMs"
     },
     "prefixes": "Prefixes",
-    "count": "results"
+    "count": "results",
+    "emptyQueryError": "Empty query",
+    "emptyQueryMessage": "Please enter a SPARQL query",
+    "executionError": "Query execution error",
+    "unknownError": "Unknown error",
+    "foundResults": "Found <strong>{{count}}</strong> results",
+    "downloadJSON": "Download JSON",
+    "editorTitle": "Query Editor"
   },
   "tour": {
     "startTour": "Start Tour",
@@ -141,5 +249,20 @@
         "description": "Export data to different formats"
       }
     }
+  },
+  "chatbot": {
+    "welcomeMessage": "Hello! I am your AI assistant. How can I help you today?",
+    "mapWelcomeMessage": "Hello! I can help you with information about locations, landmarks, and geography. What would you like to know?",
+    "inputPlaceholder": "Ask me anything about Vietnam's locations, landmarks, or geography...",
+    "mapInputPlaceholder": "Ask about locations...",
+    "thinking": "Thinking...",
+    "sendButton": "Send message",
+    "processingError": "Sorry, I could not process your request.",
+    "errorMessage": "⚠️ Sorry, I encountered an error. Please try again later.",
+    "noResponse": "No response received",
+    "failedResponse": "⚠️ Failed to get response. Please try again.",
+    "responseLabel": "Response:",
+    "aiAssistant": "AI Assistant",
+    "openAiAssistant": "Open AI Assistant"
   }
 }
