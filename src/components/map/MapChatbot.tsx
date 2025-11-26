@@ -37,15 +37,13 @@ interface Message {
   isUser: boolean;
   timestamp: Date;
 }
-
-const MapChatbot: React.FC = () => {
-  const { t } = useTranslation();
 interface MapChatbotProps {
   onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
   onLocationSelect?: (location: { lat: number; lon: number; name: string }) => void;
 }
 
 const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocationSelect }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
