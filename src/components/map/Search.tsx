@@ -25,6 +25,7 @@ import {
   faCircleXmark,
   faLightbulb
 } from '@fortawesome/free-solid-svg-icons';
+import { getApiEndpoint } from '../../config/api';
 
 interface SearchResult {
   id: string;
@@ -94,157 +95,18 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
     try {
       console.log('🔍 Searching Wikidata for:', searchTerm);
-
-      // SPARQL query lấy thêm statements và identifiers
-      const sparqlQuery = `
-        SELECT DISTINCT 
-          ?place ?placeLabel ?placeDescription ?coord ?image ?instanceOfLabel
-          ?inception ?population ?area ?website ?phone ?email ?address ?postalCode
-          ?osmRelation ?osmNode ?osmWay ?viaf ?gnd
-        WHERE {
-          SERVICE wikibase:mwapi {
-            bd:serviceParam wikibase:api "EntitySearch" .
-            bd:serviceParam wikibase:endpoint "www.wikidata.org" .
-            bd:serviceParam mwapi:search "${searchTerm}" .
-            bd:serviceParam mwapi:language "en" .
-            ?place wikibase:apiOutputItem mwapi:item .
-            bd:serviceParam mwapi:limit "20" .
-          }
-          
-          # Lọc địa điểm ở Việt Nam (country = Vietnam)
-          ?place wdt:P17 wd:Q881 .
-          
-          # Lấy tọa độ (bắt buộc)
-          ?place wdt:P625 ?coord .
-          
-          # Lấy instance of (loại đối tượng)
-          OPTIONAL { ?place wdt:P31 ?instanceOf . }
-          
-          # Lấy ảnh (optional)
-          OPTIONAL { ?place wdt:P18 ?image . }
-          
-          # Statements / Claims
-          OPTIONAL { ?place wdt:P571 ?inception . }
-          OPTIONAL { ?place wdt:P1082 ?population . }
-          OPTIONAL { ?place wdt:P2046 ?area . }
-          OPTIONAL { ?place wdt:P856 ?website . }
-          OPTIONAL { ?place wdt:P1329 ?phone . }
-          OPTIONAL { ?place wdt:P968 ?email . }
-          OPTIONAL { ?place wdt:P6375 ?address . }
-          OPTIONAL { ?place wdt:P281 ?postalCode . }
-          
-          # Identifiers
-          OPTIONAL { ?place wdt:P402 ?osmRelation . }
-          OPTIONAL { ?place wdt:P11693 ?osmNode . }
-          OPTIONAL { ?place wdt:P10689 ?osmWay . }
-          OPTIONAL { ?place wdt:P214 ?viaf . }
-          OPTIONAL { ?place wdt:P227 ?gnd . }
-          
-          SERVICE wikibase:label { 
-            bd:serviceParam wikibase:language "en,vi" . 
-          }
-        }
-        ORDER BY DESC(?image)
-        LIMIT 15
-      `;
-
-      const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`;
       
-      const response = await fetch(url, {
-        headers: {
-          'Accept': 'application/sparql-results+json',
-          'User-Agent': 'HanoiMapApp/1.0'
-        }
-      });
+      // Call backend search endpoint
+      const url = getApiEndpoint.wikidataSearch(searchTerm, 15);
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
 
-      const data = await response.json();
-      console.log('Results:', data.results.bindings.length);
-
-      const wikidataResults: SearchResult[] = data.results.bindings.map((binding: any) => {
-        // Parse coordinate string "Point(lon lat)"
-        const coordMatch = binding.coord.value.match(/Point\(([-\d.]+)\s+([-\d.]+)\)/);
-        const lon = coordMatch ? parseFloat(coordMatch[1]) : 0;
-        const lat = coordMatch ? parseFloat(coordMatch[2]) : 0;
-
-        // Extract Wikidata QID
-        const qid = binding.place.value.split('/').pop();
-
-        // Get image URL if available
-        let imageUrl = undefined;
-        if (binding.image) {
-          const imageName = binding.image.value.split('/').pop();
-          imageUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(imageName)}?width=100`;
-        }
-
-        // Determine type based on instanceOf
-        let type = 'place';
-        const instanceOfLabel = binding.instanceOfLabel?.value.toLowerCase() || '';
-        
-        if (instanceOfLabel.includes('bank') || instanceOfLabel.includes('ngân hàng')) {
-          type = 'bank';
-        } else if (instanceOfLabel.includes('school') || instanceOfLabel.includes('trường')) {
-          type = 'school';
-        } else if (instanceOfLabel.includes('hospital') || instanceOfLabel.includes('bệnh viện')) {
-          type = 'hospital';
-        } else if (instanceOfLabel.includes('restaurant') || instanceOfLabel.includes('nhà hàng')) {
-          type = 'restaurant';
-        } else if (instanceOfLabel.includes('building') || instanceOfLabel.includes('tòa nhà')) {
-          type = 'building';
-        } else if (instanceOfLabel.includes('street') || instanceOfLabel.includes('đường')) {
-          type = 'street';
-        }
-
-        const name = binding.placeLabel.value;
-        const description = binding.placeDescription?.value;
-
-        // Extract identifiers
-        const identifiers: SearchResult['identifiers'] = {};
-        if (binding.osmRelation) identifiers.osmRelationId = binding.osmRelation.value;
-        if (binding.osmNode) identifiers.osmNodeId = binding.osmNode.value;
-        if (binding.osmWay) identifiers.osmWayId = binding.osmWay.value;
-        if (binding.viaf) identifiers.viafId = binding.viaf.value;
-        if (binding.gnd) identifiers.gndId = binding.gnd.value;
-
-        // Extract statements
-        const statements: SearchResult['statements'] = {};
-        if (binding.inception) {
-          const date = binding.inception.value;
-          statements.inception = date.includes('T') ? date.split('T')[0] : date;
-        }
-        if (binding.population) statements.population = binding.population.value;
-        if (binding.area) statements.area = binding.area.value;
-        if (binding.website) statements.website = binding.website.value;
-        if (binding.phone) statements.phone = binding.phone.value;
-        if (binding.email) statements.email = binding.email.value;
-        if (binding.address) statements.address = binding.address.value;
-        if (binding.postalCode) statements.postalCode = binding.postalCode.value;
-
-        return {
-          id: `wd-${qid}`,
-          name,
-          type,
-          lat,
-          lon,
-          displayName: name + (description ? ` - ${description}` : ''),
-          source: 'wikidata' as const,
-          wikidataId: qid,
-          description,
-          image: imageUrl,
-          instanceOf: binding.instanceOfLabel?.value,
-          identifiers: Object.keys(identifiers).length > 0 ? identifiers : undefined,
-          statements: Object.keys(statements).length > 0 ? statements : undefined
-        };
-      });
-
-      // Filter out invalid coordinates
-      const validResults = wikidataResults.filter(r => r.lat !== 0 && r.lon !== 0);
-
-      console.log(`Found ${validResults.length} valid results with metadata`);
-      return validResults;
+      const results: SearchResult[] = await response.json();
+      console.log(`Found ${results.length} results with metadata`);
+      return results;
 
     } catch (error) {
       console.error('search error:', error);
