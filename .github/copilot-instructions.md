@@ -1,17 +1,17 @@
 ---
 title: GitHub Copilot Custom Instructions
 description: Hướng dẫn tùy chỉnh để GitHub Copilot sinh code phù hợp với kiến trúc và quy ước của OpenDataFitHou
-version: 1.0.0
-last_updated: 2025-11-19
+version: 1.2.0
+last_updated: 2025-11-28
 ---
 
-# 🤖 GitHub Copilot Custom Instructions - OpenDataFitHou
+# GitHub Copilot Custom Instructions - OpenDataFitHou
 
 > **Mục đích:** Đảm bảo GitHub Copilot sinh code nhất quán với kiến trúc, conventions và best practices của dự án OpenDataFitHou.
 
 ---
 
-## 📋 Tổng quan dự án
+## Tổng quan dự án
 
 ### Tech Stack
 - **Frontend:** React 19.1.1 + TypeScript 5.8.3 + Vite 7.1.7
@@ -31,23 +31,23 @@ last_updated: 2025-11-19
 
 ---
 
-## 🎯 Quy tắc chung khi sinh code
+## Quy tắc chung khi sinh code
 
 ### 1. TypeScript
-✅ **LUÔN:**
+**LUÔN:**
 - Sử dụng TypeScript strict mode
 - Định nghĩa explicit interfaces/types cho props, params, responses
 - Dùng `interface` cho object shapes, `type` cho unions/intersections
 - Đặt tên interfaces theo PascalCase (VD: `SearchResult`, `NearbyPlace`)
 
-❌ **TRÁNH:**
+**TRÁNH:**
 - Dùng `any` - chỉ dùng khi thực sự cần thiết (external API responses)
 - Implicit types khi có thể infer được
 - Type assertions không cần thiết
 
 **Ví dụ:**
 ```typescript
-// ✅ ĐÚNG
+// ĐÚNG
 interface SearchResult {
   id: string;
   name: string;
@@ -58,7 +58,7 @@ const fetchResults = async (): Promise<SearchResult[]> => {
   // ...
 }
 
-// ❌ SAI
+// SAI
 const fetchResults = async () => {
   const data: any = await fetch(url);
   return data;
@@ -83,14 +83,14 @@ const fetchResults = async () => {
 - **React Components:** `PascalCase`
 
 ### 4. Internationalization (i18n)
-✅ **LUÔN:**
+**LUÔN:**
 - Sử dụng i18next với hook `useTranslation()`
 - Đặt translation keys theo namespace rõ ràng
 - Hỗ trợ 2 ngôn ngữ: **Tiếng Việt (vi)** và **English (en)**
 - Comments và documentation bằng tiếng Việt
 - Default language: **Vietnamese (vi)**
 
-✅ **Cấu trúc translation keys:**
+**Cấu trúc translation keys:**
 ```typescript
 // Namespace pattern: {feature}.{component}.{element}
 {
@@ -157,11 +157,11 @@ export default i18n;
 
 ---
 
-## ⚛️ Frontend (React) - Quy tắc sinh code
+## Frontend (React) - Quy tắc sinh code
 
 ### 1. Component Structure
 
-✅ **Template chuẩn:**
+**Template chuẩn:**
 ```tsx
 /**
  * Copyright (C) 2025 MFitHou
@@ -210,19 +210,19 @@ export const ComponentName: React.FC<ComponentNameProps> = ({ data, onAction }) 
 
 ### 2. State Management
 
-✅ **LUÔN:**
+**LUÔN:**
 - Dùng `useState` cho local state
 - Dùng `useEffect` cho side effects
 - Props drilling cho communication giữa components
 - Callback props (VD: `onNearbyPlacesChange`) để lift state up
 
-❌ **KHÔNG dùng:**
+**KHÔNG dùng:**
 - Redux, Zustand, hoặc global state libraries
 - Context API (trừ khi thực sự cần thiết)
 
 ### 3. Data Fetching
 
-✅ **LUÔN dùng native `fetch()`:**
+**LUÔN dùng native `fetch()`:**
 ```typescript
 const fetchData = async () => {
   try {
@@ -239,7 +239,7 @@ const fetchData = async () => {
 };
 ```
 
-❌ **KHÔNG dùng:**
+**KHÔNG dùng:**
 - Axios
 - React Query / TanStack Query
 - SWR
@@ -272,12 +272,12 @@ src/utils/
 
 ### 5. Styling
 
-✅ **LUÔN:**
+**LUÔN:**
 - Tạo file CSS riêng cho mỗi component (VD: `InfoPanel.tsx` → `InfoPanel.css`)
 - Dùng BEM-like class naming: `component-name`, `component-name__element`, `component-name--modifier`
 - Import CSS trong component file
 
-❌ **KHÔNG dùng:**
+**KHÔNG dùng:**
 - CSS Modules
 - Styled Components
 - Tailwind CSS
@@ -304,7 +304,7 @@ src/utils/
 
 ### 6. Error Handling
 
-✅ **Pattern chuẩn:**
+**Pattern chuẩn:**
 ```tsx
 const [error, setError] = useState<string | null>(null);
 const [isLoading, setIsLoading] = useState(false);
@@ -331,11 +331,11 @@ const fetchData = async () => {
 
 ---
 
-## 🏗️ Backend (NestJS) - Quy tắc sinh code
+## Backend (NestJS) - Quy tắc sinh code
 
 ### 1. Module Structure
 
-✅ **Template Module:**
+**Template Module:**
 ```typescript
 /**
  * Copyright (C) 2025 MFitHou
@@ -368,7 +368,7 @@ export class ModuleNameModule {}
 
 ### 2. Controller Structure
 
-✅ **Template Controller:**
+**Template Controller:**
 ```typescript
 /**
  * Copyright (C) 2025 MFitHou
@@ -424,7 +424,7 @@ export class ModuleNameController {
 
 ### 3. Service Structure
 
-✅ **Template Service:**
+**Template Service:**
 ```typescript
 /**
  * Copyright (C) 2025 MFitHou
@@ -473,7 +473,7 @@ export class ModuleNameService {
 
 ### 4. DTO (Data Transfer Objects)
 
-✅ **Template DTO:**
+**Template DTO:**
 ```typescript
 /**
  * Copyright (C) 2025 MFitHou
@@ -489,11 +489,11 @@ export class ResponseDto {
 }
 ```
 
-⚠️ **Lưu ý:** Dự án hiện tại **KHÔNG dùng class-validator**, chỉ định nghĩa types
+**Lưu ý:** Dự án hiện tại **KHÔNG dùng class-validator**, chỉ định nghĩa types
 
 ### 5. API Response Format
 
-✅ **Chuẩn response:**
+**Chuẩn response:**
 ```typescript
 // Success response
 {
@@ -509,7 +509,7 @@ export class ResponseDto {
   items: any[]
 }
 
-// Error response
+**Error response:**
 {
   message: string,
   error: string
@@ -518,7 +518,7 @@ export class ResponseDto {
 
 ### 6. CORS Configuration
 
-✅ **Đã config trong `main.ts`:**
+**Đã config trong `main.ts`:**
 ```typescript
 app.enableCors({
   origin: ['http://localhost:5173'],
@@ -531,7 +531,7 @@ app.enableCors({
 
 ---
 
-## 📁 File Organization Rules
+## File Organization Rules
 
 ### Khi tạo file mới, đề xuất đường dẫn:
 
@@ -564,11 +564,11 @@ import './ComponentName.css';
 
 ---
 
-## 🔧 API Integration
+## API Integration
 
 ### Frontend API Calls
 
-✅ **Pattern chuẩn:**
+**Pattern chuẩn:**
 ```typescript
 // src/utils/api.ts
 const API_BASE_URL = 'http://localhost:3000';
@@ -605,7 +605,7 @@ const data = await fetchFromAPI<ResponseType>('/fuseki/query', {
 
 ### Backend API Endpoints
 
-✅ **Naming convention:**
+**Naming convention:**
 - GET `/resource` - List all
 - GET `/resource/:id` - Get one
 - POST `/resource` - Create
@@ -619,33 +619,33 @@ const data = await fetchFromAPI<ResponseType>('/fuseki/query', {
 
 ---
 
-## 📝 Documentation & Comments
+## Documentation & Comments
 
 ### Code Comments
 
-✅ **Khi nào cần comment:**
+**Khi nào cần comment:**
 - Business logic phức tạp
 - SPARQL queries
 - Algorithms (VD: Haversine distance calculation)
 - Workarounds hoặc hacks tạm thời
 
-✅ **Comment bằng tiếng Việt:**
+**Comment bằng tiếng Việt:**
 ```typescript
-// ✅ Tính khoảng cách Haversine giữa 2 điểm
+// Tính khoảng cách Haversine giữa 2 điểm
 const distance = haversineKm(lat1, lon1, lat2, lon2);
 
-// ✅ Lọc kết quả trong bán kính yêu cầu
+// Lọc kết quả trong bán kính yêu cầu
 const filtered = results.filter(r => r.distanceKm <= radiusKm);
 ```
 
-❌ **Không cần comment:**
+**Không cần comment:**
 - Self-explanatory code
 - Obvious variable names
 - Standard React patterns
 
 ### JSDoc
 
-✅ **Cho public APIs và utils:**
+**Cho public APIs và utils:**
 ```typescript
 /**
  * Fetch địa điểm gần dựa trên tọa độ
@@ -667,25 +667,35 @@ export const fetchNearbyPlaces = async (
 
 ---
 
-## 🎨 UI/UX Guidelines
+## UI/UX Guidelines
 
 ### Loading States
 ```tsx
-{isLoading && <div className="loading">⏳ Đang tải...</div>}
+{isLoading && <div className="loading">Đang tải...</div>}
 ```
 
 ### Error States
 ```tsx
-{error && <div className="error">❌ {error}</div>}
+{error && <div className="error">{error}</div>}
 ```
 
 ### Empty States
 ```tsx
-{data.length === 0 && <div className="no-data">📭 Không có dữ liệu</div>}
+{data.length === 0 && <div className="no-data">Không có dữ liệu</div>}
 ```
 
+### Responsive
+- Ưu tiên mobile-first; đảm bảo hoạt động tốt trên màn hình nhỏ (≥360px).
+- Sử dụng Flexbox/Grid; hạn chế fixed width/height, ưu tiên `%`, `auto`, `minmax()`, `clamp()`.
+- Breakpoints khuyến nghị: `360px` (mobile), `768px` (tablet), `1024px` (desktop).
+- Typography dùng `rem`; spacing dùng `rem`/`%`; tránh giá trị tuyệt đối trừ khi cần thiết.
+- Map container và panel phải co giãn; tránh tràn viewport; ẩn/thu gọn panel trên mobile khi cần.
+- Kiểm tra trên Chrome DevTools (device toolbar) trước khi commit.
+
 ### Icons
-✅ **Dùng emoji cho icons:**
+**Emoji (hạn chế, chỉ cho UI hiển thị):**
+- Chỉ dùng emoji làm biểu tượng trong UI/label, không dùng trong tên biến, keys, file, commit messages.
+- Tránh lạm dụng; ưu tiên văn bản rõ ràng và accessible.
 - 🔍 Search
 - 📍 Location
 - 🗺️ Map
@@ -696,11 +706,11 @@ export const fetchNearbyPlaces = async (
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Backend Tests (Jest)
 
-✅ **Test structure:**
+**Test structure:**
 ```typescript
 describe('ServiceName', () => {
   let service: ServiceName;
@@ -724,35 +734,34 @@ describe('ServiceName', () => {
 });
 ```
 
-⚠️ **Frontend:** Hiện tại **KHÔNG có unit tests**, focus vào manual testing
+**Frontend:** Hiện tại **KHÔNG có unit tests**, focus vào manual testing
 
 ---
 
-## 📦 Package Management
-
+## Package Management
 ### Adding Dependencies
 
-✅ **Frontend:**
+**Frontend:**
 ```bash
 cd open_data_map
 npm install package-name
 ```
 
-✅ **Backend:**
+**Backend:**
 ```bash
 cd open_data_backend
 npm install package-name
 ```
 
-⚠️ **Lưu ý:** Cần approval trước khi thêm dependencies mới
+**Lưu ý:** Cần approval trước khi thêm dependencies mới
 
 ---
 
-## 🚀 Git Workflow
+## Git Workflow
 
 ### Commit Messages
 
-✅ **Format (Conventional Commits):**
+**Format (Conventional Commits):**
 ```
 <type>(<scope>): <subject>
 
@@ -780,7 +789,7 @@ refactor(utils): extract common fetch logic
 
 ### File Headers
 
-✅ **LUÔN thêm GPL v3.0 header cho file mới:**
+**LUÔN thêm GPL v3.0 header cho file mới:**
 ```typescript
 /**
  * Copyright (C) 2025 MFitHou
@@ -802,11 +811,11 @@ refactor(utils): extract common fetch logic
 
 ---
 
-## 🌍 Domain-Specific Knowledge
+## Domain-Specific Knowledge
 
 ### SPARQL Queries
 
-✅ **Prefixes chuẩn:**
+**Prefixes chuẩn:**
 ```sparql
 PREFIX ex: <http://opendatafithou.org/poi/>
 PREFIX geo: <http://www.opendatafithou.net/ont/geosparql#>
@@ -816,23 +825,23 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 ### Wikidata Integration
 
-✅ **SPARQL service endpoint:**
+**SPARQL service endpoint:**
 ```typescript
 const WIKIDATA_ENDPOINT = 'https://query.wikidata.org/sparql';
 ```
 
 ### OpenStreetMap Integration
 
-✅ **Overpass API endpoint:**
+**Overpass API endpoint:**
 ```typescript
 const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 ```
 
 ---
 
-## ⚠️ Common Pitfalls
+## Common Pitfalls
 
-### ❌ TRÁNH:
+### TRÁNH:
 1. Thêm global state management (Redux, Zustand)
 3. Import UI component libraries
 4. Dùng React Query, Axios
@@ -842,10 +851,12 @@ const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 8. Mutating state directly (dùng setState)
 9. Memory leaks (cleanup trong useEffect)
 10. Any types (dùng proper interfaces)
+11. Lạm dụng emoji trong code (chỉ dùng cho UI hiển thị)
+12. Bỏ qua responsive/mobile (không kiểm tra trên thiết bị nhỏ)
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 - **Project README:** `README.md` (Frontend & Backend)
 - **License:** `LICENSE` (GNU GPL v3.0)
@@ -855,7 +866,7 @@ const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 
 ---
 
-## 🎯 Checklist khi sinh code mới
+## Checklist khi sinh code mới
 
 - [ ] TypeScript types/interfaces được định nghĩa rõ ràng
 - [ ] GPL v3.0 header được thêm vào file mới
@@ -872,11 +883,11 @@ const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 
 ---
 
-## 🚫 Quy tắc tạo file
+## Quy tắc tạo file
 
 ### KHÔNG tự động tạo file Markdown documentation
 
-❌ **TUYỆT ĐỐI KHÔNG tạo:**
+**TUYỆT ĐỐI KHÔNG tạo:**
 - `FEATURE_GUIDE.md`
 - `HOW_TO_USE_*.md`
 - `INSTRUCTIONS.md`
@@ -885,19 +896,19 @@ const OVERPASS_ENDPOINT = 'https://overpass-api.de/api/interpreter';
 - `IMPLEMENTATION_NOTES.md`
 - Bất kỳ file `.md` hướng dẫn/tài liệu nào
 
-✅ **CHỈ tạo khi được yêu cầu rõ ràng:**
+**CHỈ tạo khi được yêu cầu rõ ràng:**
 - Code files (`.tsx`, `.ts`, `.css`, `.json`)
 - Config files (`tsconfig.json`, `eslint.config.js`, `vite.config.ts`)
 - Files liên quan trực tiếp đến tính năng
 - Translation files (`vi.json`, `en.json`)
 
-💬 **Mọi giải thích:**
+**Mọi giải thích:**
 - Trả lời trong chat
 - KHÔNG sinh file tài liệu
 - Hỏi ý kiến user trước nếu cần tạo documentation
 
 ---
 
-**Last Updated:** November 19, 2025  
-**Version:** 1.1.0  
-**Maintainer:** OpenDataFitHou Team
+**Last Updated:** November 28, 2025  
+**Version:** 1.2.0  
+**Maintainer:** OpenDataFitHou MFitHou Team
