@@ -257,6 +257,8 @@
     "mapInputPlaceholder": "Ask about locations...",
     "thinking": "Thinking...",
     "sendButton": "Send message",
+    "startListening": "Click to speak",
+    "stopListening": "Listening...",
     "processingError": "Sorry, I could not process your request.",
     "errorMessage": "⚠️ Sorry, I encountered an error. Please try again later.",
     "noResponse": "No response received",

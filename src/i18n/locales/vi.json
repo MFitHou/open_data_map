@@ -257,6 +257,8 @@
     "mapInputPlaceholder": "Hỏi về địa điểm...",
     "thinking": "Đang suy nghĩ...",
     "sendButton": "Gửi tin nhắn",
+    "startListening": "Nhấn để nói",
+    "stopListening": "Đang nghe...",
     "processingError": "Xin lỗi, tôi không thể xử lý yêu cầu của bạn.",
     "errorMessage": "⚠️ Xin lỗi, tôi gặp lỗi. Vui lòng thử lại sau.",
     "noResponse": "Không nhận được phản hồi",

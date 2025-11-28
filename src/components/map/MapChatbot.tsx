@@ -27,7 +27,9 @@ import {
   faRobot, 
   faUser, 
   faSpinner,
-  faXmark
+  faXmark,
+  faMicrophone,
+  faStop
 } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/components/MapChatbot.css';
 
@@ -56,6 +58,12 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [finalTranscript, setFinalTranscript] = useState('');
+  const [isStopping, setIsStopping] = useState(false);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const stopStartTimeRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +80,166 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
       inputRef.current?.focus();
     }
   }, [isOpen]);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      
+      recognitionInstance.continuous = true; // Enable continuous recognition
+      recognitionInstance.interimResults = true; // Enable interim results for real-time display
+      recognitionInstance.lang = 'vi-VN'; // Vietnamese language
+      recognitionInstance.maxAlternatives = 1;
+      
+      recognitionInstance.onstart = () => {
+        console.log('[Speech] Recognition started');
+        setIsListening(true);
+        setIsStopping(false);
+        stopStartTimeRef.current = null;
+        setFinalTranscript(''); // Reset transcript when starting
+      };
+      
+      recognitionInstance.onresult = (event: any) => {
+        // Ignore results if we're in the process of stopping
+        if (isStopping) {
+          console.log('[Speech] Ignoring result, already stopping');
+          return;
+        }
+        
+        let interimTranscript = '';
+        let finalText = '';
+        
+        // Process all results and accumulate final transcripts
+        for (let i = 0; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          
+          if (event.results[i].isFinal) {
+            finalText += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        // Update final transcript state if we have new final text
+        if (finalText) {
+          setFinalTranscript(prev => {
+            const newTranscript = prev + finalText;
+            console.log('[Speech] Final transcript updated:', newTranscript.trim());
+            return newTranscript;
+          });
+        }
+        
+        // Combine final and interim for display
+        const displayText = finalText ? 
+          (finalTranscript + finalText + interimTranscript).trim() : 
+          (finalTranscript + interimTranscript).trim();
+        
+        setInputValue(displayText);
+        
+        // Reset silence timer on each speech detected
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+        
+        // Set new silence timer - stop after 2 seconds of silence
+        silenceTimerRef.current = setTimeout(() => {
+          stopStartTimeRef.current = Date.now();
+          console.log('[Speech] 2s silence detected, stopping at:', new Date(stopStartTimeRef.current).toISOString());
+          setIsStopping(true);
+          if (recognitionInstance) {
+            recognitionInstance.stop();
+          }
+        }, 2000);
+      };
+      
+      recognitionInstance.onerror = (event: any) => {
+        console.error('[Speech] Recognition error:', event.error);
+        
+        // Don't stop for no-speech error, it's normal during pauses
+        if (event.error === 'no-speech') {
+          console.log('[Speech] No speech detected, continuing...');
+          return;
+        }
+        
+        setIsListening(false);
+        setFinalTranscript('');
+        
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+        
+        let errorMsg = 'Lỗi nhận dạng giọng nói';
+        if (event.error === 'not-allowed') {
+          errorMsg = 'Vui lòng cho phép truy cập microphone';
+        } else if (event.error === 'network') {
+          errorMsg = 'Lỗi kết nối mạng';
+        }
+        setError(errorMsg);
+      };
+      
+      recognitionInstance.onend = () => {
+        const endTime = Date.now();
+        if (stopStartTimeRef.current) {
+          const duration = endTime - stopStartTimeRef.current;
+          console.log('[Speech] Recognition ended at:', new Date(endTime).toISOString());
+          console.log('[Speech] ⏱️ Time from stopping to ended:', duration, 'ms');
+        } else {
+          console.log('[Speech] Recognition ended (manual stop or error)');
+        }
+        
+        setIsListening(false);
+        setIsStopping(false);
+        stopStartTimeRef.current = null;
+        setFinalTranscript('');
+        
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
+        }
+      };
+      
+      setRecognition(recognitionInstance);
+    } else {
+      console.warn('[Speech] Speech Recognition not supported');
+    }
+    
+    return () => {
+      if (recognition) {
+        recognition.stop();
+      }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const toggleVoiceInput = () => {
+    if (!recognition) {
+      setError('Trình duyệt không hỗ trợ nhận dạng giọng nói');
+      return;
+    }
+    
+    if (isListening) {
+      stopStartTimeRef.current = Date.now();
+      console.log('[Speech] Manual stop at:', new Date(stopStartTimeRef.current).toISOString());
+      setIsStopping(true);
+      recognition.stop();
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      }
+    } else {
+      setError(null);
+      setFinalTranscript('');
+      setInputValue('');
+      setIsStopping(false);
+      stopStartTimeRef.current = null;
+      recognition.start();
+    }
+  };
 
   const sendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -468,6 +636,14 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
           </div>
 
           <div className="map-chatbot-input-container">
+            <button 
+              onClick={toggleVoiceInput}
+              disabled={isLoading}
+              className={`map-voice-btn ${isListening ? 'listening' : ''}`}
+              title={isListening ? t('chatbot.stopListening') : t('chatbot.startListening')}
+            >
+              <FontAwesomeIcon icon={isListening ? faStop : faMicrophone} />
+            </button>
             <input
               ref={inputRef}
               type="text"

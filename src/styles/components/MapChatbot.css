@@ -263,10 +263,52 @@
 /* Input Container */
 .map-chatbot-input-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   padding: 16px;
   background: white;
   border-top: 1px solid #e0e0e0;
+}
+
+.map-voice-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(245, 87, 108, 0.3);
+}
+
+.map-voice-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.map-voice-btn.listening {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 3px 6px rgba(245, 87, 108, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(245, 87, 108, 0.5);
+  }
+}
+
+.map-voice-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .map-chatbot-input {
