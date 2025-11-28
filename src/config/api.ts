@@ -35,6 +35,9 @@ export const API_CONFIG = {
   
   // Overpass API 
   overpassBaseUrl: import.meta.env.VITE_OVERPASS_BASE_URL || 'https://opendatamap.hou.edu.vn/api/overpass',
+  
+  // Admin API
+  adminBaseUrl: import.meta.env.VITE_ADMIN_BASE_URL || 'http://localhost:3000/api/admin',
 } as const;
 
 /**
@@ -62,6 +65,11 @@ export const getApiEndpoint = {
   overpassRaw: (qid: string) => `${API_CONFIG.overpassBaseUrl}/raw/${qid}`,
   overpassOutline: (qid: string) => `${API_CONFIG.overpassBaseUrl}/outline/${qid}`,
   overpassRelation: (relationId: number) => `${API_CONFIG.overpassBaseUrl}/relation/${relationId}`,
+  
+  // Admin endpoints
+  adminStats: () => `${API_CONFIG.adminBaseUrl}/stats`,
+  adminPoi: () => `${API_CONFIG.adminBaseUrl}/poi`,
+  adminHealth: () => `${API_CONFIG.adminBaseUrl}/health`,
 } as const;
 
 export default API_CONFIG;
