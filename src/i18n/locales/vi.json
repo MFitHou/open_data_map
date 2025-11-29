@@ -87,6 +87,11 @@
     },
     "footer": {
       "queryData": "Truy vấn dữ liệu",
+      "services": "Dịch vụ",
+      "resources": "Tài nguyên",
+      "contact": "Liên hệ",
+      "organization": "Tổ chức",
+      "githubRepo": "Kho lưu trữ GitHub",
       "copyright": "© 2025 OpenDataFitHou. Được cấp phép theo GNU General Public License.",
       "tagline": "Open Data for Digital Transformation 🌍✨"
     }

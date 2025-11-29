@@ -87,6 +87,11 @@
     },
     "footer": {
       "queryData": "Query Data",
+      "services": "Services",
+      "resources": "Resources",
+      "contact": "Contact",
+      "organization": "Organization",
+      "githubRepo": "GitHub Repository",
       "copyright": "© 2025 OpenDataFitHou. Licensed under GNU General Public License.",
       "tagline": "Open Data for Digital Transformation 🌍✨"
     }
