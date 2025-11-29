@@ -23,6 +23,8 @@ import { Query } from './components/query/Query';
 import Chatbot from './components/chatbot/Chatbot';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { Dashboard } from './components/admin/Dashboard';
+import { Login } from './components/auth/Login';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import './i18n/config';
 
 function App() {
@@ -35,7 +37,15 @@ function App() {
           <Route path="/map" element={<SimpleMap />} />
           <Route path="/query" element={<Query />} />
           <Route path="/chatbot" element={<Chatbot />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<Dashboard />} />
           </Route>
         </Routes>
