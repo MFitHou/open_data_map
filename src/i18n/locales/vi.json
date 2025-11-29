@@ -25,7 +25,8 @@
   "nav": {
     "home": "Trang chủ",
     "map": "Bản đồ",
-    "query": "Truy vấn"
+    "query": "Truy vấn",
+    "admin": "Quản trị"
   },
   "home": {
     "title": "OpenDataFitHou",
@@ -266,5 +267,23 @@
     "responseLabel": "Phản hồi:",
     "aiAssistant": "Trợ lý AI",
     "openAiAssistant": "Mở trợ lý AI"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Quản trị",
+      "dashboard": "Tổng quan",
+      "environment": "Giám sát môi trường",
+      "pois": "Quản lý điểm",
+      "reports": "Báo cáo"
+    },
+    "dashboard": {
+      "title": "Tổng quan hệ thống",
+      "subtitle": "Chào mừng đến với trang quản trị OpenDataFitHou",
+      "welcome": "Chào mừng đến trang quản trị",
+      "description": "Đây là trang tổng quan hệ thống quản trị OpenDataFitHou. Sử dụng menu bên trái để điều hướng đến các chức năng quản lý khác nhau.",
+      "totalPois": "Tổng số điểm",
+      "monitoringPoints": "Điểm giám sát",
+      "totalReports": "Tổng số báo cáo"
+    }
   }
 }

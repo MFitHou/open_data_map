@@ -29,7 +29,8 @@ import {
   faBook,
   faCircleXmark,
   faSpinner,
-  faRobot
+  faRobot,
+  faLock
 } from '@fortawesome/free-solid-svg-icons';
 
 interface SearchResult {
@@ -403,6 +404,9 @@ const Home: React.FC = () => {
                 </a>
                 <a href="/chatbot" className="quick-link-button">
                   <FontAwesomeIcon icon={faRobot} /> AI Chatbot
+                </a>
+                <a href="/admin" className="quick-link-button">
+                  <FontAwesomeIcon icon={faLock} /> {t('nav.admin')}
                 </a>
               </div>
 

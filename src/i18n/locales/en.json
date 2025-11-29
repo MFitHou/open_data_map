@@ -25,7 +25,8 @@
   "nav": {
     "home": "Home",
     "map": "Map",
-    "query": "Query"
+    "query": "Query",
+    "admin": "Admin"
   },
   "home": {
     "title": "OpenDataFitHou",
@@ -266,5 +267,23 @@
     "responseLabel": "Response:",
     "aiAssistant": "AI Assistant",
     "openAiAssistant": "Open AI Assistant"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin",
+      "dashboard": "Dashboard",
+      "environment": "Environment Monitoring",
+      "pois": "Manage POIs",
+      "reports": "Reports"
+    },
+    "dashboard": {
+      "title": "System Dashboard",
+      "subtitle": "Welcome to OpenDataFitHou Admin Panel",
+      "welcome": "Welcome to Admin Panel",
+      "description": "This is the OpenDataFitHou admin system dashboard. Use the left menu to navigate to different management functions.",
+      "totalPois": "Total POIs",
+      "monitoringPoints": "Monitoring Points",
+      "totalReports": "Total Reports"
+    }
   }
 }
