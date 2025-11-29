@@ -368,7 +368,6 @@ const Home: React.FC = () => {
               {/* <span className="title-icon">🌍</span> */}
               OpenDataFitHou
               </h1>
-              <LanguageSwitcher />
               <p className="main-slogan">{t('home.slogan')}</p>
             </div>
           </div>
@@ -694,6 +693,9 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
+      
+      {/* Language Switcher - Fixed Position */}
+      <LanguageSwitcher />
       
       {/* Help Button */}
       <HelpButton tourType="home" />
