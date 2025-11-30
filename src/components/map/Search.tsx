@@ -94,7 +94,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   // Tìm kiếm với SPARQL mở rộng
   const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
     try {
-      console.log('🔍 Searching Wikidata for:', searchTerm);
+      console.log('🔍 Searching for:', searchTerm);
       
       // Call backend search endpoint
       const url = getApiEndpoint.wikidataSearch(searchTerm, 15);

@@ -18,6 +18,10 @@
 // Main component
 export { default as SimpleMap } from './SimpleMap';
 
+// Search components
+export { Search } from './Search';
+export { SmartSearch } from './SmartSearch';
+
 // Map-specific sub-components
 export { FlyToLocation } from './FlyToLocation';
 export { NearbyMarkers } from './NearbyMarkers';

@@ -23,7 +23,7 @@ import { fetchWikidataInfo, fetchLabels } from '../../utils/wikidataUtils';
 import type { WikidataInfo, ReferenceInfo } from '../../utils/wikidataUtils';
 import { resolveValueLink, generateExternalLinks } from '../../utils/linkResolver';
 import type { ExternalLink } from '../../utils/linkResolver';
-import { fetchNearbyPlaces, getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
+import { fetchNearbyPlaces, getAmenityIconEmoji, getPlaceName } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -49,9 +49,11 @@ interface InfoPanelProps {
     category: string;
     title: string;
     subtitle?: string;
-    rows: { label: string; value: string }[];
+    rows?: { label: string; value: string }[]; // Make optional for chatbot usage
     wikidataId?: string;
     coordinates?: [number, number];
+    location?: { lat: number; lon: number }; // Add for chatbot format
+    image?: string; // Add for chatbot format
     osmId?: string;
     osmType?: string;
     identifiers?: {
@@ -88,8 +90,8 @@ interface InfoPanelProps {
   onClose: () => void;
   onMemberClick?: (member: { type: string; ref: number; role?: string }) => void;
   memberNames?: Record<number, string>;
-  // ✅ Thêm callbacks cho nearby markers
-  onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
+  // ✅ Thêm callbacks cho nearby markers với center và radius
+  onNearbyPlacesChange?: (places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => void;
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({ 
@@ -136,9 +138,12 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
   useEffect(() => {
     const ids = new Set<string>();
-    data.rows.forEach(r => {
-      if (/^P\d+$/.test(r.label)) ids.add(r.label);
-    });
+    // Check if rows exists before forEach
+    if (data.rows) {
+      data.rows.forEach(r => {
+        if (/^P\d+$/.test(r.label)) ids.add(r.label);
+      });
+    }
     if (ids.size > 0) {
       fetchLabels(ids).then(map => setRowPropLabels(map));
     } else {
@@ -148,21 +153,28 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
   // ✅ Hàm fetch manual
   const handleSearchNearby = async () => {
-    if (!data.coordinates) return;
+    // Support both coordinates format and location format
+    const coords = data.coordinates || (data.location ? [data.location.lon, data.location.lat] : null);
+    if (!coords) return;
 
     setIsLoadingNearby(true);
     setNearbyPlaces([]);
     setHasSearchedNearby(true);
     
-    // ✅ Clear markers trên map
-    if (onNearbyPlacesChange) {
-      onNearbyPlacesChange([]);
+    // ✅ Clear markers trên map - NHƯNG giữ lại vòng tròn bằng cách truyền center và radius
+    // ⚠️ coordinates format is [lon, lat], NOT [lat, lon]
+    const searchCenter = data.coordinates 
+      ? { lat: data.coordinates[1], lon: data.coordinates[0] }
+      : (data.location ? { lat: data.location.lat, lon: data.location.lon } : undefined);
+    
+    if (onNearbyPlacesChange && searchCenter) {
+      onNearbyPlacesChange([], searchCenter, nearbyRadius);
     }
 
     try {
       const response = await fetchNearbyPlaces(
-        data.coordinates[0],
-        data.coordinates[1],
+        coords[0], // lon
+        coords[1], // lat
         nearbyRadius,
         nearbyAmenity
       );
@@ -170,9 +182,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       if (response) {
         setNearbyPlaces(response.items);
         
-        // ✅ Gửi markers lên parent component (Map)
-        if (onNearbyPlacesChange) {
-          onNearbyPlacesChange(response.items);
+        // ✅ Gửi markers lên parent component (Map) với center và radius
+        if (onNearbyPlacesChange && searchCenter) {
+          onNearbyPlacesChange(response.items, searchCenter, nearbyRadius);
         }
       }
     } catch (error) {
@@ -193,15 +205,21 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   };
 
-  // ✅ Clear markers khi rời tab
+  // ✅ Clear markers khi rời khỏi nearby tab - ONLY if we had searched before
   useEffect(() => {
-    if (activeTab !== 'tasks' || activeTaskTab !== 'nearby') {
+    // Only clear markers if:
+    // 1. We're leaving the nearby task tab
+    // 2. We had previously searched from InfoPanel (hasSearchedNearby = true)
+    // This prevents clearing markers from chatbot or external sources
+    if (hasSearchedNearby && (activeTab !== 'tasks' || activeTaskTab !== 'nearby')) {
+      console.log('[InfoPanel] Clearing markers - left nearby tab after searching');
       setNearbyPlaces([]);
+      setHasSearchedNearby(false); // Reset flag
       if (onNearbyPlacesChange) {
         onNearbyPlacesChange([]);
       }
     }
-  }, [activeTab, activeTaskTab, onNearbyPlacesChange]);
+  }, [activeTab, activeTaskTab, hasSearchedNearby, onNearbyPlacesChange]);
 
   const handleMemberClick = (member: { type: string; ref: number; role?: string }) => {
     setSelectedMemberRef(member.ref);
@@ -285,7 +303,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             {nearbyPlaces.map((place, idx) => (
               <div key={idx} className="nearby-item">
                 <div className="nearby-header">
-                  <span className="nearby-icon">{getAmenityIcon(place)}</span>
+                  <span className="nearby-icon">{getAmenityIconEmoji(place)}</span>
                   <span className="nearby-name">
                     {getPlaceName(place, idx)}
                   </span>
@@ -429,15 +447,25 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   };
 
   const renderBasicTab = () => {
-    const rows = data.rows.map(r => {
+    // Handle case when data.rows is not available (e.g., from chatbot)
+    const rows = data.rows ? data.rows.map(r => {
       const label = rowPropLabels[r.label] || r.label;
       const link = resolveValueLink(label, r.value);
       return { label, value: r.value, link };
-    });
+    }) : [];
 
     if (data.coordinates) {
       const lat = data.coordinates[1].toFixed(6);
       const lon = data.coordinates[0].toFixed(6);
+      rows.push({
+        label: t('map.info.coordinates'),
+        value: `${lat}, ${lon}`,
+        link: `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}&zoom=16`
+      });
+    } else if (data.location) {
+      // Handle location from chatbot format
+      const lat = data.location.lat.toFixed(6);
+      const lon = data.location.lon.toFixed(6);
       rows.push({
         label: t('map.info.coordinates'),
         value: `${lat}, ${lon}`,

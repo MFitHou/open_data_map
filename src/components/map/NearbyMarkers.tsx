@@ -17,29 +17,39 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
+import { Marker, Popup, Circle } from 'react-leaflet';
 import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
 
 interface NearbyMarkersProps {
   places: NearbyPlace[];
+  searchCenter?: { lat: number; lon: number };
+  searchRadiusKm?: number;
 }
 
-export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places }) => {
+export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places, searchCenter, searchRadiusKm }) => {
   const { t } = useTranslation();
   
   return (
     <>
+      {/* Vòng tròn bán kính tìm kiếm */}
+      {searchCenter && searchRadiusKm && (
+        <Circle
+          center={[searchCenter.lat, searchCenter.lon]}
+          radius={searchRadiusKm * 1000} // Convert km to meters
+          pathOptions={{
+            color: '#3388ff',
+            fillColor: '#3388ff',
+            fillOpacity: 0.1,
+            weight: 2,
+            dashArray: '5, 5'
+          }}
+        />
+      )}
+      
       {places.map((place, idx) => {
-        // Create custom icon with emoji
-        const icon = L.divIcon({
-          html: `<div class="nearby-marker">${getAmenityIcon(place)}</div>`,
-          className: 'nearby-marker-wrapper',
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
-          popupAnchor: [0, -30]
-        });
+        // Get awesome marker icon for this place type
+        const icon = getAmenityIcon(place);
 
         return (
           <Marker
@@ -50,7 +60,7 @@ export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places }) => {
             <Popup>
               <div className="nearby-popup">
                 <div className="nearby-popup-title">
-                  {getAmenityIcon(place)} {getPlaceName(place, idx)}
+                  {getPlaceName(place, idx)}
                 </div>
                 <div className="nearby-popup-content">
                   <div><strong>{t('map.nearby.type')}:</strong> {place.highway || place.amenity || 'N/A'}</div>

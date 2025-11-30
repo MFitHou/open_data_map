@@ -33,18 +33,39 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/components/MapChatbot.css';
 
+interface SearchResult {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lon: number;
+  displayName: string;
+  description?: string;
+  image?: string;
+  wikidataId?: string;
+}
+
 interface Message {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
-}
-interface MapChatbotProps {
-  onNearbyPlacesChange?: (places: NearbyPlace[]) => void;
-  onLocationSelect?: (location: { lat: number; lon: number; name: string }) => void;
+  searchResults?: SearchResult[]; // Optional search results to display as buttons
 }
 
-const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocationSelect }) => {
+interface MapChatbotProps {
+  onNearbyPlacesChange?: (places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => void;
+  onLocationSelect?: (location: { lat: number; lon: number; name: string; wikidataId?: string; description?: string; type?: string; image?: string }) => void;
+  externalMessage?: string | null; // New: external message to display
+  onExternalMessageShown?: () => void; // Callback after message is shown
+}
+
+const MapChatbot: React.FC<MapChatbotProps> = ({ 
+  onNearbyPlacesChange, 
+  onLocationSelect,
+  externalMessage,
+  onExternalMessageShown
+}) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -80,6 +101,24 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
       inputRef.current?.focus();
     }
   }, [isOpen]);
+
+  // Handle external message from SmartSearch
+  useEffect(() => {
+    if (externalMessage) {
+      const botMessage: Message = {
+        id: Date.now().toString(),
+        content: externalMessage,
+        isUser: false,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMessage]);
+      setIsOpen(true); // Auto open chatbot
+      
+      if (onExternalMessageShown) {
+        onExternalMessageShown();
+      }
+    }
+  }, [externalMessage, onExternalMessageShown]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -351,7 +390,10 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
           // Send ALL places to parent component (Map) to display markers - ONLY ONCE
           if (onNearbyPlacesChange) {
             console.log('[MapChatbot] Sending ALL places to map:', allResults.length);
-            onNearbyPlacesChange(allResults);
+            onNearbyPlacesChange(allResults, {
+              lat: searchParams.lat,
+              lon: searchParams.lon
+            }, searchParams.radiusKm);
           }
         } else {
           // No results found
@@ -404,13 +446,130 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
       }
 
       const data = await response.json();
-      console.log('[MapChatbot] Chat API response:', data);
-      console.log('[MapChatbot] questionType:', data.questionType);
-      console.log('[MapChatbot] searchParams:', data.searchParams);
+      console.log('[MapChatbot] ===== Chat API Response =====');
+      console.log('[MapChatbot] Full response:', JSON.stringify(data, null, 2));
+      console.log('[MapChatbot] Has finalResponse:', !!data.finalResponse);
+      console.log('[MapChatbot] Has functionCalls:', !!data.functionCalls);
+      console.log('[MapChatbot] Has questionType:', !!data.questionType);
+      console.log('[MapChatbot] =========================');
       
+      // Handle Function Calling Response (PRIORITY 1)
+      if (data.finalResponse && data.functionCalls && Array.isArray(data.functionCalls)) {
+        console.log('[MapChatbot] ✅ Function calling response detected!');
+        console.log('[MapChatbot] Number of function calls:', data.functionCalls.length);
+        
+        // Extract location from fetchGeocodeByName
+        let location = null;
+        const geocodeCall = data.functionCalls.find((call: any) => 
+          call.functionName === 'fetchGeocodeByName'
+        );
+        
+        if (geocodeCall && geocodeCall.result) {
+          location = {
+            lat: geocodeCall.result.lat,
+            lon: geocodeCall.result.lng,
+            name: geocodeCall.arguments.name
+          };
+          
+          console.log('[MapChatbot] Location extracted:', location);
+          
+          // Fly to location
+          if (onLocationSelect) {
+            onLocationSelect(location);
+          }
+        }
+        
+        // Extract all service items from search*Nearby functions
+        const allPlaces: NearbyPlace[] = [];
+        let searchResults: SearchResult[] = [];
+        
+        data.functionCalls.forEach((call: any) => {
+          console.log(`[MapChatbot] Checking function: ${call.functionName}`);
+          
+          // Check if it's a nearby search function (searchXXXNearby or searchXXXsNearby)
+          const isNearbySearch = call.functionName.startsWith('search') && 
+                                 (call.functionName.endsWith('Nearby') || call.functionName.includes('Nearby'));
+          
+          if (isNearbySearch && call.result?.items) {
+            console.log(`[MapChatbot] ✅ Processing ${call.functionName}, found ${call.result.items.length} items`);
+            
+            // Transform items to NearbyPlace format
+            const places = call.result.items.map((item: any) => ({
+              poi: item.poi,
+              amenity: item.amenity,
+              highway: item.highway,
+              leisure: item.leisure,
+              name: item.name || item.brand || item.operator || `${item.amenity || item.highway || item.leisure || 'Place'}`,
+              brand: item.brand,
+              operator: item.operator,
+              access: item.access,
+              fee: item.fee,
+              wkt: item.wkt,
+              lon: item.lon,
+              lat: item.lat,
+              distanceKm: item.distanceKm
+            }));
+            
+            console.log(`[MapChatbot] Transformed ${places.length} places from ${call.functionName}`);
+            allPlaces.push(...places);
+          }
+          
+          // Extract search results from searchInforByName
+          if (call.functionName === 'searchInforByName' && call.result?.search_results) {
+            console.log(`[MapChatbot] Processing ${call.functionName}, found ${call.result.search_results.length} results`);
+            searchResults = call.result.search_results;
+          }
+        });
+        
+        console.log(`[MapChatbot] 📍 Total places extracted: ${allPlaces.length}`);
+        
+        // Send places to map for marker display - ONLY if we have places
+        if (allPlaces.length > 0) {
+          if (onNearbyPlacesChange) {
+            console.log('[MapChatbot] ✅ Sending', allPlaces.length, 'places to map for markers');
+            
+            // Try to extract radius from function calls arguments
+            let radiusKm = 1; // default
+            const nearbyCall = data.functionCalls.find((call: any) => 
+              call.functionName.startsWith('search') && 
+              (call.functionName.endsWith('Nearby') || call.functionName.includes('Nearby'))
+            );
+            if (nearbyCall?.arguments?.radiusKm) {
+              radiusKm = nearbyCall.arguments.radiusKm;
+            }
+            
+            // Send with center and radius
+            onNearbyPlacesChange(allPlaces, location ? {
+              lat: location.lat,
+              lon: location.lon
+            } : undefined, radiusKm);
+          }
+        } else {
+          console.warn('[MapChatbot] ⚠️ No places to send to map!');
+        }
+        
+        // Display finalResponse to user
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.finalResponse,
+          isUser: false,
+          timestamp: new Date(),
+          searchResults: searchResults.length > 0 ? searchResults : undefined
+        };
+
+        console.log('[MapChatbot] ✅ Displaying finalResponse to user');
+        if (searchResults.length > 0) {
+          console.log('[MapChatbot] ✅ Including', searchResults.length, 'search results as interactive buttons');
+        }
+        setMessages(prev => [...prev, botMessage]);
+        
+        // IMPORTANT: Return early to prevent further processing
+        return;
+      }
+      
+      // Handle new backend response format with questionType (PRIORITY 2)
       let botResponseText = t('chatbot.processingError');
       
-      // Handle new backend response format with questionType
       if (data.questionType) {
         console.log('[MapChatbot] questionType detected:', data.questionType);
         
@@ -613,6 +772,44 @@ const MapChatbot: React.FC<MapChatbotProps> = ({ onNearbyPlacesChange, onLocatio
                       <ReactMarkdown>{message.content}</ReactMarkdown>
                     )}
                   </div>
+                  
+                  {/* Display search results as interactive buttons */}
+                  {message.searchResults && message.searchResults.length > 0 && (
+                    <div className="search-results-buttons">
+                      {message.searchResults.map((result) => (
+                        <button
+                          key={result.id}
+                          className="search-result-btn"
+                          onClick={() => {
+                            console.log('[MapChatbot] User clicked on search result:', result.name);
+                            if (onLocationSelect) {
+                              onLocationSelect({
+                                lat: result.lat,
+                                lon: result.lon,
+                                name: result.displayName || result.name,
+                                wikidataId: result.wikidataId,
+                                description: result.description,
+                                type: result.type,
+                                image: result.image
+                              });
+                            }
+                          }}
+                          title={result.description || result.type}
+                        >
+                          <div className="search-result-btn-content">
+                            <span className="search-result-name">{result.name}</span>
+                            {result.type && (
+                              <span className="search-result-type">{result.type}</span>
+                            )}
+                            {result.description && (
+                              <span className="search-result-desc">{result.description}</span>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  
                   <div className="map-message-time">{formatTime(message.timestamp)}</div>
                 </div>
               </div>

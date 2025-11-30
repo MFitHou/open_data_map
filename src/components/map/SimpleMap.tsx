@@ -23,7 +23,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
 // Components
-import { Search } from "./Search";
+import { SmartSearch } from "./SmartSearch";
 import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
 import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
@@ -68,6 +68,11 @@ const SimpleMap: React.FC = () => {
   
   // Nearby places
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
+  const [nearbySearchCenter, setNearbySearchCenter] = useState<{ lat: number; lon: number } | null>(null);
+  const [nearbySearchRadius, setNearbySearchRadius] = useState<number | null>(null);
+  
+  // AI message from SmartSearch to Chatbot
+  const [aiMessageForChatbot, setAiMessageForChatbot] = useState<string | null>(null);
   
   // Info panel
   const [selectedInfo, setSelectedInfo] = useState<SelectedInfo | null>(null);
@@ -94,28 +99,11 @@ const SimpleMap: React.FC = () => {
     });
   }, [getLocation]);
 
-  const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
+  const handleNearbyPlacesChange = useCallback((places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => {
     console.log('Nearby places updated:', places.length);
     setNearbyPlaces(places);
-  }, []);
-
-  const handleChatbotLocationSelect = useCallback((location: { lat: number; lon: number; name: string }) => {
-    console.log('Chatbot location select:', location);
-    
-    // Set search marker
-    setSearchMarker({
-      lat: location.lat,
-      lon: location.lon,
-      name: location.name
-    });
-    
-    // Fly to location (zoom will be handled by FlyToLocation component)
-    setSelectedLocation({
-      lat: location.lat,
-      lon: location.lon
-    });
-    
-    // Zoom level is passed to FlyToLocation as separate prop
+    setNearbySearchCenter(center || null);
+    setNearbySearchRadius(radiusKm || null);
   }, []);
 
   // HANDLER: Select location from search
@@ -304,6 +292,37 @@ out tags;
     }
   }, []);
 
+  const handleChatbotLocationSelect = useCallback((location: { 
+    lat: number; 
+    lon: number; 
+    name: string;
+    wikidataId?: string;
+    description?: string;
+    type?: string;
+    image?: string;
+  }) => {
+    console.log('Chatbot location select:', location);
+    
+    // Transform chatbot location data to SearchResult format
+    const searchResult: SearchResult = {
+      id: location.wikidataId || `chatbot-${Date.now()}`,
+      name: location.name,
+      type: location.type || 'location',
+      lat: location.lat,
+      lon: location.lon,
+      displayName: location.name,
+      description: location.description,
+      wikidataId: location.wikidataId || '',
+      source: 'wikidata',
+      // Add empty identifiers and statements if not provided
+      identifiers: {},
+      statements: {}
+    };
+    
+    // Use the same handler as search to get full functionality
+    handleSelectLocation(searchResult);
+  }, [handleSelectLocation]);
+
   // HANDLER: Member click
   const handleMemberClick = useCallback(async (member: { type: string; ref: number; role?: string }) => {
     console.log('Fetching member:', member);
@@ -405,7 +424,28 @@ out geom;
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      <Search onSelectLocation={handleSelectLocation} />
+      <SmartSearch 
+        onLocationSelect={(latLng, name, data) => {
+          const result: SearchResult = {
+            id: data?.wikidataId || Date.now().toString(),
+            name: name,
+            type: data?.type || 'location',
+            lat: latLng.lat,
+            lon: latLng.lng,
+            displayName: name,
+            description: data?.description,
+            image: data?.image,
+            wikidataId: data?.wikidataId,
+            identifiers: data?.identifiers,
+            statements: data?.statements,
+            source: data?.source || 'search'
+          };
+          handleSelectLocation(result);
+        }}
+        onNearbyPlacesChange={handleNearbyPlacesChange}
+        onAIMessageReceived={(message) => setAiMessageForChatbot(message)}
+        currentLocation={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lon } : null}
+      />
 
       <CurrentLocationButton 
         isGettingLocation={isGettingLocation}
@@ -421,6 +461,8 @@ out geom;
             setMemberOutline(null);
             setMemberNames({});
             setNearbyPlaces([]);
+            setNearbySearchCenter(null);
+            setNearbySearchRadius(null);
           }}
           onMemberClick={handleMemberClick}
           memberNames={memberNames}
@@ -435,7 +477,7 @@ out geom;
         zoomControl={false}
         ref={setMap}
       >
-        <ZoomControl position="bottomright" />
+        <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -461,7 +503,11 @@ out geom;
         )}
 
         {nearbyPlaces.length > 0 && (
-          <NearbyMarkers places={nearbyPlaces} />
+          <NearbyMarkers 
+            places={nearbyPlaces} 
+            searchCenter={nearbySearchCenter || undefined}
+            searchRadiusKm={nearbySearchRadius || undefined}
+          />
         )}
 
         {selectedLocation && (
@@ -507,6 +553,8 @@ out geom;
       <MapChatbot 
         onNearbyPlacesChange={handleNearbyPlacesChange}
         onLocationSelect={handleChatbotLocationSelect}
+        externalMessage={aiMessageForChatbot}
+        onExternalMessageShown={() => setAiMessageForChatbot(null)}
       />
     </div>
   );

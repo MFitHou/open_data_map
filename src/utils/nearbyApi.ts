@@ -80,38 +80,95 @@ export const fetchNearbyPlaces = async (
   }
 };
 
+import L from 'leaflet';
+import 'leaflet.awesome-markers';
+
 /**
- * ✅ Cập nhật icons cho các amenity/highway types
+ * ✅ Get emoji icon string for display in UI text
  */
-export const getAmenityIcon = (place: NearbyPlace): string => {
+export const getAmenityIconEmoji = (place: NearbyPlace): string => {
+  if (place.highway === 'bus_stop') return '🚌';
+  if (place.amenity === 'toilets') return '🚻';
+  if (place.amenity === 'atm') return '🏧';
+  if (place.amenity === 'hospital') return '🏥';
+  if (place.amenity === 'drinking_water') return '💧';
+  if (place.leisure === 'playground') return '🎮';
+  return '📍';
+};
+
+/**
+ * ✅ Cập nhật icons cho các amenity/highway types sử dụng leaflet.awesome-markers
+ */
+export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
   // ✅ Ưu tiên highway trước (cho bus stops)
   if (place.highway) {
-    const highwayIcons: Record<string, string> = {
-      bus_stop: '🚌',
-    };
-    return highwayIcons[place.highway] || '🚏';
+    if (place.highway === 'bus_stop') {
+      return L.AwesomeMarkers.icon({
+        icon: 'bus',
+        markerColor: 'blue',
+        prefix: 'fa',
+        iconColor: 'white'
+      });
+    }
+    return L.AwesomeMarkers.icon({
+      icon: 'road',
+      markerColor: 'gray',
+      prefix: 'fa',
+      iconColor: 'white'
+    });
   }
   
   // ✅ Fallback về amenity
   if (place.amenity) {
-    const amenityIcons: Record<string, string> = {
-      toilets: '🚻',
-      atm: '🏧',
-      hospital: '🏥',
-      drinking_water: '💧',   // ✅ Thêm icon cho drinking water
+    const amenityConfig: Record<string, { icon: string; color: string }> = {
+      toilets: { icon: 'female', color: 'lightblue' },
+      atm: { icon: 'credit-card', color: 'green' },
+      hospital: { icon: 'hospital', color: 'red' },
+      drinking_water: { icon: 'tint', color: 'lightblue' },
     };
-    return amenityIcons[place.amenity] || '📍';
+    
+    const config = amenityConfig[place.amenity];
+    if (config) {
+      return L.AwesomeMarkers.icon({
+        icon: config.icon,
+        markerColor: config.color,
+        prefix: 'fa',
+        iconColor: 'white'
+      });
+    }
+    
+    return L.AwesomeMarkers.icon({
+      icon: 'map-marker',
+      markerColor: 'darkblue',
+      prefix: 'fa',
+      iconColor: 'white'
+    });
   }
 
   // ✅ Kiểm tra leisure (playground)
   if (place.leisure) {
-    const leisureIcons: Record<string, string> = {
-      playground: '🎮',
-    };
-    return leisureIcons[place.leisure] || '🎯';
+    if (place.leisure === 'playground') {
+      return L.AwesomeMarkers.icon({
+        icon: 'child',
+        markerColor: 'orange',
+        prefix: 'fa',
+        iconColor: 'white'
+      });
+    }
+    return L.AwesomeMarkers.icon({
+      icon: 'tree',
+      markerColor: 'green',
+      prefix: 'fa',
+      iconColor: 'white'
+    });
   }
   
-  return '📍';
+  return L.AwesomeMarkers.icon({
+    icon: 'map-marker',
+    markerColor: 'darkblue',
+    prefix: 'fa',
+    iconColor: 'white'
+  });
 };
 
 /**

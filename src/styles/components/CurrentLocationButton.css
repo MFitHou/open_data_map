@@ -17,7 +17,7 @@
 
 .current-location-button {
   position: absolute;
-  bottom: 100px;
+  top: 20px;
   right: 10px;
   z-index: 1000;
   width: 40px;
