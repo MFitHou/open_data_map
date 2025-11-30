@@ -289,6 +289,85 @@
       "totalPois": "Tổng số điểm",
       "monitoringPoints": "Điểm giám sát",
       "totalReports": "Tổng số báo cáo"
+    },
+    "pois": {
+      "title": "Quản lý điểm quan tâm (POIs)",
+      "subtitle": "Thêm, sửa và xóa các điểm quan tâm trong hệ thống",
+      "addNew": "Thêm POI mới",
+      "searchPlaceholder": "Tìm kiếm theo tên hoặc loại...",
+      "loading": "Đang tải dữ liệu...",
+      "noData": "Chưa có dữ liệu POI",
+      "noResults": "Không tìm thấy kết quả phù hợp",
+      "unnamed": "Chưa đặt tên",
+      "filter": {
+        "type": "Loại POI"
+      },
+      "table": {
+        "name": "Tên",
+        "type": "Loại",
+        "coordinates": "Tọa độ",
+        "address": "Địa chỉ",
+        "phone": "Số điện thoại",
+        "operator": "Nhà vận hành",
+        "actions": "Thao tác",
+        "openingHours": "Giờ mở cửa",
+        "fee": "Phí",
+        "wheelchair": "Hỗ trợ xe lăn",
+        "educationLevel": "Cấp học",
+        "routes": "Tuyến xe",
+        "shelter": "Nhà chờ",
+        "bench": "Ghế ngồi",
+        "lighting": "Chiếu sáng",
+        "surface": "Mặt sân",
+        "drinkable": "Nước uống"
+      },
+      "type": {
+        "toilet": "Nhà vệ sinh",
+        "school": "Trường học",
+        "busStop": "Trạm xe buýt",
+        "playGround": "Sân chơi",
+        "drinkingWater": "Nước uống"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "pagination": {
+        "previous": "Trước",
+        "next": "Sau",
+        "page": "Trang"
+      },
+      "modal": {
+        "title": "Thêm POI mới"
+      },
+      "form": {
+        "name": "Tên",
+        "namePlaceholder": "Vd: ATM Vietcombank Láng Hạ",
+        "type": "Loại",
+        "latitude": "Vĩ độ",
+        "longitude": "Kinh độ",
+        "address": "Địa chỉ",
+        "addressPlaceholder": "Vd: 123 Đường ABC, Quận XYZ, Hà Nội",
+        "cancel": "Hủy",
+        "submit": "Tạo POI",
+        "submitting": "Đang tạo..."
+      },
+      "error": {
+        "fetchFailed": "Không thể tải danh sách POI",
+        "nameRequired": "Vui lòng nhập tên",
+        "typeRequired": "Vui lòng chọn loại",
+        "invalidLat": "Vĩ độ không hợp lệ (-90 đến 90)",
+        "invalidLon": "Kinh độ không hợp lệ (-180 đến 180)",
+        "createFailed": "Không thể tạo POI",
+        "deleteFailed": "Không thể xóa POI"
+      },
+      "success": {
+        "created": "Tạo POI thành công!",
+        "deleted": "Xóa POI thành công!"
+      },
+      "confirm": {
+        "delete": "Bạn có chắc chắn muốn xóa POI này?"
+      }
     }
   },
   "login": {

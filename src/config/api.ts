@@ -68,7 +68,8 @@ export const getApiEndpoint = {
   
   // Admin endpoints
   adminStats: () => `${API_CONFIG.adminBaseUrl}/stats`,
-  adminPoi: () => `${API_CONFIG.adminBaseUrl}/poi`,
+  adminPois: () => `${API_CONFIG.adminBaseUrl}/pois`,
+  adminPoi: (id?: string) => id ? `${API_CONFIG.adminBaseUrl}/pois/${id}` : `${API_CONFIG.adminBaseUrl}/pois`,
   adminHealth: () => `${API_CONFIG.adminBaseUrl}/health`,
   
   // Admin IoT endpoints
