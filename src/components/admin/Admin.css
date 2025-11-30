@@ -415,3 +415,129 @@
     font-size: 1rem;
   }
 }
+
+/* ========================================
+   ADMIN PAGE (Environment Monitoring)
+   ======================================== */
+
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1.5rem;
+}
+
+.admin-page__header {
+  flex-shrink: 0;
+}
+
+.admin-page__title {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.admin-page__subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #7f8c8d;
+}
+
+/* Legend Bar */
+.admin-page__legend {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.legend-label {
+  font-size: 0.95rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.legend-info {
+  margin-left: auto;
+}
+
+.legend-refresh {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Map Container */
+.admin-page__map-container {
+  flex: 1;
+  min-height: 500px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-page__title {
+    font-size: 1.5rem;
+  }
+
+  .admin-page__subtitle {
+    font-size: 0.9rem;
+  }
+
+  .admin-page__legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .legend-info {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .admin-page__map-container {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-page {
+    gap: 1rem;
+  }
+
+  .admin-page__title {
+    font-size: 1.25rem;
+  }
+
+  .admin-page__legend {
+    padding: 1rem;
+  }
+
+  .legend-label {
+    font-size: 0.85rem;
+  }
+
+  .legend-refresh {
+    font-size: 0.8rem;
+  }
+}

@@ -15,8 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-const AUTH_TOKEN_KEY = 'admin-auth-token';
-const AUTH_TOKEN_VALUE = 'admin-authenticated';
+const AUTH_TOKEN_KEY = import.meta.env.VITE_AUTH_TOKEN_KEY || 'admin-auth-token';
+const AUTH_TOKEN_VALUE = import.meta.env.VITE_AUTH_TOKEN_VALUE || 'admin-authenticated';
 
 /**
  * Xác thực người dùng và lưu token vào localStorage

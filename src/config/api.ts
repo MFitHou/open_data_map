@@ -70,6 +70,10 @@ export const getApiEndpoint = {
   adminStats: () => `${API_CONFIG.adminBaseUrl}/stats`,
   adminPoi: () => `${API_CONFIG.adminBaseUrl}/poi`,
   adminHealth: () => `${API_CONFIG.adminBaseUrl}/health`,
+  
+  // Admin IoT endpoints
+  adminIotTraffic: () => `${API_CONFIG.adminBaseUrl}/iot/traffic`,
+  adminIotFlood: () => `${API_CONFIG.adminBaseUrl}/iot/flood`,
 } as const;
 
 export default API_CONFIG;
