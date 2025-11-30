@@ -87,6 +87,11 @@
     },
     "footer": {
       "queryData": "Query Data",
+      "services": "Services",
+      "resources": "Resources",
+      "contact": "Contact",
+      "organization": "Organization",
+      "githubRepo": "GitHub Repository",
       "copyright": "© 2025 OpenDataFitHou. Licensed under GNU General Public License.",
       "tagline": "Open Data for Digital Transformation 🌍✨"
     }
@@ -284,6 +289,29 @@
       "totalPois": "Total POIs",
       "monitoringPoints": "Monitoring Points",
       "totalReports": "Total Reports"
+    }
+  },
+  "login": {
+    "system": {
+      "title": "AUTHENTICATION SYSTEM",
+      "subtitle": "MFITHOU"
+    },
+    "form": {
+      "title": "LOGIN",
+      "subtitle": "Please enter your login credentials",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Processing...",
+      "forgotPassword": "Forgot password?"
+    },
+    "error": {
+      "invalid": "Invalid username or password"
+    },
+    "demo": {
+      "title": "Demo credentials",
+      "username": "Username",
+      "password": "Password"
     }
   }
 }

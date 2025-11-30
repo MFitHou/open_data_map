@@ -368,7 +368,6 @@ const Home: React.FC = () => {
               {/* <span className="title-icon">🌍</span> */}
               OpenDataFitHou
               </h1>
-              <LanguageSwitcher />
               <p className="main-slogan">{t('home.slogan')}</p>
             </div>
           </div>
@@ -404,9 +403,6 @@ const Home: React.FC = () => {
                 </a>
                 <a href="/chatbot" className="quick-link-button">
                   <FontAwesomeIcon icon={faRobot} /> AI Chatbot
-                </a>
-                <a href="/admin" className="quick-link-button">
-                  <FontAwesomeIcon icon={faLock} /> {t('nav.admin')}
                 </a>
               </div>
 
@@ -676,24 +672,86 @@ const Home: React.FC = () => {
 
       {/* Section 7: Footer */}
       <footer className="footer-section">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-logo">
-              <span className="title-icon">🌍</span>
-              <span>OpenDataFitHou</span>
+        <div className="footer-main">
+          <div className="container">
+            <div className="footer-grid">
+              {/* Column 1: About */}
+              <div className="footer-column">
+                <div className="footer-logo">
+                  <span>OpenDataFitHou</span>
+                </div>
+                <p className="footer-description">
+                  {t('home.description')}
+                </p>
+              </div>
+
+              {/* Column 2: Services */}
+              <div className="footer-column">
+                <h3 className="footer-column-title">{t('home.footer.services')}</h3>
+                <ul className="footer-list">
+                  <li><a href="/map">{t('nav.map')}</a></li>
+                  <li><a href="/query">{t('home.footer.queryData')}</a></li>
+                  <li><a href="/chatbot">AI Chatbot</a></li>
+                </ul>
+              </div>
+
+              {/* Column 3: Resources */}
+              <div className="footer-column">
+                <h3 className="footer-column-title">{t('home.footer.resources')}</h3>
+                <ul className="footer-list">
+                  <li>
+                    <div className="footer-social">
+                      <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                        <FontAwesomeIcon icon={faBook} />
+                        {t('home.footer.githubRepo')}
+                      </a>
+                    </div>
+                  </li>
+                  <li>
+                    <a href="https://github.com/MFitHou/open_data_map/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">
+                      {t('home.license.name')}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 4: Contact & Admin */}
+              <div className="footer-column">
+                <h3 className="footer-column-title">{t('home.footer.contact')}</h3>
+                <ul className="footer-list footer-contact">
+                  <li>
+                    <span className="contact-label">{t('home.footer.organization')}:</span>
+                    <span>MFitHou</span>
+                  </li>
+                  <li>
+                    <span className="contact-label">Email Support:</span>
+                    <a href="mailto:mfithou@gmail.com">mfithou@gmail.com</a>
+                  </li>
+                  <li className="admin-access">
+                    <a href="/admin" className="footer-admin-button">
+                      <FontAwesomeIcon icon={faLock} />
+                      <span>{t('nav.admin')}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div className="footer-links">
-              <a href="https://github.com/MFitHou" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a id="map-navigation" href="/map">{t('nav.map')}</a>
-              <a id="query-navigation" href="/query">{t('home.footer.queryData')}</a>
-            </div>
-            <div className="footer-copyright">
+          </div>
+        </div>
+
+        {/* Footer Bottom */}
+        <div className="footer-bottom">
+          <div className="container">
+            <div className="footer-bottom-content">
               <p>{t('home.footer.copyright')}</p>
-              <p>{t('home.footer.tagline')}</p>
+              <p className="footer-tagline">{t('home.footer.tagline')}</p>
             </div>
           </div>
         </div>
       </footer>
+      
+      {/* Language Switcher - Fixed Position */}
+      <LanguageSwitcher />
       
       {/* Help Button */}
       <HelpButton tourType="home" />

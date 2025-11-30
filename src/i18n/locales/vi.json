@@ -87,6 +87,11 @@
     },
     "footer": {
       "queryData": "Truy vấn dữ liệu",
+      "services": "Dịch vụ",
+      "resources": "Tài nguyên",
+      "contact": "Liên hệ",
+      "organization": "Tổ chức",
+      "githubRepo": "Kho lưu trữ GitHub",
       "copyright": "© 2025 OpenDataFitHou. Được cấp phép theo GNU General Public License.",
       "tagline": "Open Data for Digital Transformation 🌍✨"
     }
@@ -284,6 +289,29 @@
       "totalPois": "Tổng số điểm",
       "monitoringPoints": "Điểm giám sát",
       "totalReports": "Tổng số báo cáo"
+    }
+  },
+  "login": {
+    "system": {
+      "title": "HỆ THỐNG XÁC THỰC",
+      "subtitle": "MFITHOU"
+    },
+    "form": {
+      "title": "ĐĂNG NHẬP",
+      "subtitle": "Vui lòng nhập thông tin đăng nhập của bạn",
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập",
+      "submitting": "Đang xử lý...",
+      "forgotPassword": "Quên mật khẩu?"
+    },
+    "error": {
+      "invalid": "Tên đăng nhập hoặc mật khẩu không đúng"
+    },
+    "demo": {
+      "title": "Thông tin đăng nhập demo",
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu"
     }
   }
 }
