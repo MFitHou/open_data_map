@@ -30,12 +30,11 @@ export interface DashboardStats {
 }
 
 export interface CreatePoiData {
-  type: string;
   name: string;
-  latitude: number;
-  longitude: number;
+  type: string;
+  lat: number;
+  lon: number;
   address?: string;
-  description?: string;
 }
 
 export interface ApiResponse<T> {
@@ -79,7 +78,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats | null> => {
  */
 export const createPoi = async (data: CreatePoiData): Promise<ApiResponse<any>> => {
   try {
-    const response = await fetch(getApiEndpoint.adminPoi(), {
+    const response = await fetch(getApiEndpoint.adminPois(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -98,6 +97,34 @@ export const createPoi = async (data: CreatePoiData): Promise<ApiResponse<any>> 
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to create POI',
+    };
+  }
+};
+
+/**
+ * Delete POI by ID
+ */
+export const deletePoi = async (id: string): Promise<ApiResponse<any>> => {
+  try {
+    const encodedId = encodeURIComponent(id);
+    const response = await fetch(getApiEndpoint.adminPoi(encodedId), {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result: ApiResponse<any> = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error deleting POI:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to delete POI',
     };
   }
 };
