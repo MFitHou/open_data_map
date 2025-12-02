@@ -27,7 +27,7 @@ import { SmartSearch } from "./SmartSearch";
 import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
 import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
-import { NearbyMarkers } from './NearbyMarkers';
+import { TopologyMarkers } from './TopologyMarkers';
 import { MemberOutlines } from './MemberOutlines';
 
 // Hooks
@@ -63,6 +63,7 @@ const SimpleMap: React.FC = () => {
   // Location & marker state
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [searchMarker, setSearchMarker] = useState<SearchMarker | null>(null);
+  const [suggestionMarkers, setSuggestionMarkers] = useState<any[]>([]); // New: markers from search suggestions
   const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
   const [highlightName, setHighlightName] = useState<string>("");
   
@@ -70,6 +71,7 @@ const SimpleMap: React.FC = () => {
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [nearbySearchCenter, setNearbySearchCenter] = useState<{ lat: number; lon: number } | null>(null);
   const [nearbySearchRadius, setNearbySearchRadius] = useState<number | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
   
   // AI message from SmartSearch to Chatbot
   const [aiMessageForChatbot, setAiMessageForChatbot] = useState<string | null>(null);
@@ -100,7 +102,9 @@ const SimpleMap: React.FC = () => {
   }, [getLocation]);
 
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => {
-    console.log('Nearby places updated:', places.length);
+    console.log('[SimpleMap] handleNearbyPlacesChange called with', places.length, 'places');
+    console.log('[SimpleMap] Center:', center, 'Radius:', radiusKm);
+    console.log('[SimpleMap] Places:', places.map(p => ({ name: p.name, lon: p.lon, lat: p.lat })));
     setNearbyPlaces(places);
     setNearbySearchCenter(center || null);
     setNearbySearchRadius(radiusKm || null);
@@ -323,6 +327,80 @@ out tags;
     handleSelectLocation(searchResult);
   }, [handleSelectLocation]);
 
+  // HANDLER: Suggestions from SmartSearch - display as markers
+  const handleSuggestionsChange = useCallback((suggestions: any[]) => {
+    console.log('[SimpleMap] Received', suggestions.length, 'suggestions to display as markers');
+    
+    // Transform suggestions to markers
+    const markers = suggestions.map(s => {
+      let lat, lon;
+      if (s.coordinates && Array.isArray(s.coordinates)) {
+        [lon, lat] = s.coordinates;
+      } else if (s.lat && s.lon) {
+        lat = s.lat;
+        lon = s.lon;
+      }
+      
+      return {
+        lat,
+        lon,
+        name: s.name || s.label || 'Location',
+        description: s.description,
+        wikidataId: s.wikidataId,
+        image: s.image,
+        type: s.type,
+        source: s.source,
+        data: s // Keep full suggestion data
+      };
+    }).filter(m => m.lat && m.lon);
+    
+    setSuggestionMarkers(markers);
+    console.log('[SimpleMap] Created', markers.length, 'suggestion markers');
+  }, []);
+
+  // HANDLER: Click on suggestion marker
+  const handleSuggestionMarkerClick = useCallback((marker: any) => {
+    console.log('[SimpleMap] Suggestion marker clicked:', marker);
+    
+    // Transform to SearchResult format
+    const searchResult: SearchResult = {
+      id: marker.wikidataId || `marker-${Date.now()}`,
+      name: marker.name,
+      type: marker.type || 'location',
+      lat: marker.lat,
+      lon: marker.lon,
+      displayName: marker.name,
+      description: marker.description,
+      wikidataId: marker.wikidataId || '',
+      source: marker.source || 'search',
+      identifiers: {},
+      statements: {}
+    };
+    
+    // Show info and fly to location
+    handleSelectLocation(searchResult);
+  }, [handleSelectLocation]);
+
+  // HANDLER: Clear search - remove all markers, boundaries, and selections
+  // BUT keep nearby places if they exist (from topology/nearby search)
+  const handleClearSearch = useCallback(() => {
+    console.log('[SimpleMap] Clearing search - removing suggestion markers and boundaries');
+    setSearchMarker(null);
+    setSuggestionMarkers([]);
+    setSelectedLocation(null);
+    setSelectedInfo(null);
+    setHighlightBounds(null);
+    setHighlightName('');
+    setWardData(null);
+    setOutlineGeoJSON(null);
+    setMemberOutline(null);
+    setMemberNames({});
+    // DON'T clear nearbyPlaces - they should persist until user searches again
+    // setNearbyPlaces([]);
+    // setNearbySearchCenter(null);
+    // setNearbySearchRadius(null);
+  }, []);
+
   // HANDLER: Member click
   const handleMemberClick = useCallback(async (member: { type: string; ref: number; role?: string }) => {
     console.log('Fetching member:', member);
@@ -422,6 +500,14 @@ out geom;
     }
   }, [map, location.state, handleSelectLocation]);
 
+  // Auto-get current location on mount
+  useEffect(() => {
+    if (!currentLocation && !isGettingLocation) {
+      console.log('[SimpleMap] Auto-getting current location on mount');
+      getLocation();
+    }
+  }, []); // Run once on mount
+
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       <SmartSearch 
@@ -444,6 +530,8 @@ out geom;
         }}
         onNearbyPlacesChange={handleNearbyPlacesChange}
         onAIMessageReceived={(message) => setAiMessageForChatbot(message)}
+        onSuggestionsChange={handleSuggestionsChange}
+        onClearSearch={handleClearSearch}
         currentLocation={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lon } : null}
       />
 
@@ -460,13 +548,25 @@ out geom;
             setOutlineGeoJSON(null);
             setMemberOutline(null);
             setMemberNames({});
-            setNearbyPlaces([]);
-            setNearbySearchCenter(null);
-            setNearbySearchRadius(null);
+            // DON'T clear nearbyPlaces when closing InfoPanel
+            // They should persist on map until user clears search or searches again
+            // setNearbyPlaces([]);
+            // setNearbySearchCenter(null);
+            // setNearbySearchRadius(null);
+            setSelectedPlace(null);
           }}
           onMemberClick={handleMemberClick}
           memberNames={memberNames}
           onNearbyPlacesChange={handleNearbyPlacesChange}
+          selectedPlace={selectedPlace}
+          onRelatedPlaceClick={(place) => {
+            console.log('[SimpleMap] onRelatedPlaceClick called:', place.name);
+            console.log('[SimpleMap] THIS will fly to location');
+            setSelectedPlace(place);
+            if (place.lat && place.lon) {
+              setSelectedLocation({ lat: place.lat, lon: place.lon });
+            }
+          }}
         />
       )}
 
@@ -476,6 +576,12 @@ out geom;
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
         ref={setMap}
+        eventHandlers={{
+          click: () => {
+            // Clear selection when clicking map background
+            setSelectedPlace(null);
+          }
+        }}
       >
         <ZoomControl position="topright" />
         <TileLayer
@@ -502,11 +608,36 @@ out geom;
           </Marker>
         )}
 
+        {/* Suggestion markers from SmartSearch */}
+        {suggestionMarkers.map((marker, idx) => (
+          <Marker
+            key={`suggestion-${idx}`}
+            position={[marker.lat, marker.lon]}
+            icon={searchIcon}
+            eventHandlers={{
+              click: () => handleSuggestionMarkerClick(marker)
+            }}
+          >
+            <Popup>
+              <div>
+                <strong>{marker.name}</strong>
+                {marker.description && <p>{marker.description}</p>}
+                {marker.type && <p><em>{marker.type}</em></p>}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
         {nearbyPlaces.length > 0 && (
-          <NearbyMarkers 
+          <TopologyMarkers 
             places={nearbyPlaces} 
             searchCenter={nearbySearchCenter || undefined}
             searchRadiusKm={nearbySearchRadius || undefined}
+            onPlaceSelect={(place) => {
+              console.log('[SimpleMap] onPlaceSelect called:', place.name);
+              console.log('[SimpleMap] Setting selectedPlace, NOT setting selectedLocation');
+              setSelectedPlace(place);
+            }}
           />
         )}
 

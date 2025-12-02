@@ -90,8 +90,11 @@ interface InfoPanelProps {
   onClose: () => void;
   onMemberClick?: (member: { type: string; ref: number; role?: string }) => void;
   memberNames?: Record<number, string>;
-  // ✅ Thêm callbacks cho nearby markers với center và radius
+
   onNearbyPlacesChange?: (places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => void;
+
+  selectedPlace?: NearbyPlace | null;
+  onRelatedPlaceClick?: (place: NearbyPlace) => void;
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({ 
@@ -99,7 +102,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   onClose, 
   onMemberClick,
   memberNames = {},
-  onNearbyPlacesChange
+  onNearbyPlacesChange,
+  selectedPlace,
+  onRelatedPlaceClick
 }) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'basic' | 'identifiers' | 'statements' | 'references' | 'members' | 'tasks'>('basic');
@@ -110,10 +115,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const [rowPropLabels, setRowPropLabels] = useState<Record<string, string>>({});
   const [selectedMemberRef, setSelectedMemberRef] = useState<number | null>(null);
   
-  // ✅ Tasks sub-tab state
+
   const [activeTaskTab, setActiveTaskTab] = useState<'nearby' | 'route' | 'statistics'>('nearby');
   
-  // ✅ Nearby state (không auto-fetch)
+
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [nearbyRadius, setNearbyRadius] = useState(1);
   const [nearbyAmenity, setNearbyAmenity] = useState('toilets');
@@ -151,7 +156,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   }, [data.rows]);
 
-  // ✅ Hàm fetch manual
   const handleSearchNearby = async () => {
     // Support both coordinates format and location format
     const coords = data.coordinates || (data.location ? [data.location.lon, data.location.lat] : null);
@@ -176,13 +180,15 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         coords[0], // lon
         coords[1], // lat
         nearbyRadius,
-        nearbyAmenity
+        [nearbyAmenity], 
+        true,            // includeTopology
+        false,           // includeIoT
+        'vi'             // language
       );
       
       if (response) {
         setNearbyPlaces(response.items);
         
-        // ✅ Gửi markers lên parent component (Map) với center và radius
         if (onNearbyPlacesChange && searchCenter) {
           onNearbyPlacesChange(response.items, searchCenter, nearbyRadius);
         }
@@ -194,7 +200,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   };
 
-  // ✅ Clear markers khi đổi amenity
   const handleAmenityChange = (newAmenity: string) => {
     setNearbyAmenity(newAmenity);
     setNearbyPlaces([]);
@@ -205,7 +210,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   };
 
-  // ✅ Clear markers khi rời khỏi nearby tab - ONLY if we had searched before
   useEffect(() => {
     // Only clear markers if:
     // 1. We're leaving the nearby task tab
@@ -228,7 +232,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     }
   };
 
-  // ✅ Render Nearby content với nút Search
   const renderNearbyContent = () => {
     if (!data.coordinates) {
       return <div className="no-data"><FontAwesomeIcon icon={faCircleXmark} /> {t('map.info.noCoordinates')}</div>;
@@ -270,7 +273,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             </select>
           </div>
 
-          {/* ✅ Nút Search */}
+          {/*Nút Search */}
           <button 
             className="search-button"
             onClick={handleSearchNearby}
@@ -390,7 +393,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     );
   };
 
-  // ✅ Render Route content (placeholder)
   const renderRouteContent = () => {
     return (
       <div className="no-data">
@@ -399,7 +401,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     );
   };
 
-  // ✅ Render Statistics content (placeholder)
+
   const renderStatisticsContent = () => {
     return (
       <div className="no-data">
@@ -408,7 +410,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     );
   };
 
-  // ✅ Render Tasks Tab với sub-tabs
+
   const renderTasksTab = () => {
     return (
       <div className="tab-content">
@@ -706,7 +708,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             <div key={groupName} className="reference-group">
               <div className="reference-title">{groupIcon} {groupName} ({members.length})</div>
               {members.slice(0, 20).map((member, idx) => {
-                // ✅ Hiển thị tên nếu có
+
                 const memberName = memberNames?.[member.ref];
                 
                 return (
@@ -718,7 +720,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                     style={{ cursor: 'pointer' }}
                   >
                     <div className="reference-index">
-                      {/* ✅ Hiển thị tên hoặc ID */}
+                      {/* Hiển thị tên hoặc ID */}
                       {memberName ? (
                         <>
                           <strong style={{ fontSize: '13px' }}>{memberName}</strong>
@@ -845,7 +847,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             <FontAwesomeIcon icon={faUsers} /> {t('map.info.membersTab')}
           </button>
         )}
-        {/* ✅ Tasks Tab */}
+        {/* Tasks Tab */}
         <button 
           className={`tab-btn ${activeTab === 'tasks' ? 'active' : ''}`}
           onClick={() => setActiveTab('tasks')}
@@ -856,7 +858,78 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
       {/* Tab Content */}
       <div className="panel-content">
-        {activeTab === 'basic' && renderBasicTab()}
+        {activeTab === 'basic' && (
+          <>
+            {renderBasicTab()}
+            {/* Related Entities Section */}
+            {selectedPlace && selectedPlace.relatedEntities && selectedPlace.relatedEntities.length > 0 && (
+              <div className="info-section" style={{ marginTop: '16px', borderTop: '1px solid #e0e0e0', paddingTop: '16px' }}>
+                <h3 style={{ fontSize: '16px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FontAwesomeIcon icon={faLink} style={{ color: '#ff6b6b' }} />
+                  🔗 Related Places ({selectedPlace.relatedEntities.length})
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {selectedPlace.relatedEntities.map((related, idx) => (
+                    <div 
+                      key={idx}
+                      style={{
+                        padding: '10px',
+                        backgroundColor: '#f8f9fa',
+                        borderRadius: '6px',
+                        cursor: related.lon && related.lat ? 'pointer' : 'default',
+                        border: '1px solid #e0e0e0',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={() => {
+                        if (related.lon && related.lat && onRelatedPlaceClick) {
+                          onRelatedPlaceClick(related as NearbyPlace);
+                        }
+                      }}
+                      onMouseEnter={(e) => {
+                        if (related.lon && related.lat) {
+                          e.currentTarget.style.backgroundColor = '#e3f2fd';
+                          e.currentTarget.style.borderColor = '#2196F3';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#f8f9fa';
+                        e.currentTarget.style.borderColor = '#e0e0e0';
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '14px' }}>
+                            {getAmenityIconEmoji(related.amenity || related.highway || related.leisure || '')} {related.name || 'Unknown Place'}
+                          </div>
+                          {related.amenity && (
+                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '2px' }}>
+                              Type: {related.amenity}
+                            </div>
+                          )}
+                          {related.brand && (
+                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '2px' }}>
+                              Brand: {related.brand}
+                            </div>
+                          )}
+                          {related.distanceKm !== null && (
+                            <div style={{ fontSize: '12px', color: '#2196F3', fontWeight: 500 }}>
+                              📍 {(related.distanceKm * 1000).toFixed(0)}m away
+                            </div>
+                          )}
+                        </div>
+                        {related.lon && related.lat && (
+                          <div style={{ fontSize: '12px', color: '#999', marginLeft: '8px' }}>
+                            Click to view →
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
         {activeTab === 'identifiers' && renderIdentifiersTab()}
         {activeTab === 'statements' && renderStatementsTab()}
         {activeTab === 'references' && renderReferencesTab()}

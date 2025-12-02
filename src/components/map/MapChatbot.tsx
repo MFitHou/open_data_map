@@ -329,19 +329,21 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
         
         console.log('[MapChatbot] Starting search for amenities:', searchParams.amenities);
         
-        for (const amenity of searchParams.amenities) {
-          console.log(`[MapChatbot] Fetching ${amenity}...`);
-          const nearbyResponse = await fetchNearbyPlaces(
-            searchParams.lon,
-            searchParams.lat,
-            searchParams.radiusKm,
-            amenity
-          );
-          
-          if (nearbyResponse && nearbyResponse.items) {
-            console.log(`[MapChatbot] Found ${nearbyResponse.items.length} ${amenity}`);
-            allResults.push(...nearbyResponse.items);
-          }
+        // ✅ Gọi unified API 1 lần với tất cả amenities
+        console.log(`[MapChatbot] Fetching ${searchParams.amenities.length} types...`);
+        const nearbyResponse = await fetchNearbyPlaces(
+          searchParams.lon,
+          searchParams.lat,
+          searchParams.radiusKm,
+          searchParams.amenities, // ✅ Truyền toàn bộ array
+          true,  // includeTopology
+          false, // includeIoT
+          'vi'   // language
+        );
+        
+        if (nearbyResponse && nearbyResponse.items) {
+          console.log(`[MapChatbot] Found ${nearbyResponse.items.length} places`);
+          allResults.push(...nearbyResponse.items);
         }
         
         console.log(`[MapChatbot] Total results: ${allResults.length}`);
@@ -507,11 +509,66 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
               wkt: item.wkt,
               lon: item.lon,
               lat: item.lat,
-              distanceKm: item.distanceKm
+              distanceKm: item.distanceKm,
+              relatedEntities: item.relatedEntities || [] // ✅ Preserve relatedEntities
             }));
             
             console.log(`[MapChatbot] Transformed ${places.length} places from ${call.functionName}`);
+            console.log(`[MapChatbot] Sample place:`, places[0]);
             allPlaces.push(...places);
+            
+            // ✅ Extract and add related entities as separate markers
+            const relatedPlaces: NearbyPlace[] = [];
+            const addedPois = new Set(allPlaces.map(p => p.poi)); // Track already added POIs
+            
+            console.log(`[MapChatbot] Checking for related entities in ${call.result.items.length} items...`);
+            call.result.items.forEach((item: any, itemIdx: number) => {
+              if (item.relatedEntities && Array.isArray(item.relatedEntities)) {
+                console.log(`[MapChatbot]   Item ${itemIdx} (${item.name}) has ${item.relatedEntities.length} related entities`);
+                item.relatedEntities.forEach((related: any, relIdx: number) => {
+                  console.log(`[MapChatbot]     Related ${relIdx}:`, {
+                    poi: related.poi,
+                    name: related.name,
+                    lon: related.lon,
+                    lat: related.lat,
+                    hasCoords: !!(related.lon && related.lat),
+                    alreadyAdded: addedPois.has(related.poi)
+                  });
+                  
+                  // Only add if it has coordinates and not already added
+                  if (related.lon && related.lat && !addedPois.has(related.poi)) {
+                    addedPois.add(related.poi);
+                    relatedPlaces.push({
+                      poi: related.poi,
+                      amenity: related.amenity,
+                      highway: related.highway,
+                      leisure: related.leisure,
+                      name: related.name || 'Related Place',
+                      brand: related.brand,
+                      operator: related.operator,
+                      wkt: related.wkt,
+                      lon: related.lon,
+                      lat: related.lat,
+                      distanceKm: related.distanceKm || 0,
+                      relatedEntities: [] // Related entities don't need nested relations
+                    });
+                    console.log(`[MapChatbot]       ✅ Added as marker: ${related.name}`);
+                  } else {
+                    console.log(`[MapChatbot]       ❌ Skipped: ${!related.lon || !related.lat ? 'missing coords' : 'already added'}`);
+                  }
+                });
+              } else {
+                console.log(`[MapChatbot]   Item ${itemIdx} (${item.name}) has NO related entities`);
+              }
+            });
+            
+            if (relatedPlaces.length > 0) {
+              console.log(`[MapChatbot] ✅ Extracted ${relatedPlaces.length} related entities as markers`);
+              console.log(`[MapChatbot] Related places:`, relatedPlaces.map(p => ({ name: p.name, lon: p.lon, lat: p.lat })));
+              allPlaces.push(...relatedPlaces);
+            } else {
+              console.warn(`[MapChatbot] ⚠️ No related entities extracted!`);
+            }
           }
           
           // Extract search results from searchInforByName
@@ -522,27 +579,39 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
         });
         
         console.log(`[MapChatbot] 📍 Total places extracted: ${allPlaces.length}`);
+        console.log(`[MapChatbot] Places summary:`, allPlaces.map(p => ({ name: p.name, lon: p.lon, lat: p.lat })));
         
         // Send places to map for marker display - ONLY if we have places
         if (allPlaces.length > 0) {
           if (onNearbyPlacesChange) {
             console.log('[MapChatbot] ✅ Sending', allPlaces.length, 'places to map for markers');
             
-            // Try to extract radius from function calls arguments
+            // Try to extract radius and center from function calls arguments
             let radiusKm = 1; // default
+            let center = location ? { lat: location.lat, lon: location.lon } : undefined;
+            
             const nearbyCall = data.functionCalls.find((call: any) => 
               call.functionName.startsWith('search') && 
               (call.functionName.endsWith('Nearby') || call.functionName.includes('Nearby'))
             );
-            if (nearbyCall?.arguments?.radiusKm) {
-              radiusKm = nearbyCall.arguments.radiusKm;
+            
+            if (nearbyCall?.arguments) {
+              // Extract radius
+              if (nearbyCall.arguments.radiusKm) {
+                radiusKm = nearbyCall.arguments.radiusKm;
+              }
+              // Extract center from lat/lon in arguments (for searchNearbyWithTopology)
+              if (nearbyCall.arguments.lat && nearbyCall.arguments.lon) {
+                center = {
+                  lat: nearbyCall.arguments.lat,
+                  lon: nearbyCall.arguments.lon
+                };
+                console.log('[MapChatbot] ✅ Extracted search center from arguments:', center);
+              }
             }
             
             // Send with center and radius
-            onNearbyPlacesChange(allPlaces, location ? {
-              lat: location.lat,
-              lon: location.lon
-            } : undefined, radiusKm);
+            onNearbyPlacesChange(allPlaces, center, radiusKm);
           }
         } else {
           console.warn('[MapChatbot] ⚠️ No places to send to map!');

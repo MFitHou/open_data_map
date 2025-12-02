@@ -18,7 +18,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Marker, Popup, Circle } from 'react-leaflet';
-import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
+import { getAmenityIcon, getPlaceName, getTopologyInfo, getIoTInfo, hasTopology, hasIoT } from '../../utils/nearbyApi';
 import type { NearbyPlace } from '../../utils/nearbyApi';
 
 interface NearbyMarkersProps {
@@ -63,10 +63,35 @@ export const NearbyMarkers: React.FC<NearbyMarkersProps> = ({ places, searchCent
                   {getPlaceName(place, idx)}
                 </div>
                 <div className="nearby-popup-content">
-                  <div><strong>{t('map.nearby.type')}:</strong> {place.highway || place.amenity || 'N/A'}</div>
+                  <div><strong>{t('map.nearby.type')}:</strong> {place.highway || place.amenity || place.leisure || 'N/A'}</div>
                   {place.brand && <div><strong>{t('map.nearby.brand')}:</strong> {place.brand}</div>}
                   {place.operator && <div><strong>{t('map.nearby.operator')}:</strong> {place.operator}</div>}
                   <div><strong>{t('map.nearby.distance')}:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
+                  
+                  {/* Topology Relationships */}
+                  {hasTopology(place) && (
+                    <div className="nearby-popup-topology">
+                      <strong>Relationships:</strong>
+                      <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+                        {getTopologyInfo(place).map((info, i) => (
+                          <li key={i} style={{ fontSize: '12px' }}>{info}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {/* IoT Coverage */}
+                  {hasIoT(place) && (
+                    <div className="nearby-popup-iot">
+                      <strong>IoT Coverage:</strong>
+                      <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
+                        {getIoTInfo(place).map((info, i) => (
+                          <li key={i} style={{ fontSize: '12px' }}>{info}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
                   <div className="nearby-popup-coords">
                     <a 
                       href={`https://www.google.com/maps?q=${place.lat},${place.lon}`} 

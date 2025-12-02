@@ -16,23 +16,33 @@
  */
 
 import { getApiEndpoint } from '../config/api';
+import API_CONFIG from '../config/api';
+
+export interface TopologyRelation {
+  predicate: string;      // isNextTo, containedInPlace, amenityFeature, healthcareNetwork, campusAmenity
+  related: string;        // URI của entity liên quan
+  relatedName: string;    // Tên của entity liên quan
+}
 
 export interface NearbyPlace {
   poi: string;
-  amenity?: string;      // ✅ Optional vì bus_stop dùng highway
-  highway?: string;      // ✅ Thêm field highway
+  amenity?: string;      
+  highway?: string;      
   name: string | null;
   operator?: string | null;
-  brand?: string;        // ✅ Thêm field brand (cho ATMs)
+  brand?: string;       
   wkt: string;
   lon: number;
   lat: number;
   distanceKm: number;
   access?: string;
   fee?: string;
-  bottle?: string;       // ✅ Thêm field bottle (cho drinking_water)
-  fountain?: string;     // ✅ Thêm field fountain (cho drinking_water)
-  leisure?: string;      // ✅ Thêm field leisure (cho playground)
+  bottle?: string;       
+  fountain?: string;     
+  leisure?: string;      
+  topology?: TopologyRelation[] | null;  
+  iotStations?: string[] | null;         
+  relatedEntities?: Partial<NearbyPlace>[]; 
 }
 
 export interface NearbyResponse {
@@ -46,23 +56,42 @@ export interface NearbyResponse {
 }
 
 /**
- * ✅ Fetch nearby places với API động theo amenity
+ * ✅ Fetch nearby places với unified API
  * @param lon - Kinh độ
  * @param lat - Vĩ độ  
  * @param radiusKm - Bán kính (km)
- * @param amenity - Loại địa điểm (toilets, hospitals, bus-stops, atms, drinking-water, playgrounds...)
+ * @param types - Danh sách loại địa điểm (atm, hospital, school, cafe, etc.) - nếu empty thì query tất cả
+ * @param includeTopology - Có lấy topology relationships không (mặc định: true)
+ * @param includeIoT - Có lấy IoT coverage không (mặc định: false)
+ * @param language - Ngôn ngữ hiển thị: 'vi', 'en', 'all' (mặc định: 'vi')
  */
 export const fetchNearbyPlaces = async (
   lon: number,
   lat: number,
   radiusKm: number,
-  amenity: string
+  types?: string[],
+  includeTopology: boolean = true,
+  includeIoT: boolean = false,
+  language: string = 'vi'
 ): Promise<NearbyResponse | null> => {
   try {
-    // ✅ API động: /fuseki/{amenity}/nearby
-    const url = `${getApiEndpoint.fusekiNearby(amenity)}?lon=${lon}&lat=${lat}&radiusKm=${radiusKm}`;
+    // ✅ Unified API: /fuseki/nearby
+    const params = new URLSearchParams({
+      lon: lon.toString(),
+      lat: lat.toString(),
+      radiusKm: radiusKm.toString(),
+      includeTopology: includeTopology.toString(),
+      includeIoT: includeIoT.toString(),
+      language: language,
+    });
     
-    console.log(`Fetching nearby ${amenity}:`, url);
+    if (types && types.length > 0) {
+      params.append('types', types.join(','));
+    }
+    
+    const url = `${API_CONFIG.fusekiBaseUrl}/nearby?${params.toString()}`;
+    
+    console.log(`Fetching nearby places:`, { lon, lat, radiusKm, types, includeTopology, includeIoT, language });
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -71,7 +100,7 @@ export const fetchNearbyPlaces = async (
     
     const data: NearbyResponse = await response.json();
     
-    console.log(`Found ${data.count} ${amenity}:`, data);
+    console.log(`Found ${data.count} places:`, data);
     
     return data;
   } catch (error) {
@@ -80,27 +109,35 @@ export const fetchNearbyPlaces = async (
   }
 };
 
+
+export const fetchNearbyByAmenity = async (
+  lon: number,
+  lat: number,
+  radiusKm: number,
+  amenity: string
+): Promise<NearbyResponse | null> => {
+  return fetchNearbyPlaces(lon, lat, radiusKm, [amenity]);
+};
+
 import L from 'leaflet';
 import 'leaflet.awesome-markers';
 
-/**
- * ✅ Get emoji icon string for display in UI text
- */
+
 export const getAmenityIconEmoji = (place: NearbyPlace): string => {
   if (place.highway === 'bus_stop') return '🚌';
   if (place.amenity === 'toilets') return '🚻';
   if (place.amenity === 'atm') return '🏧';
   if (place.amenity === 'hospital') return '🏥';
   if (place.amenity === 'drinking_water') return '💧';
+  if (place.amenity === 'charging_station') return '⚡';
   if (place.leisure === 'playground') return '🎮';
+  if (place.leisure === 'park') return '🌳';
   return '📍';
 };
 
-/**
- * ✅ Cập nhật icons cho các amenity/highway types sử dụng leaflet.awesome-markers
- */
+
 export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
-  // ✅ Ưu tiên highway trước (cho bus stops)
+
   if (place.highway) {
     if (place.highway === 'bus_stop') {
       return L.AwesomeMarkers.icon({
@@ -118,17 +155,27 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     });
   }
   
-  // ✅ Fallback về amenity
   if (place.amenity) {
     const amenityConfig: Record<string, { icon: string; color: string }> = {
       toilets: { icon: 'female', color: 'lightblue' },
       atm: { icon: 'credit-card', color: 'green' },
       hospital: { icon: 'hospital', color: 'red' },
       drinking_water: { icon: 'tint', color: 'lightblue' },
+      charging_station: { icon: 'bolt', color: 'orange' },
+      restaurant: { icon: 'cutlery', color: 'red' },
+      cafe: { icon: 'coffee', color: 'cadetblue' },
+      school: { icon: 'graduation-cap', color: 'purple' },
+      pharmacy: { icon: 'plus-square', color: 'darkred' },
+      police: { icon: 'shield', color: 'blue' },
+      fire_station: { icon: 'fire-extinguisher', color: 'red' },
+      bank: { icon: 'university', color: 'darkgreen' },
+      parking: { icon: 'car', color: 'gray' },
+      fuel: { icon: 'gas-pump', color: 'orange' },
     };
     
     const config = amenityConfig[place.amenity];
     if (config) {
+      console.log('[getAmenityIcon] Using amenity config:', place.amenity, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
         markerColor: config.color,
@@ -137,6 +184,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       });
     }
     
+    console.log('[getAmenityIcon] Unknown amenity, using default:', place.amenity);
     return L.AwesomeMarkers.icon({
       icon: 'map-marker',
       markerColor: 'darkblue',
@@ -145,16 +193,28 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     });
   }
 
-  // ✅ Kiểm tra leisure (playground)
+  // ✅ Kiểm tra leisure (playground, park, garden)
   if (place.leisure) {
-    if (place.leisure === 'playground') {
+    const leisureConfig: Record<string, { icon: string; color: string }> = {
+      playground: { icon: 'child', color: 'orange' },
+      park: { icon: 'tree', color: 'darkgreen' },
+      garden: { icon: 'leaf', color: 'green' },
+      sports_centre: { icon: 'soccer-ball-o', color: 'purple' },
+      swimming_pool: { icon: 'swimmer', color: 'lightblue' },
+    };
+    
+    const config = leisureConfig[place.leisure];
+    if (config) {
+      console.log('[getAmenityIcon] Using leisure config:', place.leisure, config);
       return L.AwesomeMarkers.icon({
-        icon: 'child',
-        markerColor: 'orange',
+        icon: config.icon,
+        markerColor: config.color,
         prefix: 'fa',
         iconColor: 'white'
       });
     }
+    
+    console.log('[getAmenityIcon] Unknown leisure, using tree icon:', place.leisure);
     return L.AwesomeMarkers.icon({
       icon: 'tree',
       markerColor: 'green',
@@ -163,9 +223,11 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     });
   }
   
+  // ✅ FALLBACK cuối cùng - luôn trả về icon hợp lệ
+  console.warn('[getAmenityIcon] No type info found, using default marker:', place.name || place.poi);
   return L.AwesomeMarkers.icon({
     icon: 'map-marker',
-    markerColor: 'darkblue',
+    markerColor: 'cadetblue',
     prefix: 'fa',
     iconColor: 'white'
   });
@@ -175,10 +237,14 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
  * ✅ Helper: Lấy display name của place
  */
 export const getPlaceName = (place: NearbyPlace, index: number): string => {
-  if (place.name) return place.name;
+  // ✅ Ưu tiên name từ API (đã được deduplicate theo ngôn ngữ)
+  if (place.name && place.name.trim()) return place.name;
   
   // ✅ Nếu có brand, hiển thị brand (cho ATMs)
-  if (place.brand) return place.brand;
+  if (place.brand && place.brand.trim()) return place.brand;
+  
+  // ✅ Nếu có operator, hiển thị operator
+  if (place.operator && place.operator.trim()) return place.operator;
   
   // ✅ Fallback name cho drinking water với thông tin chi tiết
   if (place.amenity === 'drinking_water') {
@@ -193,9 +259,18 @@ export const getPlaceName = (place: NearbyPlace, index: number): string => {
     return `Drinking Water #${index + 1}`;
   }
   
-  // ✅ Fallback name cho playground
-  if (place.leisure === 'playground') {
-    return `Playground #${index + 1}`;
+  // ✅ Fallback name cho leisure types
+  if (place.leisure) {
+    const leisureNames: Record<string, string> = {
+      playground: 'Playground',
+      park: 'Park',
+      garden: 'Garden',
+      sports_centre: 'Sports Centre',
+      swimming_pool: 'Swimming Pool',
+    };
+    
+    const name = leisureNames[place.leisure] || place.leisure;
+    return `${name} #${index + 1}`;
   }
   
   // ✅ Fallback name
@@ -248,4 +323,54 @@ export const isDrinkingWater = (place: NearbyPlace): boolean => {
  */
 export const isPlayground = (place: NearbyPlace): boolean => {
   return place.leisure === 'playground';
+};
+
+/**
+ * ✅ Helper: Lấy thông tin topology relationships
+ */
+export const getTopologyInfo = (place: NearbyPlace): string[] => {
+  if (!place.topology || place.topology.length === 0) {
+    return [];
+  }
+  
+  const info: string[] = [];
+  const predicateLabels: Record<string, string> = {
+    isNextTo: '🔗 Bên cạnh',
+    containedInPlace: '📍 Trong khu vực',
+    amenityFeature: '🏢 Tiện ích',
+    healthcareNetwork: '🏥 Mạng lưới y tế',
+    campusAmenity: '🎓 Tiện ích khuôn viên',
+  };
+  
+  for (const rel of place.topology) {
+    const label = predicateLabels[rel.predicate] || rel.predicate;
+    info.push(`${label}: ${rel.relatedName}`);
+  }
+  
+  return info;
+};
+
+/**
+ * ✅ Helper: Lấy thông tin IoT stations
+ */
+export const getIoTInfo = (place: NearbyPlace): string[] => {
+  if (!place.iotStations || place.iotStations.length === 0) {
+    return [];
+  }
+  
+  return place.iotStations.map(station => `📡 IoT: ${station}`);
+};
+
+/**
+ * ✅ Helper: Kiểm tra xem place có topology relationships không
+ */
+export const hasTopology = (place: NearbyPlace): boolean => {
+  return !!(place.topology && place.topology.length > 0);
+};
+
+/**
+ * ✅ Helper: Kiểm tra xem place có IoT coverage không
+ */
+export const hasIoT = (place: NearbyPlace): boolean => {
+  return !!(place.iotStations && place.iotStations.length > 0);
 };
