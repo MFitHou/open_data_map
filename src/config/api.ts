@@ -38,6 +38,9 @@ export const API_CONFIG = {
   
   // Admin API
   adminBaseUrl: import.meta.env.VITE_ADMIN_BASE_URL || 'http://localhost:3000/api/admin',
+
+  // Smart Search API
+  smartSearchApiUrl: import.meta.env.VITE_SMART_SEARCH_API_URL || 'https://opendatamap.hou.edu.vn/api/chat/smart-search',
 } as const;
 
 /**
@@ -75,6 +78,9 @@ export const getApiEndpoint = {
   // Admin IoT endpoints
   adminIotTraffic: () => `${API_CONFIG.adminBaseUrl}/iot/traffic`,
   adminIotFlood: () => `${API_CONFIG.adminBaseUrl}/iot/flood`,
+
+  // Smart Search API
+  smartSearch: () => API_CONFIG.smartSearchApiUrl,
 } as const;
 
 export default API_CONFIG;

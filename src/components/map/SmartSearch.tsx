@@ -92,7 +92,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     setIsLoading(true);
 
     try {
-      const endpoint = getApiEndpoint.chat() + '/smart-search';
+      const endpoint = getApiEndpoint.smartSearch();
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -266,8 +266,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             onKeyPress={handleKeyPress}
             placeholder={
               isAIMode 
-                ? t('search.aiPlaceholder', 'Hỏi gì cũng được...') 
-                : t('search.placeholder', 'Tìm kiếm địa điểm...')
+                ? t('search.aiPlaceholder', 'Smart search with AI...') 
+                : t('search.placeholder', 'Search for places, addresses, POIs...')
             }
             className="search-input"
           />
@@ -287,8 +287,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             onClick={toggleAIMode}
             title={
               isAIMode 
-                ? t('search.switchToNormal', 'Tìm kiếm thường') 
-                : t('search.switchToAI', 'Tìm kiếm thông minh')
+                ? t('search.switchToNormal', 'Switch to normal search') 
+                : t('search.switchToAI', 'Switch to smart search')
             }
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} />
@@ -298,7 +298,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         {isLoading && (
           <div className="search-status loading">
             <FontAwesomeIcon icon={faSpinner} spin />
-            <span>{t('search.searching', 'Đang tìm kiếm...')}</span>
+            <span>{t('search.searching', 'Searching...')}</span>
           </div>
         )}
 
@@ -328,7 +328,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                   )}
                   
                   <div className="suggestion-meta">
-                    {suggestion.source && (
+                    {/* Temporarily hidden source badges */}
+                    {/* {suggestion.source && (
                       <span 
                         className="source-badge"
                         style={{ 
@@ -338,7 +339,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                       >
                         {suggestion.source}
                       </span>
-                    )}
+                    )} */}
                     
                     {suggestion.type && (
                       <span className="type-badge">

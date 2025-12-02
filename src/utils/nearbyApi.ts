@@ -56,7 +56,7 @@ export interface NearbyResponse {
 }
 
 /**
- * ✅ Fetch nearby places với unified API
+ * Fetch nearby places với unified API
  * @param lon - Kinh độ
  * @param lat - Vĩ độ  
  * @param radiusKm - Bán kính (km)
@@ -75,7 +75,6 @@ export const fetchNearbyPlaces = async (
   language: string = 'vi'
 ): Promise<NearbyResponse | null> => {
   try {
-    // ✅ Unified API: /fuseki/nearby
     const params = new URLSearchParams({
       lon: lon.toString(),
       lat: lat.toString(),
@@ -159,7 +158,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     const amenityConfig: Record<string, { icon: string; color: string }> = {
       toilets: { icon: 'female', color: 'lightblue' },
       atm: { icon: 'credit-card', color: 'green' },
-      hospital: { icon: 'hospital', color: 'red' },
+      hospital: { icon: 'hospital-o', color: 'red' },
       drinking_water: { icon: 'tint', color: 'lightblue' },
       charging_station: { icon: 'bolt', color: 'orange' },
       restaurant: { icon: 'cutlery', color: 'red' },
@@ -170,7 +169,13 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       fire_station: { icon: 'fire-extinguisher', color: 'red' },
       bank: { icon: 'university', color: 'darkgreen' },
       parking: { icon: 'car', color: 'gray' },
-      fuel: { icon: 'gas-pump', color: 'orange' },
+      fuel: { icon: 'free-code-camp', color: 'orange' },
+      supermarket: { icon: 'shopping-cart', color: 'green' },
+      library: { icon: 'book', color: 'purple' },
+      convenience_store: { icon: 'shopping-bag', color: 'green' },
+      park: { icon: 'tree', color: 'darkgreen' },
+      playground: { icon: 'child', color: 'orange' },
+      bus_stop: { icon: 'bus', color: 'blue' },
     };
     
     const config = amenityConfig[place.amenity];

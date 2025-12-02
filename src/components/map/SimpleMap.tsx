@@ -29,6 +29,8 @@ import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
 import { TopologyMarkers } from './TopologyMarkers';
 import { MemberOutlines } from './MemberOutlines';
+import LayerControl from './LayerControl';
+import '../../styles/components/LayerControl.css';
 
 // Hooks
 import { useCurrentLocation } from '../../hooks';
@@ -36,6 +38,7 @@ import { useCurrentLocation } from '../../hooks';
 // Utils & Types
 import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapIcons';
 import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
+import { fetchNearbyPlaces } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
 import type { NearbyPlace } from '../../utils/nearbyApi';
 
@@ -73,6 +76,10 @@ const SimpleMap: React.FC = () => {
   const [nearbySearchRadius, setNearbySearchRadius] = useState<number | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
   
+  // Layer control
+  const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
+  const [isLoadingLayers, setIsLoadingLayers] = useState(false);
+  
   // AI message from SmartSearch to Chatbot
   const [aiMessageForChatbot, setAiMessageForChatbot] = useState<string | null>(null);
   
@@ -109,6 +116,60 @@ const SimpleMap: React.FC = () => {
     setNearbySearchCenter(center || null);
     setNearbySearchRadius(radiusKm || null);
   }, []);
+
+  // Fetch layer data from backend
+  const fetchLayerData = useCallback(async (enabledLayers: Array<{ id: string; name: string; density: number }>) => {
+    if (enabledLayers.length === 0) {
+      console.log('[SimpleMap] No layers to fetch');
+      setLayerPlaces([]);
+      return;
+    }
+
+    setIsLoadingLayers(true);
+    console.log('[SimpleMap] Fetching layer data for', enabledLayers.length, 'layers');
+
+    try {
+      const allPlaces: NearbyPlace[] = [];
+      
+      // Fetch data for each enabled layer using new API
+      for (const layer of enabledLayers) {
+        try {
+          console.log(`[SimpleMap] Fetching ${layer.name} (${layer.id}) with density ${layer.density}`);
+          
+          const url = `${import.meta.env.VITE_FUSEKI_BASE_URL}/pois-by-type?type=${layer.id}&limit=${layer.density}&language=vi`;
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            console.warn(`[SimpleMap] Failed to fetch ${layer.name}:`, response.statusText);
+            continue;
+          }
+
+          const data = await response.json();
+          console.log(`[SimpleMap] Fetched ${data.results?.length || 0} places for ${layer.name}`);
+          
+          if (data.results && Array.isArray(data.results)) {
+            allPlaces.push(...data.results);
+          }
+        } catch (error) {
+          console.error(`[SimpleMap] Error fetching ${layer.name}:`, error);
+        }
+      }
+
+      console.log(`[SimpleMap] Total layer places fetched: ${allPlaces.length}`);
+      setLayerPlaces(allPlaces);
+    } catch (error) {
+      console.error('[SimpleMap] Error fetching layer data:', error);
+      setLayerPlaces([]);
+    } finally {
+      setIsLoadingLayers(false);
+    }
+  }, []);
+
+  // Handle layer changes from LayerControl
+  const handleLayerChange = useCallback((enabledLayers: Array<{ id: string; name: string; density: number }>) => {
+    console.log('[SimpleMap] Layer change:', enabledLayers);
+    fetchLayerData(enabledLayers);
+  }, [fetchLayerData]);
 
   // HANDLER: Select location from search
   const handleSelectLocation = useCallback(async (result: SearchResult) => {
@@ -540,6 +601,10 @@ out geom;
         onClick={handleCurrentLocation}
       />
 
+      <LayerControl
+        onLayerChange={handleLayerChange}
+      />
+
       {selectedInfo && (
         <InfoPanel
           data={selectedInfo}
@@ -636,6 +701,17 @@ out geom;
             onPlaceSelect={(place) => {
               console.log('[SimpleMap] onPlaceSelect called:', place.name);
               console.log('[SimpleMap] Setting selectedPlace, NOT setting selectedLocation');
+              setSelectedPlace(place);
+            }}
+          />
+        )}
+
+        {/* Layer markers from LayerControl */}
+        {layerPlaces.length > 0 && (
+          <TopologyMarkers 
+            places={layerPlaces}
+            onPlaceSelect={(place) => {
+              console.log('[SimpleMap] Layer marker clicked:', place.name);
               setSelectedPlace(place);
             }}
           />

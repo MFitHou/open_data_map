@@ -297,7 +297,6 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
     setIsLoading(true);
     setError(null);
 
-    // Helper function to perform nearby search
     const performNearbySearch = async (
       searchParams: any,
       amenities: string[],
@@ -323,19 +322,17 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
       };
       setMessages(prev => [...prev, initialMessage]);
       
-      // Fetch nearby places for each amenity
       try {
         const allResults: NearbyPlace[] = [];
         
         console.log('[MapChatbot] Starting search for amenities:', searchParams.amenities);
         
-        // ✅ Gọi unified API 1 lần với tất cả amenities
         console.log(`[MapChatbot] Fetching ${searchParams.amenities.length} types...`);
         const nearbyResponse = await fetchNearbyPlaces(
           searchParams.lon,
           searchParams.lat,
           searchParams.radiusKm,
-          searchParams.amenities, // ✅ Truyền toàn bộ array
+          searchParams.amenities, 
           true,  // includeTopology
           false, // includeIoT
           'vi'   // language
@@ -678,7 +675,6 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
                     });
                   }
                   
-                  // Continue with search using current location
                   await performNearbySearch(searchParams, amenities, radiusKm, scope, service, 'Vị trí hiện tại của bạn');
                 },
                 (error) => {
@@ -724,7 +720,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
           // Perform nearby search
           await performNearbySearch(searchParams, amenities, radiusKm, scope, service, location);
           
-          // Return early to skip adding another message
+
           setIsLoading(false);
           return;
         } else if (data.questionType === 'greeting') {
