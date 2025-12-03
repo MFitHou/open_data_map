@@ -19,14 +19,12 @@ import { getApiEndpoint } from '../config/api';
 
 export interface DashboardStats {
   totalPois: number;
-  monitoringPoints: number;
-  totalReports: number;
-  breakdown: {
-    atms: number;
-    hospitals: number;
-    toilets: number;
-    busStops: number;
-  };
+  graphCount: number;
+  breakdown: Record<string, number>;
+  topCategories: Array<{
+    type: string;
+    count: number;
+  }>;
 }
 
 export interface CreatePoiData {

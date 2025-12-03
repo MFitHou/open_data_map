@@ -17,7 +17,24 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { LatLngBounds } from 'leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import './ManagePois.css';
+
+// Fix Leaflet default marker icons
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 interface POI {
   id: string;
@@ -25,91 +42,16 @@ interface POI {
   type: string;
   lat: number;
   lon: number;
+  osm_id?: string;
+  osm_type?: string;
   address?: string | null;
-  amenity?: string | null;
+  operator?: string | null;
   brand?: string | null;
-  wkt?: string | null;
-  
-  // Contact & Info
   website?: string | null;
   phone?: string | null;
-  operator?: string | null;
-  opening_hours?: string | null;
-  
-  // Accessibility
-  wheelchair?: string | null;
-  fee?: string | null;
-  
-  // Infrastructure
-  highway?: string | null;
-  building?: string | null;
-  surface?: string | null;
-  lit?: string | null;
-  
-  // Bus Stop specific
-  route_ref?: string | null;
-  bench?: string | null;
-  shelter?: string | null;
-  
-  // School specific
-  education_level?: string | null;
-  
-  // Drinking Water specific
-  drinking_water?: string | null;
-}
-
-// Cấu hình cột hiển thị cho từng loại POI
-interface ColumnConfig {
-  key: string;
-  label: string;
-  render?: (poi: POI) => React.ReactNode;
-}
-
-// Schema động cho từng loại POI
-const POI_SCHEMAS: Record<string, ColumnConfig[]> = {
-  toilet: [
-    { key: 'name', label: 'admin.pois.table.name' },
-    { key: 'coordinates', label: 'admin.pois.table.coordinates' },
-    { key: 'address', label: 'admin.pois.table.address' },
-    { key: 'operator', label: 'admin.pois.table.operator' },
-    { key: 'opening_hours', label: 'admin.pois.table.openingHours' },
-    { key: 'fee', label: 'admin.pois.table.fee' },
-    { key: 'wheelchair', label: 'admin.pois.table.wheelchair' },
-  ],
-  school: [
-    { key: 'name', label: 'admin.pois.table.name' },
-    { key: 'coordinates', label: 'admin.pois.table.coordinates' },
-    { key: 'address', label: 'admin.pois.table.address' },
-    { key: 'website', label: 'Website' },
-    { key: 'phone', label: 'admin.pois.table.phone' },
-    { key: 'education_level', label: 'admin.pois.table.educationLevel' },
-    { key: 'operator', label: 'admin.pois.table.operator' },
-  ],
-  'bus-stop': [
-    { key: 'name', label: 'admin.pois.table.name' },
-    { key: 'coordinates', label: 'admin.pois.table.coordinates' },
-    { key: 'route_ref', label: 'admin.pois.table.routes' },
-    { key: 'operator', label: 'admin.pois.table.operator' },
-    { key: 'shelter', label: 'admin.pois.table.shelter' },
-    { key: 'bench', label: 'admin.pois.table.bench' },
-    { key: 'lit', label: 'admin.pois.table.lighting' },
-  ],
-  'play-ground': [
-    { key: 'name', label: 'admin.pois.table.name' },
-    { key: 'coordinates', label: 'admin.pois.table.coordinates' },
-    { key: 'address', label: 'admin.pois.table.address' },
-    { key: 'surface', label: 'admin.pois.table.surface' },
-    { key: 'lit', label: 'admin.pois.table.lighting' },
-    { key: 'operator', label: 'admin.pois.table.operator' },
-  ],
-  'drinking-water': [
-    { key: 'name', label: 'admin.pois.table.name' },
-    { key: 'coordinates', label: 'admin.pois.table.coordinates' },
-    { key: 'address', label: 'admin.pois.table.address' },
-    { key: 'drinking_water', label: 'admin.pois.table.drinkable' },
-    { key: 'operator', label: 'admin.pois.table.operator' },
-    { key: 'wheelchair', label: 'admin.pois.table.wheelchair' },
-  ],
+  addr_city?: string | null;
+  addr_district?: string | null;
+  addr_street?: string | null;
 }
 
 interface CreatePOIFormData {
@@ -120,77 +62,131 @@ interface CreatePOIFormData {
   address: string;
 }
 
+// Auto-fit bounds component
+const AutoFitBounds: React.FC<{ pois: POI[] }> = ({ pois }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (pois.length > 0) {
+      const bounds = new LatLngBounds(pois.map((poi) => [poi.lat, poi.lon]));
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+  }, [pois, map]);
+
+  return null;
+};
+
+// Get marker color based on POI type
+const getMarkerColor = (type: string): string => {
+  const colorMap: Record<string, string> = {
+    school: '#4285F4', // Blue
+    hospital: '#EA4335', // Red
+    clinic: '#FF6B6B', // Light Red
+    pharmacy: '#00C853', // Green
+    atm: '#FBC02D', // Yellow
+    bank: '#FFD700', // Gold
+    bus_stop: '#9C27B0', // Purple
+    cafe: '#8D6E63', // Brown
+    restaurant: '#FF9800', // Orange
+    supermarket: '#4CAF50', // Green
+    convenience_store: '#8BC34A', // Light Green
+    marketplace: '#FF5722', // Deep Orange
+    park: '#66BB6A', // Green
+    playground: '#AB47BC', // Purple
+    public_toilet: '#00BCD4', // Cyan
+    drinking_water: '#03A9F4', // Light Blue
+    parking: '#607D8B', // Blue Grey
+    fuel_station: '#F44336', // Red
+    charging_station: '#FFEB3B', // Yellow
+    police: '#1976D2', // Blue
+    fire_station: '#D32F2F', // Red
+    post_office: '#FFA726', // Orange
+    library: '#5C6BC0', // Indigo
+  };
+  return colorMap[type] || '#757575'; // Grey default
+};
+
+// Create colored marker icon
+const createColoredIcon = (type: string) => {
+  const color = getMarkerColor(type);
+  const svgIcon = `
+    <svg width="25" height="41" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.5 0C5.596 0 0 5.596 0 12.5c0 9.375 12.5 28.5 12.5 28.5S25 21.875 25 12.5C25 5.596 19.404 0 12.5 0z" 
+            fill="${color}" stroke="#fff" stroke-width="2"/>
+      <circle cx="12.5" cy="12.5" r="6" fill="#fff"/>
+    </svg>
+  `;
+  
+  return L.icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa(svgIcon),
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+  });
+};
+
 export const ManagePois: React.FC = () => {
   const { t } = useTranslation();
   const [pois, setPois] = useState<POI[]>([]);
-  const [filteredPois, setFilteredPois] = useState<POI[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedType, setSelectedType] = useState<string>('toilet');
-  
-  const itemsPerPage = 10;
+  const [selectedType, setSelectedType] = useState<string>('school');
 
-  // Available POI types
+  // Available POI types - Đầy đủ 28 loại POI
   const poiTypes = [
-    { value: 'toilet', label: t('admin.pois.type.toilet') },
-    { value: 'drinking-water', label: t('admin.pois.type.drinkingWater') },
-    { value: 'school', label: t('admin.pois.type.school') },
-    { value: 'bus-stop', label: t('admin.pois.type.busStop') },
-    { value: 'play-ground', label: t('admin.pois.type.playGround') },
+    { value: 'atm', label: 'ATM' },
+    { value: 'bank', label: 'Ngân hàng' },
+    { value: 'bus_stop', label: 'Trạm xe buýt' },
+    { value: 'cafe', label: 'Quán cà phê' },
+    { value: 'charging_station', label: 'Trạm sạc xe' },
+    { value: 'clinic', label: 'Phòng khám' },
+    { value: 'community_centre', label: 'Trung tâm cộng đồng' },
+    { value: 'convenience_store', label: 'Cửa hàng tiện lợi' },
+    { value: 'drinking_water', label: 'Nước uống' },
+    { value: 'fire_station', label: 'Trạm cứu hỏa' },
+    { value: 'fuel_station', label: 'Trạm xăng' },
+    { value: 'hospital', label: 'Bệnh viện' },
+    { value: 'kindergarten', label: 'Mẫu giáo' },
+    { value: 'library', label: 'Thư viện' },
+    { value: 'marketplace', label: 'Chợ' },
+    { value: 'park', label: 'Công viên' },
+    { value: 'parking', label: 'Bãi đỗ xe' },
+    { value: 'pharmacy', label: 'Nhà thuốc' },
+    { value: 'playground', label: 'Sân chơi' },
+    { value: 'police', label: 'Công an' },
+    { value: 'post_office', label: 'Bưu điện' },
+    { value: 'public_toilet', label: 'Nhà vệ sinh' },
+    { value: 'restaurant', label: 'Nhà hàng' },
+    { value: 'school', label: 'Trường học' },
+    { value: 'supermarket', label: 'Siêu thị' },
+    { value: 'university', label: 'Đại học' },
+    { value: 'warehouse', label: 'Kho' },
+    { value: 'waste_basket', label: 'Thùng rác' },
   ];
 
   // Form state
   const [formData, setFormData] = useState<CreatePOIFormData>({
     name: '',
-    type: 'toilet',
+    type: 'school',
     lat: '',
     lon: '',
     address: '',
   });
 
   const [formErrors, setFormErrors] = useState<Partial<CreatePOIFormData>>({});
-  const [dynamicSchema, setDynamicSchema] = useState<ColumnConfig[]>([]);
-  const [schemaLoading, setSchemaLoading] = useState(false);
 
-  // Fetch schema khi selectedType thay đổi
+  // Fetch POIs when type changes
   useEffect(() => {
-    fetchSchema();
+    fetchPois();
   }, [selectedType]);
-
-  // Fetch POIs sau khi có schema
-  useEffect(() => {
-    if (dynamicSchema.length > 0) {
-      fetchPois();
-    }
-  }, [dynamicSchema]);
-
-  // Filter POIs khi search query thay đổi
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredPois(pois);
-    } else {
-      const query = searchQuery.toLowerCase();
-      const filtered = pois.filter(
-        (poi) =>
-          poi.name?.toLowerCase().includes(query) ||
-          poi.type?.toLowerCase().includes(query) ||
-          poi.amenity?.toLowerCase().includes(query)
-      );
-      setFilteredPois(filtered);
-    }
-    setCurrentPage(1); // Reset về trang 1 khi search
-  }, [searchQuery, pois]);
 
   const fetchPois = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Fetch từ API endpoint với filter type động
       const response = await fetch(`http://localhost:3000/api/admin/pois?type=${selectedType}&limit=1000`);
       
       if (!response.ok) {
@@ -200,60 +196,7 @@ export const ManagePois: React.FC = () => {
       const result = await response.json();
 
       if (result.success && result.data) {
-        const allPois: POI[] = result.data.map((item: any) => {
-          // Extract short ID từ URI (lấy phần cuối của geometry URL)
-          const idParts = item.id ? item.id.split('/') : [];
-          const geometryPart = idParts[idParts.length - 2] || 'unknown'; // Lấy số trước /geometry
-          const shortId = geometryPart.substring(0, 10);
-          
-          // Nếu name chứa "Unnamed POI" hoặc "geometry", dùng ID thay thế
-          let displayName = item.name;
-          if (!displayName || displayName.includes('Unnamed POI') || displayName.includes('geometry')) {
-            displayName = `POI #${shortId}`;
-          }
-          
-          // Map tất cả thuộc tính từ backend
-          return {
-            id: item.id || `${item.type}-${Math.random()}`,
-            name: displayName,
-            type: item.type || 'unknown',
-            lat: item.lat || 0,
-            lon: item.lon || 0,
-            address: item.address || null,
-            amenity: item.amenity || null,
-            wkt: item.wkt || null,
-            
-            // Contact & Info
-            website: item.website || null,
-            phone: item.phone || null,
-            operator: item.operator || null,
-            opening_hours: item.opening_hours || null,
-            
-            // Accessibility
-            wheelchair: item.wheelchair || null,
-            fee: item.fee || null,
-            
-            // Infrastructure
-            highway: item.highway || null,
-            building: item.building || null,
-            surface: item.surface || null,
-            lit: item.lit || null,
-            
-            // Bus Stop specific
-            route_ref: item.route_ref || null,
-            bench: item.bench || null,
-            shelter: item.shelter || null,
-            
-            // School specific
-            education_level: item.education_level || null,
-            
-            // Drinking Water specific
-            drinking_water: item.drinking_water || null,
-          };
-        });
-
-        setPois(allPois);
-        setFilteredPois(allPois);
+        setPois(result.data);
       } else {
         throw new Error(result.error || 'Failed to fetch POIs');
       }
@@ -265,109 +208,7 @@ export const ManagePois: React.FC = () => {
     }
   };
 
-  // Fetch schema động từ backend
-  const fetchSchema = async () => {
-    setSchemaLoading(true);
-    try {
-      const response = await fetch(`http://localhost:3000/api/admin/pois/schema?type=${selectedType}`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const result = await response.json();
-
-      if (result.success && result.fields) {
-        // Transform backend schema thành column config
-        const columns: ColumnConfig[] = result.fields
-          .filter((field: any) => {
-            // Chỉ hiển thị các field quan trọng, bỏ qua các field hệ thống
-            const excludedFields = ['wkt', 'geometry', 'hasGeometry', 'type'];
-            return !excludedFields.includes(field.key);
-          })
-          .slice(0, 8) // Giới hạn 8 cột để tránh quá rộng
-          .map((field: any) => ({
-            key: field.key,
-            label: field.label || field.key,
-          }));
-
-        setDynamicSchema(columns);
-      } else {
-        // Fallback về static schema nếu lỗi
-        setDynamicSchema(POI_SCHEMAS[selectedType] || POI_SCHEMAS['toilet']);
-      }
-    } catch (err) {
-      console.error('Error fetching schema:', err);
-      // Fallback
-      setDynamicSchema(POI_SCHEMAS[selectedType] || POI_SCHEMAS['toilet']);
-    } finally {
-      setSchemaLoading(false);
-    }
-  };
-
-  // Lấy column config dựa trên selectedType (dynamic hoặc static)
-  const currentColumns = dynamicSchema.length > 0 ? dynamicSchema : (POI_SCHEMAS[selectedType] || POI_SCHEMAS['toilet']);
-  
-  // Helper function để render cell value
-  const renderCellValue = (poi: POI, columnKey: string): React.ReactNode => {
-    switch (columnKey) {
-      case 'name':
-        return (
-          <div>
-            <strong>{poi.name}</strong>
-            {poi.amenity && poi.amenity !== poi.type && (
-              <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
-                {poi.amenity}
-              </div>
-            )}
-          </div>
-        );
-      
-      case 'coordinates':
-        return `${poi.lat.toFixed(4)}, ${poi.lon.toFixed(4)}`;
-      
-      case 'website':
-        return poi.website ? (
-          <a href={poi.website} target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'none' }}>
-            {poi.website.length > 25 ? poi.website.substring(0, 25) + '...' : poi.website}
-          </a>
-        ) : <span style={{ color: '#999' }}>—</span>;
-      
-      case 'wheelchair':
-      case 'fee':
-      case 'lit':
-      case 'bench':
-      case 'shelter':
-      case 'drinking_water':
-        const value = poi[columnKey as keyof POI];
-        if (!value) return <span style={{ color: '#999' }}>—</span>;
-        // Hiển thị Yes/No hoặc giá trị boolean
-        if (value === 'yes' || value === 'true') return <span style={{ color: '#28a745' }}>✓</span>;
-        if (value === 'no' || value === 'false') return <span style={{ color: '#dc3545' }}>✗</span>;
-        return value;
-      
-      case 'route_ref':
-        return poi.route_ref ? (
-          <span style={{ background: '#007bff', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontSize: '0.85em' }}>
-            {poi.route_ref}
-          </span>
-        ) : <span style={{ color: '#999' }}>—</span>;
-      
-      default:
-        const fieldValue = poi[columnKey as keyof POI];
-        return fieldValue || <span style={{ color: '#999' }}>—</span>;
-    }
-  };
-
-  // Pagination
-  const totalPages = Math.ceil(filteredPois.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentPois = filteredPois.slice(startIndex, endIndex);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
 
   // Form validation
   const validateForm = (): boolean => {
@@ -498,6 +339,7 @@ export const ManagePois: React.FC = () => {
 
   return (
     <div className="manage-pois">
+      {/* Header */}
       <div className="manage-pois__header">
         <div>
           <h1 className="manage-pois__title">{t('admin.pois.title')}</h1>
@@ -512,8 +354,8 @@ export const ManagePois: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter and Search bar */}
-      <div className="manage-pois__filters">
+      {/* Controls Bar */}
+      <div className="manage-pois__controls">
         <div className="manage-pois__filter-group">
           <label className="manage-pois__filter-label" htmlFor="type-filter">
             {t('admin.pois.filter.type')}:
@@ -522,11 +364,7 @@ export const ManagePois: React.FC = () => {
             id="type-filter"
             className="manage-pois__type-select"
             value={selectedType}
-            onChange={(e) => {
-              setSelectedType(e.target.value);
-              setSearchQuery(''); // Clear search khi đổi type
-              setCurrentPage(1); // Reset về trang 1
-            }}
+            onChange={(e) => setSelectedType(e.target.value)}
             disabled={loading}
           >
             {poiTypes.map((type) => (
@@ -537,100 +375,78 @@ export const ManagePois: React.FC = () => {
           </select>
         </div>
         
-        <input
-          type="text"
-          className="manage-pois__search-input"
-          placeholder={t('admin.pois.searchPlaceholder')}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          disabled={loading}
-        />
+        <span className="manage-pois__count">
+          {pois.length} POIs
+        </span>
       </div>
 
-      {/* Error message */}
+      {/* Error Message */}
       {error && <div className="manage-pois__error">{error}</div>}
 
-      {/* Loading state */}
-      {(loading || schemaLoading) && (
+      {/* Loading State */}
+      {loading && (
         <div className="manage-pois__loading">
-          {schemaLoading ? 'Đang tải cấu trúc dữ liệu...' : t('admin.pois.loading')}
+          {t('admin.pois.loading')}
         </div>
       )}
 
-      {/* POI Table */}
-      {!loading && (
-        <>
-          <div className="manage-pois__table-wrapper">
-            <table className="poi-table">
-              <thead className="poi-table__head">
-                <tr>
-                  {/* Render columns động dựa trên selectedType */}
-                  {currentColumns.map((col) => (
-                    <th key={col.key} className="poi-table__th">
-                      {t(col.label)}
-                    </th>
-                  ))}
-                  <th className="poi-table__th">{t('admin.pois.table.actions')}</th>
-                </tr>
-              </thead>
-              <tbody className="poi-table__body">
-                {currentPois.length === 0 ? (
-                  <tr>
-                    <td colSpan={currentColumns.length + 1} className="poi-table__empty">
-                      {searchQuery ? t('admin.pois.noResults') : t('admin.pois.noData')}
-                    </td>
-                  </tr>
-                ) : (
-                  currentPois.map((poi) => (
-                    <tr key={poi.id} className="poi-table__row">
-                      {/* Render cells động */}
-                      {currentColumns.map((col) => (
-                        <td 
-                          key={col.key} 
-                          className={`poi-table__td ${col.key === 'name' ? 'poi-table__td--name' : ''} ${col.key === 'address' ? 'poi-table__td--address' : ''}`}
-                        >
-                          {col.render ? col.render(poi) : renderCellValue(poi, col.key)}
-                        </td>
-                      ))}
-                      <td className="poi-table__td poi-table__td--actions">
-                        <button
-                          className="poi-action-btn poi-action-btn--delete"
-                          onClick={() => handleDelete(poi.id)}
-                          title={t('admin.pois.actions.delete')}
-                        >
-                          {t('admin.pois.actions.delete')}
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="manage-pois__pagination">
-              <button
-                className="pagination-btn"
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+      {/* Map View */}
+      {!loading && pois.length > 0 && (
+        <div className="manage-pois__map-wrapper">
+          <MapContainer
+            center={[21.0285, 105.8542]}
+            zoom={12}
+            style={{ height: '100%', width: '100%' }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+            <AutoFitBounds pois={pois} />
+            
+            {pois.map((poi) => (
+              <Marker
+                key={poi.id}
+                position={[poi.lat, poi.lon]}
+                icon={createColoredIcon(poi.type)}
               >
-                {t('admin.pois.pagination.previous')}
-              </button>
-              <span className="pagination-info">
-                {t('admin.pois.pagination.page')} {currentPage} / {totalPages}
-              </span>
-              <button
-                className="pagination-btn"
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                {t('admin.pois.pagination.next')}
-              </button>
-            </div>
-          )}
-        </>
+                <Popup>
+                  <div className="poi-popup">
+                    <h3 className="poi-popup__title">{poi.name}</h3>
+                    <div className="poi-popup__info">
+                      <p><strong>Loại:</strong> {poi.type}</p>
+                      <p><strong>Tọa độ:</strong> {poi.lat.toFixed(5)}, {poi.lon.toFixed(5)}</p>
+                      {poi.osm_id && <p><strong>OSM ID:</strong> {poi.osm_id}</p>}
+                      {poi.operator && <p><strong>Vận hành:</strong> {poi.operator}</p>}
+                      {poi.addr_district && <p><strong>Quận:</strong> {poi.addr_district}</p>}
+                      {poi.website && (
+                        <p>
+                          <strong>Website:</strong>{' '}
+                          <a href={poi.website} target="_blank" rel="noopener noreferrer">
+                            {poi.website.substring(0, 30)}...
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      className="poi-popup__delete-btn"
+                      onClick={() => handleDelete(poi.id)}
+                    >
+                      Xóa POI
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </div>
+      )}
+      
+      {!loading && pois.length === 0 && (
+        <div className="manage-pois__no-data">
+          <p>{t('admin.pois.noData')}</p>
+        </div>
       )}
 
       {/* Add POI Modal */}
@@ -680,11 +496,11 @@ export const ManagePois: React.FC = () => {
                   onChange={handleInputChange}
                   disabled={isSubmitting}
                 >
-                  <option value="toilet">{t('admin.pois.type.toilet')}</option>
-                  <option value="school">{t('admin.pois.type.school')}</option>
-                  <option value="bus-stop">{t('admin.pois.type.busStop')}</option>
-                  <option value="play-ground">{t('admin.pois.type.playGround')}</option>
-                  <option value="drinking-water">{t('admin.pois.type.drinkingWater')}</option>
+                  {poiTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
                 </select>
                 {formErrors.type && <span className="poi-form__error">{formErrors.type}</span>}
               </div>

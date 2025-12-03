@@ -4,9 +4,11 @@
 
 /* Container */
 .manage-pois {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1.5rem;
+  gap: 1rem;
 }
 
 /* Header */
@@ -54,13 +56,23 @@
   cursor: not-allowed;
 }
 
-/* Filters */
-.manage-pois__filters {
+/* Controls */
+.manage-pois__controls {
   display: flex;
   gap: 1rem;
-  margin-bottom: 1.5rem;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+  padding: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.manage-pois__count {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
 }
 
 .manage-pois__filter-group {
@@ -125,7 +137,6 @@
 /* Messages */
 .manage-pois__error {
   padding: 1rem;
-  margin-bottom: 1.5rem;
   background: #fed7d7;
   color: #c53030;
   border-radius: 0.375rem;
@@ -137,6 +148,93 @@
   text-align: center;
   font-size: 1.125rem;
   color: #718096;
+}
+
+.manage-pois__no-data {
+  padding: 3rem;
+  text-align: center;
+  color: #718096;
+  font-size: 1.125rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 2px dashed #e2e8f0;
+}
+
+/* Map Container */
+.manage-pois__map-wrapper {
+  flex: 1;
+  min-height: 500px;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* POI Popup Styles */
+.poi-popup {
+  min-width: 250px;
+  padding: 0.5rem;
+}
+
+.poi-popup__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.poi-popup__info {
+  margin-bottom: 1rem;
+}
+
+.poi-popup__info p {
+  margin: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.poi-popup__info strong {
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.poi-popup__info a {
+  color: #3182ce;
+  text-decoration: none;
+}
+
+.poi-popup__info a:hover {
+  text-decoration: underline;
+}
+
+.poi-popup__delete-btn {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.poi-popup__delete-btn:hover {
+  background: #c53030;
+}
+
+/* Leaflet Popup Overrides */
+.leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.leaflet-popup-content {
+  margin: 0.75rem;
+  line-height: 1.4;
 }
 
 /* Table */
