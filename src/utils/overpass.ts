@@ -90,12 +90,6 @@ export function overpassToGeoJSON(raw: any, qid: string): OverpassGeoJSON | null
   
   if (!raw?.elements?.length) return null;
 
-// Legacy function for backward compatibility - converts raw to GeoJSON on client side
-export function overpassToGeoJSON(raw: any, qid: string): OverpassGeoJSON | null {
-  console.warn('overpassToGeoJSON is deprecated. Use fetchOverpassOutline instead.');
-  
-  if (!raw?.elements?.length) return null;
-
   // Helper function to build polygons from members
   const buildPolygonsFromMembers = (members: any[]): number[][][] => {
     const rings: number[][][] = [];

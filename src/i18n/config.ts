@@ -20,6 +20,7 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import vi from './locales/vi.json';
 import en from './locales/en.json';
+import zhTW from './locales/zh-TW.json';
 
 i18n
     .use(LanguageDetector) // Tự động detect ngôn ngữ
@@ -27,7 +28,8 @@ i18n
     .init({
         resources: {
             vi: { translation: vi },
-            en: { translation: en }
+            en: { translation: en },
+            'zh-TW': { translation: zhTW }
         },
         fallbackLng: 'vi', // Fallback nếu không tìm thấy translation
         interpolation: {

@@ -115,9 +115,9 @@ export const Dashboard: React.FC = () => {
               <FontAwesomeIcon icon={faLeaf} className="dashboard__stat-icon" />
               <div className="dashboard__stat-info">
                 <h3 className="dashboard__stat-value">
-                  {stats?.monitoringPoints.toLocaleString() || '0'}
+                  {stats?.graphCount.toLocaleString() || '0'}
                 </h3>
-                <p className="dashboard__stat-label">{t('admin.dashboard.monitoringPoints')}</p>
+                <p className="dashboard__stat-label">Loại POI</p>
               </div>
             </div>
 
@@ -125,34 +125,44 @@ export const Dashboard: React.FC = () => {
               <FontAwesomeIcon icon={faFileAlt} className="dashboard__stat-icon" />
               <div className="dashboard__stat-info">
                 <h3 className="dashboard__stat-value">
-                  {stats?.totalReports.toLocaleString() || '0'}
+                  {stats?.topCategories?.length || '0'}
                 </h3>
-                <p className="dashboard__stat-label">{t('admin.dashboard.totalReports')}</p>
+                <p className="dashboard__stat-label">Top Categories</p>
               </div>
             </div>
           </div>
         )}
 
-        {stats && stats.breakdown && (
+        {stats && stats.topCategories && stats.topCategories.length > 0 && (
           <div className="dashboard__breakdown">
-            <h3 className="dashboard__breakdown-title">Chi tiết phân loại POI</h3>
+            <h3 className="dashboard__breakdown-title">Top 5 Loại POI</h3>
             <div className="dashboard__breakdown-grid">
-              <div className="dashboard__breakdown-item">
-                <span className="breakdown-label">ATMs:</span>
-                <span className="breakdown-value">{stats.breakdown.atms.toLocaleString()}</span>
-              </div>
-              <div className="dashboard__breakdown-item">
-                <span className="breakdown-label">Hospitals:</span>
-                <span className="breakdown-value">{stats.breakdown.hospitals.toLocaleString()}</span>
-              </div>
-              <div className="dashboard__breakdown-item">
-                <span className="breakdown-label">Toilets:</span>
-                <span className="breakdown-value">{stats.breakdown.toilets.toLocaleString()}</span>
-              </div>
-              <div className="dashboard__breakdown-item">
-                <span className="breakdown-label">Bus Stops:</span>
-                <span className="breakdown-value">{stats.breakdown.busStops.toLocaleString()}</span>
-              </div>
+              {stats.topCategories.map((category, index) => (
+                <div key={category.type} className="dashboard__breakdown-item">
+                  <span className="breakdown-label">
+                    #{index + 1} {category.type.replace(/-/g, ' ').toUpperCase()}:
+                  </span>
+                  <span className="breakdown-value">{category.count.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {stats && stats.breakdown && Object.keys(stats.breakdown).length > 0 && (
+          <div className="dashboard__breakdown" style={{ marginTop: '2rem' }}>
+            <h3 className="dashboard__breakdown-title">Tất cả các loại POI ({Object.keys(stats.breakdown).length})</h3>
+            <div className="dashboard__breakdown-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+              {Object.entries(stats.breakdown)
+                .sort(([, a], [, b]) => b - a)
+                .map(([type, count]) => (
+                  <div key={type} className="dashboard__breakdown-item">
+                    <span className="breakdown-label">
+                      {type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:
+                    </span>
+                    <span className="breakdown-value">{count.toLocaleString()}</span>
+                  </div>
+                ))}
             </div>
           </div>
         )}

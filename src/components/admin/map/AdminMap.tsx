@@ -59,42 +59,18 @@ const AdminMap: React.FC = () => {
   // Hà Nội center coordinates
   const hanoiCenter: [number, number] = [21.028, 105.854];
 
-  // Fetch IoT data
+  // Fetch IoT data - DISABLED
   const fetchIotData = async () => {
-    try {
-      const [trafficRes, floodRes] = await Promise.all([
-        fetch(getApiEndpoint.adminIotTraffic()),
-        fetch(getApiEndpoint.adminIotFlood()),
-      ]);
-
-      if (trafficRes.ok) {
-        const trafficJson = await trafficRes.json();
-        setTrafficData(trafficJson.data || []);
-      }
-
-      if (floodRes.ok) {
-        const floodJson = await floodRes.json();
-        setFloodData(floodJson.data || []);
-      }
-
-      setLoading(false);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching IoT data:', err);
-      setError('Không thể tải dữ liệu IoT');
-      setLoading(false);
-    }
+    // IoT simulation has been disabled
+    setTrafficData([]);
+    setFloodData([]);
+    setLoading(false);
+    setError('Tính năng giả lập IoT đã được tắt');
   };
 
-  // Initial fetch và auto-refresh mỗi 30 giây
+  // Initial fetch only - no auto-refresh needed
   useEffect(() => {
     fetchIotData();
-
-    const interval = setInterval(() => {
-      fetchIotData();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
