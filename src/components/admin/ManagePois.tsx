@@ -21,6 +21,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { LatLngBounds } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { SearchableSelect } from '../ui/SearchableSelect';
 import './ManagePois.css';
 
 // Fix Leaflet default marker icons
@@ -360,19 +361,15 @@ export const ManagePois: React.FC = () => {
           <label className="manage-pois__filter-label" htmlFor="type-filter">
             {t('admin.pois.filter.type')}:
           </label>
-          <select
-            id="type-filter"
-            className="manage-pois__type-select"
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            disabled={loading}
-          >
-            {poiTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+          <div className="manage-pois__searchable-select-wrapper">
+            <SearchableSelect
+              options={poiTypes}
+              value={selectedType}
+              onChange={setSelectedType}
+              placeholder={t('admin.pois.filter.selectType')}
+              disabled={loading}
+            />
+          </div>
         </div>
         
         <span className="manage-pois__count">

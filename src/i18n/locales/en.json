@@ -301,7 +301,8 @@
       "noResults": "No matching results found",
       "unnamed": "Unnamed",
       "filter": {
-        "type": "POI Type"
+        "type": "POI Type",
+        "selectType": "Select POI type..."
       },
       "table": {
         "name": "Name",
