@@ -32,12 +32,13 @@ export const LanguageSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
-  // Normalize language code (en-US -> en)
-  const currentLang = i18n.language.split('-')[0];
+  // Get current language (handle both 'en' and 'zh-TW' formats)
+  const currentLang = i18n.language;
 
   const languages = [
     { code: 'vi', name: 'Tiếng Việt', shortName: 'VI' },
-    { code: 'en', name: 'English', shortName: 'EN' }
+    { code: 'en', name: 'English', shortName: 'EN' },
+    { code: 'zh-TW', name: '繁體中文', shortName: '繁中' }
   ];
 
   const currentLanguage = languages.find(lang => lang.code === currentLang) || languages[0];
