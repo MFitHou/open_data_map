@@ -24,13 +24,15 @@ import L from "leaflet";
 
 // Components
 import { SmartSearch } from "./SmartSearch";
-import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
+import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton, NearbySearchInfo } from '../ui';
 import { ServiceInfoPanel } from '../ui/ServiceInfoPanel';
 import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
 import { TopologyMarkers } from './TopologyMarkers';
 import { MemberOutlines } from './MemberOutlines';
 import LayerControl from './LayerControl';
+import { AQIMarkers, AQIToggleButton, useAQILayer } from './AQILayer';
+import { WeatherMarkers, WeatherToggleButton, ForecastPanel, useWeatherLayer } from './WeatherLayer';
 import '../../styles/components/LayerControl.css';
 
 // Hooks
@@ -87,6 +89,26 @@ const SimpleMap: React.FC = () => {
   const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
   const [isLoadingLayers, setIsLoadingLayers] = useState(false);
   
+  // AQI Layer
+  const { 
+    stations: aqiStations, 
+    isLoading: isLoadingAQI, 
+    isEnabled: isAQIEnabled, 
+    toggleLayer: toggleAQILayer 
+  } = useAQILayer();
+  
+  // Weather Layer
+  const {
+    stations: weatherStations,
+    forecast,
+    isLoading: isLoadingWeather,
+    isLoadingForecast,
+    isEnabled: isWeatherEnabled,
+    showForecast,
+    toggleLayer: toggleWeatherLayer,
+    closeForecast,
+  } = useWeatherLayer();
+  
   // AI message from SmartSearch to Chatbot
   const [aiMessageForChatbot, setAiMessageForChatbot] = useState<string | null>(null);
   
@@ -122,6 +144,17 @@ const SimpleMap: React.FC = () => {
     setNearbyPlaces(places);
     setNearbySearchCenter(center || null);
     setNearbySearchRadius(radiusKm || null);
+  }, []);
+
+  // Clear all nearby search results
+  const handleClearNearbySearch = useCallback(() => {
+    console.log('[SimpleMap] Clearing nearby search results');
+    setNearbyPlaces([]);
+    setNearbySearchCenter(null);
+    setNearbySearchRadius(null);
+    setSelectedServicePlace(null);
+    setHoveredTopology(null);
+    setExploredMarkerPois(new Set());
   }, []);
 
   // Fetch layer data from backend
@@ -824,6 +857,16 @@ out geom;
           />
         )}
 
+        {/* AQI Layer markers */}
+        {isAQIEnabled && aqiStations.length > 0 && (
+          <AQIMarkers stations={aqiStations} />
+        )}
+
+        {/* Weather Layer markers */}
+        {isWeatherEnabled && weatherStations.length > 0 && (
+          <WeatherMarkers stations={weatherStations} />
+        )}
+
         {selectedLocation && (
           <FlyToLocation 
             lat={selectedLocation.lat} 
@@ -863,6 +906,39 @@ out geom;
           </Marker>
         )}
       </MapContainer>
+
+      {/* AQI Layer Toggle Button */}
+      <AQIToggleButton
+        onToggle={toggleAQILayer}
+        isLoading={isLoadingAQI}
+        isEnabled={isAQIEnabled}
+        stationCount={aqiStations.length}
+      />
+
+      {/* Weather Layer Toggle Button */}
+      <WeatherToggleButton
+        onToggle={toggleWeatherLayer}
+        isLoading={isLoadingWeather}
+        isEnabled={isWeatherEnabled}
+        stationCount={weatherStations.length}
+      />
+
+      {/* Weather Forecast Panel */}
+      {isWeatherEnabled && showForecast && (
+        <ForecastPanel
+          forecast={forecast}
+          isLoading={isLoadingForecast}
+          onClose={closeForecast}
+        />
+      )}
+
+      {/* Nearby Search Info Bar with Clear button */}
+      <NearbySearchInfo
+        placesCount={nearbyPlaces.length}
+        searchCenter={nearbySearchCenter}
+        searchRadiusKm={nearbySearchRadius}
+        onClear={handleClearNearbySearch}
+      />
 
       <MapChatbot 
         onNearbyPlacesChange={handleNearbyPlacesChange}

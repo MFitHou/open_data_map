@@ -92,6 +92,62 @@
   color: #333;
 }
 
+/* Sensor Badges Container */
+.sensor-badges-container {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sensor-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  border: 1.5px solid;
+  font-size: 11px;
+  font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 65px;
+}
+
+.sensor-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+.sensor-icon {
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sensor-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
+}
+
+.sensor-value {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.sensor-label {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  opacity: 0.8;
+}
+
 /* Content */
 .service-panel-content {
   flex: 1;

@@ -20,3 +20,4 @@ export { DownloadButton } from './DownloadButton';
 export { Info } from './Info';
 export { InfoPanel } from './InfoPanel';
 export { SearchResult } from './SearchResult';
+export { NearbySearchInfo } from './NearbySearchInfo';

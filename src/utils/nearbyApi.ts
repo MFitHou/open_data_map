@@ -36,6 +36,14 @@ export interface TopologyRelation {
   related: TopologyRelatedEntity; // Thông tin đầy đủ của entity liên quan
 }
 
+// Sensor data from InfluxDB
+export interface SensorData {
+  aqi: number | null;           // Air Quality Index
+  temperature: number | null;   // Temperature in Celsius
+  noise_level: number | null;   // Noise level in dB
+  timestamp: string | null;     // ISO timestamp of last reading
+}
+
 export interface NearbyPlace {
   poi: string;
   amenity?: string;      
@@ -54,7 +62,9 @@ export interface NearbyPlace {
   leisure?: string;      
   topology?: TopologyRelation[] | null;  
   iotStations?: string[] | null;         
-  relatedEntities?: Partial<NearbyPlace>[]; 
+  relatedEntities?: Partial<NearbyPlace>[];
+  device?: string | null;         // IoT device URI covering this POI
+  sensorData?: SensorData | null; // Sensor data from InfluxDB
 }
 
 export interface NearbyResponse {

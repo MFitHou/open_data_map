@@ -16,8 +16,7 @@ import {
   faLink, 
   faBroadcastTower,
   faChevronDown,
-  faChevronUp,
-  faExternalLinkAlt
+  faChevronUp
 } from '@fortawesome/free-solid-svg-icons';
 import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 import { getPlaceName } from '../../utils/nearbyApi';
@@ -45,6 +44,34 @@ const groupTopologyByPredicate = (topology: TopologyRelation[]): Record<string, 
   }, {} as Record<string, TopologyRelation[]>);
 };
 
+// AQI level classification
+const getAQILevel = (aqi: number): { label: string; labelVi: string; color: string; bgColor: string } => {
+  if (aqi <= 50) return { label: 'Good', labelVi: 'Tốt', color: '#155724', bgColor: '#d4edda' };
+  if (aqi <= 100) return { label: 'Moderate', labelVi: 'TB', color: '#856404', bgColor: '#fff3cd' };
+  if (aqi <= 150) return { label: 'Unhealthy (SG)', labelVi: 'Kém', color: '#ff6b35', bgColor: '#ffe5d9' };
+  if (aqi <= 200) return { label: 'Unhealthy', labelVi: 'Xấu', color: '#721c24', bgColor: '#f8d7da' };
+  if (aqi <= 300) return { label: 'Very Unhealthy', labelVi: 'Rất xấu', color: '#4a0072', bgColor: '#e8d4f0' };
+  return { label: 'Hazardous', labelVi: 'Nguy hại', color: '#fff', bgColor: '#7b1f3a' };
+};
+
+// Temperature level classification
+const getTempLevel = (temp: number): { label: string; labelVi: string; color: string; bgColor: string } => {
+  if (temp <= 15) return { label: 'Cold', labelVi: 'Lạnh', color: '#0c5460', bgColor: '#d1ecf1' };
+  if (temp <= 25) return { label: 'Cool', labelVi: 'Mát', color: '#155724', bgColor: '#d4edda' };
+  if (temp <= 32) return { label: 'Warm', labelVi: 'Ấm', color: '#856404', bgColor: '#fff3cd' };
+  if (temp <= 38) return { label: 'Hot', labelVi: 'Nóng', color: '#ff6b35', bgColor: '#ffe5d9' };
+  return { label: 'Very Hot', labelVi: 'Rất nóng', color: '#721c24', bgColor: '#f8d7da' };
+};
+
+// Noise level classification  
+const getNoiseLevel = (noise: number): { label: string; labelVi: string; color: string; bgColor: string } => {
+  if (noise <= 40) return { label: 'Quiet', labelVi: 'Yên tĩnh', color: '#155724', bgColor: '#d4edda' };
+  if (noise <= 55) return { label: 'Moderate', labelVi: 'TB', color: '#0c5460', bgColor: '#d1ecf1' };
+  if (noise <= 70) return { label: 'Loud', labelVi: 'Ồn', color: '#856404', bgColor: '#fff3cd' };
+  if (noise <= 85) return { label: 'Very Loud', labelVi: 'Rất ồn', color: '#ff6b35', bgColor: '#ffe5d9' };
+  return { label: 'Dangerous', labelVi: 'Nguy hiểm', color: '#721c24', bgColor: '#f8d7da' };
+};
+
 export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
   place,
   onClose,
@@ -70,6 +97,11 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
   const hasTopology = place.topology && place.topology.length > 0;
   const hasIoT = place.iotStations && place.iotStations.length > 0;
   const hasRelated = place.relatedEntities && place.relatedEntities.length > 0;
+  const hasSensorData = place.sensorData && (
+    place.sensorData.aqi !== null || 
+    place.sensorData.temperature !== null || 
+    place.sensorData.noise_level !== null
+  );
 
   const getRelatedName = (topo: TopologyRelation): string => {
     if (typeof topo.related === 'object') {
@@ -93,6 +125,39 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
     return '📍';
   };
 
+  // Render sensor badge with tooltip
+  const renderSensorBadge = (
+    value: number | null, 
+    unit: string, 
+    icon: string,
+    getLevel: (v: number) => { label: string; labelVi: string; color: string; bgColor: string },
+    tooltipVi: string,
+    tooltipEn: string
+  ) => {
+    if (value === null) return null;
+    const level = getLevel(value);
+    const displayLabel = currentLanguage === 'vi' ? level.labelVi : level.label;
+    const tooltip = currentLanguage === 'vi' ? tooltipVi : tooltipEn;
+    
+    return (
+      <div 
+        className="sensor-badge"
+        style={{ 
+          borderColor: level.color,
+          backgroundColor: level.bgColor,
+          color: level.color 
+        }}
+        title={`${tooltip}: ${value}${unit} (${displayLabel})`}
+      >
+        <span className="sensor-icon">{icon}</span>
+        <div className="sensor-info">
+          <span className="sensor-value">{Math.round(value)}{unit}</span>
+          <span className="sensor-label">{displayLabel}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="service-info-panel">
       {/* Header */}
@@ -110,6 +175,15 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
           <FontAwesomeIcon icon={faTimes} />
         </button>
       </div>
+
+      {/* Sensor Data Badges - Top section */}
+      {hasSensorData && (
+        <div className="sensor-badges-container">
+          {renderSensorBadge(place.sensorData!.aqi, '', '🌬️', getAQILevel, 'Chất lượng không khí', 'Air Quality')}
+          {renderSensorBadge(place.sensorData!.temperature, '°C', '🌡️', getTempLevel, 'Nhiệt độ', 'Temperature')}
+          {renderSensorBadge(place.sensorData!.noise_level, 'dB', '🔊', getNoiseLevel, 'Độ ồn', 'Noise Level')}
+        </div>
+      )}
 
       {/* Content */}
       <div className="service-panel-content">

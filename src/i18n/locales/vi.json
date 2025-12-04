@@ -129,7 +129,10 @@
       "found": "✅ Tìm thấy",
       "inRadius": "trong bán kính",
       "selectAndSearch": "ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn \"Tìm kiếm\"",
-      "noPlacesFound": "❌ Không tìm thấy"
+      "noPlacesFound": "❌ Không tìm thấy",
+      "results": "địa điểm",
+      "clear": "Xóa",
+      "clearResults": "Xóa kết quả tìm kiếm"
     },
     "info": {
       "title": "Thông tin địa điểm",
@@ -418,6 +421,41 @@
       "supermarket": "Siêu thị",
       "library": "Thư viện",
       "convenience_store": "Cửa hàng tiện lợi"
+    }
+  },
+  "aqi": {
+    "title": "Chất lượng không khí",
+    "showLayer": "Hiển thị AQI",
+    "hideLayer": "Ẩn AQI",
+    "station": "Trạm",
+    "level": {
+      "good": "Tốt",
+      "moderate": "Trung bình",
+      "unhealthySensitive": "Kém (nhạy cảm)",
+      "unhealthy": "Xấu",
+      "veryUnhealthy": "Rất xấu",
+      "hazardous": "Nguy hại",
+      "unknown": "Không xác định"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "Thời tiết",
+    "showLayer": "Hiển thị thời tiết",
+    "hideLayer": "Ẩn thời tiết",
+    "station": "Trạm",
+    "temperature": "Nhiệt độ",
+    "humidity": "Độ ẩm",
+    "windSpeed": "Tốc độ gió",
+    "rainfall": "Lượng mưa",
+    "forecast": {
+      "title": "Dự báo thời tiết",
+      "loading": "Đang tải dự báo...",
+      "chanceOfRain": "Khả năng mưa",
+      "feelsLike": "Cảm giác như",
+      "high": "Cao nhất",
+      "low": "Thấp nhất"
     }
   }
 }

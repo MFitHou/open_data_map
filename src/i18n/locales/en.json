@@ -129,7 +129,10 @@
       "found": "✅ Found",
       "inRadius": "within radius",
       "selectAndSearch": "ℹ️ Select place type and radius, then press \"Search\"",
-      "noPlacesFound": "❌ No places found"
+      "noPlacesFound": "❌ No places found",
+      "results": "places",
+      "clear": "Clear",
+      "clearResults": "Clear search results"
     },
     "info": {
       "title": "Place Information",
@@ -418,6 +421,41 @@
       "supermarket": "Supermarket",
       "library": "Library",
       "convenience_store": "Convenience Store"
+    }
+  },
+  "aqi": {
+    "title": "Air Quality",
+    "showLayer": "Show AQI",
+    "hideLayer": "Hide AQI",
+    "station": "Station",
+    "level": {
+      "good": "Good",
+      "moderate": "Moderate",
+      "unhealthySensitive": "Unhealthy for Sensitive Groups",
+      "unhealthy": "Unhealthy",
+      "veryUnhealthy": "Very Unhealthy",
+      "hazardous": "Hazardous",
+      "unknown": "Unknown"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "Weather",
+    "showLayer": "Show Weather",
+    "hideLayer": "Hide Weather",
+    "station": "Station",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "rainfall": "Rainfall",
+    "forecast": {
+      "title": "Weather Forecast",
+      "loading": "Loading forecast...",
+      "chanceOfRain": "Chance of rain",
+      "feelsLike": "Feels like",
+      "high": "High",
+      "low": "Low"
     }
   }
 }
