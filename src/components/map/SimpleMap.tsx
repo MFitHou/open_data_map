@@ -33,6 +33,7 @@ import { MemberOutlines } from './MemberOutlines';
 import LayerControl from './LayerControl';
 import { AQIMarkers, AQIToggleButton, useAQILayer } from './AQILayer';
 import { WeatherMarkers, WeatherToggleButton, ForecastPanel, useWeatherLayer } from './WeatherLayer';
+import { LayerMenu } from './LayerMenu';
 import '../../styles/components/LayerControl.css';
 
 // Hooks
@@ -613,7 +614,7 @@ out geom;
   }, []); // Run once on mount
 
   return (
-    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+    <div style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden' }}>
       <SmartSearch 
         onLocationSelect={(latLng, name, data) => {
           const result: SearchResult = {
@@ -907,7 +908,7 @@ out geom;
         )}
       </MapContainer>
 
-      {/* AQI Layer Toggle Button */}
+      {/* AQI Layer Toggle Button - Desktop only */}
       <AQIToggleButton
         onToggle={toggleAQILayer}
         isLoading={isLoadingAQI}
@@ -915,12 +916,24 @@ out geom;
         stationCount={aqiStations.length}
       />
 
-      {/* Weather Layer Toggle Button */}
+      {/* Weather Layer Toggle Button - Desktop only */}
       <WeatherToggleButton
         onToggle={toggleWeatherLayer}
         isLoading={isLoadingWeather}
         isEnabled={isWeatherEnabled}
         stationCount={weatherStations.length}
+      />
+
+      {/* Layer Menu - Mobile only (hamburger menu) */}
+      <LayerMenu
+        isAQIEnabled={isAQIEnabled}
+        isLoadingAQI={isLoadingAQI}
+        aqiStationCount={aqiStations.length}
+        onToggleAQI={toggleAQILayer}
+        isWeatherEnabled={isWeatherEnabled}
+        isLoadingWeather={isLoadingWeather}
+        weatherStationCount={weatherStations.length}
+        onToggleWeather={toggleWeatherLayer}
       />
 
       {/* Weather Forecast Panel */}

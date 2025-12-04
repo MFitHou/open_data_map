@@ -99,6 +99,7 @@
   },
   "map": {
     "title": "Map",
+    "layers": "Map Layers",
     "currentLocation": "📍 Your Current Location",
     "detectedByGPS": "Detected by GPS",
     "latitude": "Latitude",

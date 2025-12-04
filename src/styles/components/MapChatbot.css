@@ -544,9 +544,20 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .map-chatbot-wrapper {
+    bottom: 10px;
+    right: 10px;
+  }
+
   .map-chatbot-container {
-    width: 340px;
-    height: 450px;
+    position: fixed;
+    bottom: 60px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    height: 50vh;
+    max-height: 400px;
+    border-radius: 16px;
   }
 
   .map-chatbot-toggle {
@@ -561,14 +572,9 @@
 }
 
 @media (max-width: 480px) {
-  .map-chatbot-wrapper {
-    bottom: 10px;
-    left: 10px;
-  }
-
   .map-chatbot-container {
-    width: calc(100vw - 40px);
-    height: 400px;
+    height: 45vh;
+    max-height: 350px;
   }
 
   .map-chatbot-toggle {

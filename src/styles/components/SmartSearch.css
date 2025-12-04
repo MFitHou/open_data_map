@@ -286,12 +286,14 @@
 /* Responsive */
 @media (max-width: 768px) {
   .smart-search {
-    width: 95%;
+    width: calc(100% - 60px);
     max-width: none;
+    left: 10px;
+    right: 60px;
   }
 
   .search-input-wrapper {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
 
   .search-input {
@@ -300,6 +302,10 @@
 
   .suggestion-description {
     -webkit-line-clamp: 1;
+  }
+  
+  .suggestions-dropdown {
+    max-height: 300px;
   }
 }
 

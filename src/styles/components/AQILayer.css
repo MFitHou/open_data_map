@@ -107,16 +107,16 @@
   border-top: 1px solid #eee;
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* Responsive - Desktop only: show individual button */
+@media (min-width: 769px) {
   .aqi-toggle-button {
-    top: auto;
-    bottom: 140px;
-    right: 10px;
-    padding: 6px 10px;
+    display: flex;
   }
-  
-  .aqi-button-text {
+}
+
+/* Mobile: hide individual button (use LayerMenu instead) */
+@media (max-width: 768px) {
+  .aqi-toggle-button {
     display: none;
   }
 }

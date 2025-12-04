@@ -878,9 +878,39 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+  /* InfoPanel as bottom sheet on mobile */
   .info-panel {
-    width: 90%;
-    max-width: 400px;
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 60vh;
+    border-radius: 20px 20px 0 0;
+    animation: slideUpPanel 0.3s ease;
+  }
+  
+  .panel-header {
+    border-radius: 20px 20px 0 0;
+    position: relative;
+  }
+  
+  .panel-header::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+  }
+  
+  .panel-content {
+    max-height: calc(60vh - 120px);
   }
   
   .panel-tabs {
@@ -911,5 +941,16 @@
   .nearby-distance {
     width: 100%;
     text-align: center;
+  }
+}
+
+@keyframes slideUpPanel {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

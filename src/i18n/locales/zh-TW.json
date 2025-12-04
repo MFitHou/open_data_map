@@ -97,6 +97,7 @@
   },
   "map": {
     "title": "地圖",
+    "layers": "地圖圖層",
     "currentLocation": "📍 您目前的位置",
     "detectedByGPS": "由 GPS 偵測",
     "latitude": "緯度",

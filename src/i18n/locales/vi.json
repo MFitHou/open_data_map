@@ -99,6 +99,7 @@
   },
   "map": {
     "title": "Bản đồ",
+    "layers": "Lớp bản đồ",
     "currentLocation": "📍 Vị trí hiện tại của bạn",
     "detectedByGPS": "Được xác định bởi GPS",
     "latitude": "Vĩ độ",
