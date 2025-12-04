@@ -87,7 +87,6 @@ export const useCurrentLocation = () => {
         }
         
         setLocationError(errorMessage);
-        alert(errorMessage);
       },
       {
         enableHighAccuracy: true,

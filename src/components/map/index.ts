@@ -18,6 +18,9 @@
 // Main component
 export { default as SimpleMap } from './SimpleMap';
 
+// Layer Control
+export { default as LayerControl } from './LayerControl';
+
 // Search components
 export { Search } from './Search';
 export { SmartSearch } from './SmartSearch';

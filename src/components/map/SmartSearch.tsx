@@ -38,8 +38,10 @@ interface SmartSearchProps {
     center?: { lat: number; lon: number },
     radiusKm?: number
   ) => void;
-  onAIMessageReceived?: (message: string) => void; // New: callback to send AI message to chatbot
+  onAIMessageReceived?: (message: string) => void; 
   currentLocation?: { lat: number; lng: number } | null;
+  onSuggestionsChange?: (suggestions: Suggestion[]) => void; 
+  onClearSearch?: () => void; 
 }
 
 interface Suggestion {
@@ -60,7 +62,9 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   onLocationSelect,
   onNearbyPlacesChange,
   onAIMessageReceived,
-  currentLocation
+  currentLocation,
+  onSuggestionsChange,
+  onClearSearch
 }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
@@ -88,7 +92,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     setIsLoading(true);
 
     try {
-      const endpoint = getApiEndpoint.chat() + '/smart-search';
+      const endpoint = getApiEndpoint.smartSearch();
       
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -121,8 +125,15 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
       // Update suggestions
       if (data.suggestions && Array.isArray(data.suggestions)) {
         setSuggestions(data.suggestions);
+        // Send suggestions to map to display as markers
+        if (onSuggestionsChange) {
+          onSuggestionsChange(data.suggestions);
+        }
       } else {
         setSuggestions([]);
+        if (onSuggestionsChange) {
+          onSuggestionsChange([]);
+        }
       }
 
       // Send AI message to chatbot instead of showing in search
@@ -146,7 +157,6 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
     switch (action) {
       case 'nearby_search':
-        // Show nearby results on map
         if (results && onNearbyPlacesChange) {
           console.log('[SmartSearch] Nearby search:', results.length, 'results');
           onNearbyPlacesChange(
@@ -154,30 +164,22 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             params?.center,
             params?.radiusKm
           );
+          setSuggestions([]);
+          if (onSuggestionsChange) {
+            onSuggestionsChange([]);
+          }
         }
         break;
 
       case 'location_search':
       case 'show_location':
-        // Fly to first result if available
-        if (data.suggestions && data.suggestions.length > 0) {
-          const first = data.suggestions[0];
-          selectLocation(first);
-        } else if (location) {
-          onLocationSelect(
-            new LatLng(location.lat, location.lng || location.lon),
-            'Vị trí tìm được',
-            location
-          );
-        }
         break;
 
       case 'text_response':
-        // Just show message, no map action
+        setSuggestions([]);
         break;
 
       case 'search_results':
-        // Traditional search results, already shown in suggestions
         break;
     }
   };
@@ -197,11 +199,6 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     if (lat && lon) {
       const name = suggestion.name || suggestion.label || 'Location';
       onLocationSelect(new LatLng(lat, lon), name, suggestion);
-      
-      // Clear search
-      setQuery('');
-      setSuggestions([]);
-      setAiMessage('');
     }
   };
 
@@ -214,6 +211,14 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   const clearSearch = () => {
     setQuery('');
     setSuggestions([]);
+    // Clear markers on map
+    if (onSuggestionsChange) {
+      onSuggestionsChange([]);
+    }
+    // Clear selected marker and boundary
+    if (onClearSearch) {
+      onClearSearch();
+    }
   };
 
   const getSourceColor = (source?: string) => {
@@ -243,12 +248,26 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             ref={inputRef}
             type="text"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setQuery(newValue);
+              // Clear suggestions and markers when user clears input
+              if (newValue.trim() === '') {
+                setSuggestions([]);
+                if (onSuggestionsChange) {
+                  onSuggestionsChange([]);
+                }
+                // Clear selected marker and boundary
+                if (onClearSearch) {
+                  onClearSearch();
+                }
+              }
+            }}
             onKeyPress={handleKeyPress}
             placeholder={
               isAIMode 
-                ? t('search.aiPlaceholder', 'Hỏi gì cũng được...') 
-                : t('search.placeholder', 'Tìm kiếm địa điểm...')
+                ? t('search.aiPlaceholder', 'Smart search with AI...') 
+                : t('search.placeholder', 'Search for places, addresses, POIs...')
             }
             className="search-input"
           />
@@ -268,8 +287,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             onClick={toggleAIMode}
             title={
               isAIMode 
-                ? t('search.switchToNormal', 'Tìm kiếm thường') 
-                : t('search.switchToAI', 'Tìm kiếm thông minh')
+                ? t('search.switchToNormal', 'Switch to normal search') 
+                : t('search.switchToAI', 'Switch to smart search')
             }
           >
             <FontAwesomeIcon icon={faWandMagicSparkles} />
@@ -279,7 +298,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
         {isLoading && (
           <div className="search-status loading">
             <FontAwesomeIcon icon={faSpinner} spin />
-            <span>{t('search.searching', 'Đang tìm kiếm...')}</span>
+            <span>{t('search.searching', 'Searching...')}</span>
           </div>
         )}
 
@@ -309,7 +328,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                   )}
                   
                   <div className="suggestion-meta">
-                    {suggestion.source && (
+                    {/* Temporarily hidden source badges */}
+                    {/* {suggestion.source && (
                       <span 
                         className="source-badge"
                         style={{ 
@@ -319,7 +339,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                       >
                         {suggestion.source}
                       </span>
-                    )}
+                    )} */}
                     
                     {suggestion.type && (
                       <span className="type-badge">
@@ -328,12 +348,6 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
                     )}
                   </div>
                 </div>
-
-                {suggestion.score !== undefined && isAIMode && (
-                  <div className="suggestion-score">
-                    {Math.round(suggestion.score)}%
-                  </div>
-                )}
               </div>
             ))}
           </div>

@@ -394,5 +394,31 @@
       "username": "Username",
       "password": "Password"
     }
+  },
+  "layerControl": {
+    "title": "Layers",
+    "enableAll": "Enable All",
+    "disableAll": "Disable All",
+    "density": "Density",
+    "points": "points",
+    "layers": {
+      "atm": "ATM",
+      "bank": "Bank",
+      "restaurant": "Restaurant",
+      "cafe": "Cafe",
+      "hospital": "Hospital",
+      "school": "School",
+      "bus_stop": "Bus Stop",
+      "park": "Park",
+      "charging_station": "Charging Station",
+      "pharmacy": "Pharmacy",
+      "police": "Police Station",
+      "fire_station": "Fire Station",
+      "parking": "Parking",
+      "fuel_station": "Gas Station",
+      "supermarket": "Supermarket",
+      "library": "Library",
+      "convenience_store": "Convenience Store"
+    }
   }
 }

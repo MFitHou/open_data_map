@@ -394,5 +394,31 @@
       "username": "Tên đăng nhập",
       "password": "Mật khẩu"
     }
+  },
+  "layerControl": {
+    "title": "Layers",
+    "enableAll": "Bật tất cả",
+    "disableAll": "Tắt tất cả",
+    "density": "Mật độ",
+    "points": "điểm",
+    "layers": {
+      "atm": "ATM",
+      "bank": "Ngân hàng",
+      "restaurant": "Nhà hàng",
+      "cafe": "Quán cà phê",
+      "hospital": "Bệnh viện",
+      "school": "Trường học",
+      "bus_stop": "Trạm xe buýt",
+      "park": "Công viên",
+      "charging_station": "Trạm sạc",
+      "pharmacy": "Hiệu thuốc",
+      "police": "Đồn công an",
+      "fire_station": "Trạm cứu hỏa",
+      "parking": "Bãi đỗ xe",
+      "fuel_station": "Trạm xăng",
+      "supermarket": "Siêu thị",
+      "library": "Thư viện",
+      "convenience_store": "Cửa hàng tiện lợi"
+    }
   }
 }
