@@ -803,7 +803,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             wikidataProperties={wikidataInfo?.allProperties}
             rowPropLabels={rowPropLabels}
           />
-          <button className="close-btn" onClick={onClose}>
+          <button style={{color: '#666'}} className="close-btn" onClick={onClose}>
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>

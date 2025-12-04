@@ -16,38 +16,36 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Marker, Popup, Circle, Polyline, CircleMarker } from 'react-leaflet';
-import { getAmenityIcon, getPlaceName } from '../../utils/nearbyApi';
-import type { NearbyPlace } from '../../utils/nearbyApi';
+import { Marker, Circle, Polyline, CircleMarker } from 'react-leaflet';
+import { getAmenityIcon } from '../../utils/nearbyApi';
+import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 
 interface TopologyMarkersProps {
   places: NearbyPlace[];
   searchCenter?: { lat: number; lon: number };
   searchRadiusKm?: number;
   onPlaceSelect?: (place: NearbyPlace) => void;
+  selectedServicePlace?: NearbyPlace | null; // Place selected in ServiceInfoPanel
+  hoveredTopology?: { topology: TopologyRelation; sourcePlace: NearbyPlace } | null; // Hovered topology from ServiceInfoPanel
 }
 
 export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({ 
   places, 
   searchCenter, 
   searchRadiusKm,
-  onPlaceSelect 
+  onPlaceSelect,
+  selectedServicePlace,
+  hoveredTopology
 }) => {
-  const { t } = useTranslation();
   const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
   const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
 
   const handleMarkerClick = (place: NearbyPlace) => {
-    console.log('[TopologyMarkers] Marker clicked:', place.name, '- NOT flying to location');
+    console.log('[TopologyMarkers] Marker clicked:', place.name, '- Opening ServiceInfoPanel');
     setSelectedPlace(place);
     if (onPlaceSelect) {
       onPlaceSelect(place);
     }
-  };
-
-  const handleMarkerClose = () => {
-    setSelectedPlace(null);
   };
 
   // Lấy tất cả related entities của place đang được chọn
@@ -55,7 +53,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
     if (!place.relatedEntities || place.relatedEntities.length === 0) {
       return [];
     }
-    return place.relatedEntities.map(r => r.poi);
+    return place.relatedEntities.map(r => r.poi).filter((poi): poi is string => poi !== undefined);
   };
 
   // Kiểm tra xem POI có phải là related entity của place đang chọn không
@@ -86,7 +84,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
           } as NearbyPlace;
         }
         // Nếu không, tìm trong danh sách places hiện có
-        return findPlaceByPoi(related.poi);
+        return related.poi ? findPlaceByPoi(related.poi) : undefined;
       })
       .filter((p): p is NearbyPlace => {
         return p !== undefined && 
@@ -126,8 +124,90 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
         />
       )}
 
+      {/* Vẽ đường kết nối khi hover topology từ ServiceInfoPanel */}
+      {hoveredTopology && hoveredTopology.topology.related && (() => {
+        const related = hoveredTopology.topology.related;
+        const sourceLat = hoveredTopology.sourcePlace.lat;
+        const sourceLon = hoveredTopology.sourcePlace.lon;
+        
+        // Get target coordinates from related object
+        let targetLat: number | null = null;
+        let targetLon: number | null = null;
+        
+        if (typeof related === 'object') {
+          targetLat = related.lat;
+          targetLon = related.lon;
+        }
+        
+        // If no coordinates in related, try to find in places
+        if (targetLat === null || targetLon === null) {
+          const relatedPoi = typeof related === 'object' ? related.poi : related;
+          const foundPlace = places.find(p => p.poi === relatedPoi);
+          if (foundPlace) {
+            targetLat = foundPlace.lat;
+            targetLon = foundPlace.lon;
+          }
+        }
+        
+        if (targetLat !== null && targetLon !== null && 
+            typeof targetLat === 'number' && !isNaN(targetLat) &&
+            typeof targetLon === 'number' && !isNaN(targetLon) &&
+            typeof sourceLat === 'number' && !isNaN(sourceLat) &&
+            typeof sourceLon === 'number' && !isNaN(sourceLon)) {
+          return (
+            <React.Fragment>
+              {/* Animated connection line */}
+              <Polyline
+                positions={[
+                  [sourceLat, sourceLon],
+                  [targetLat, targetLon]
+                ]}
+                pathOptions={{
+                  color: '#ff6b6b',
+                  weight: 3,
+                  dashArray: '10, 10',
+                  opacity: 1
+                }}
+              />
+              
+              {/* Highlight source place */}
+              <CircleMarker
+                center={[sourceLat, sourceLon]}
+                radius={18}
+                pathOptions={{
+                  color: '#4CAF50',
+                  fillColor: '#4CAF50',
+                  fillOpacity: 0.3,
+                  weight: 3
+                }}
+              />
+              
+              {/* Highlight target place */}
+              <CircleMarker
+                center={[targetLat, targetLon]}
+                radius={18}
+                pathOptions={{
+                  color: '#ff6b6b',
+                  fillColor: '#ff6b6b',
+                  fillOpacity: 0.3,
+                  weight: 3
+                }}
+              />
+            </React.Fragment>
+          );
+        }
+        return null;
+      })()}
+
       {/* Vẽ đường nét đứt từ place đang chọn đến các related places */}
-      {selectedPlace && getRelatedPlaces(selectedPlace).map((relatedPlace, idx) => (
+      {selectedPlace && getRelatedPlaces(selectedPlace)
+        .filter(relatedPlace => 
+          typeof relatedPlace.lat === 'number' && !isNaN(relatedPlace.lat) &&
+          typeof relatedPlace.lon === 'number' && !isNaN(relatedPlace.lon) &&
+          typeof selectedPlace.lat === 'number' && !isNaN(selectedPlace.lat) &&
+          typeof selectedPlace.lon === 'number' && !isNaN(selectedPlace.lon)
+        )
+        .map((relatedPlace, idx) => (
         <React.Fragment key={`line-${idx}`}>
           {/* Đường nét đứt */}
           <Polyline
@@ -158,16 +238,36 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
       ))}
 
       {/* Main markers */}
-      {places.map((place, idx) => {
+      {places
+        .filter(place => 
+          typeof place.lat === 'number' && !isNaN(place.lat) &&
+          typeof place.lon === 'number' && !isNaN(place.lon)
+        )
+        .map((place, idx) => {
         const icon = getAmenityIcon(place);
         const isRelated = isRelatedToSelected(place.poi);
         const isSelected = selectedPlace?.poi === place.poi;
+        const isServiceSelected = selectedServicePlace?.poi === place.poi; // Selected in ServiceInfoPanel
         const isHovered = hoveredPlace === place.poi;
 
         return (
           <React.Fragment key={idx}>
+            {/* Highlight cho service selected place (from ServiceInfoPanel) */}
+            {isServiceSelected && (
+              <CircleMarker
+                center={[place.lat, place.lon]}
+                radius={22}
+                pathOptions={{
+                  color: '#667eea',
+                  fillColor: '#667eea',
+                  fillOpacity: 0.3,
+                  weight: 3
+                }}
+              />
+            )}
+            
             {/* Highlight cho selected place */}
-            {isSelected && (
+            {isSelected && !isServiceSelected && (
               <CircleMarker
                 center={[place.lat, place.lon]}
                 radius={20}
@@ -203,82 +303,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
                 mouseout: () => setHoveredPlace(null),
               }}
               opacity={isSelected || isRelated ? 1 : (selectedPlace ? 0.5 : 1)}
-            >
-              <Popup onClose={handleMarkerClose}>
-                <div className="nearby-popup">
-                  <div className="nearby-popup-title">
-                    {getPlaceName(place, idx)}
-                  </div>
-                  <div className="nearby-popup-content">
-                    <div><strong>{t('map.nearby.type')}:</strong> {place.highway || place.amenity || place.leisure || 'N/A'}</div>
-                    {place.brand && <div><strong>{t('map.nearby.brand')}:</strong> {place.brand}</div>}
-                    {place.operator && <div><strong>{t('map.nearby.operator')}:</strong> {place.operator}</div>}
-                    <div><strong>{t('map.nearby.distance')}:</strong> {(place.distanceKm * 1000).toFixed(0)}m</div>
-                    
-                    {/* Related Entities */}
-                    {place.relatedEntities && place.relatedEntities.length > 0 && (
-                      <div className="nearby-popup-related">
-                        <strong>🔗 Related Places ({place.relatedEntities.length}):</strong>
-                        <ul style={{ margin: '4px 0', paddingLeft: '20px', maxHeight: '150px', overflowY: 'auto' }}>
-                          {place.relatedEntities.map((related, i) => (
-                            <li key={i} style={{ fontSize: '12px', marginBottom: '4px' }}>
-                              <strong>{related.name || 'Unknown'}</strong>
-                              {related.distanceKm && ` - ${(related.distanceKm * 1000).toFixed(0)}m`}
-                              {related.amenity && (
-                                <span style={{ color: '#666', fontSize: '11px' }}>
-                                  {' '}({related.amenity})
-                                </span>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* Topology Relationships */}
-                    {place.topology && place.topology.length > 0 && (
-                      <div className="nearby-popup-topology">
-                        <strong>📍 Topology:</strong>
-                        <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
-                          {place.topology.map((topo, i) => (
-                            <li key={i} style={{ fontSize: '12px' }}>
-                              {topo.predicate}: {topo.relatedName || 'Unknown'}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    {/* IoT Coverage */}
-                    {place.iotStations && place.iotStations.length > 0 && (
-                      <div className="nearby-popup-iot">
-                        <strong>📡 IoT Stations ({place.iotStations.length}):</strong>
-                        <ul style={{ margin: '4px 0', paddingLeft: '20px' }}>
-                          {place.iotStations.slice(0, 3).map((station, i) => (
-                            <li key={i} style={{ fontSize: '12px' }}>{station}</li>
-                          ))}
-                          {place.iotStations.length > 3 && (
-                            <li style={{ fontSize: '11px', color: '#666' }}>
-                              +{place.iotStations.length - 3} more...
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    <div className="nearby-popup-coords">
-                      <a 
-                        href={`https://www.google.com/maps?q=${place.lat},${place.lon}`} 
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {place.lat.toFixed(6)}, {place.lon.toFixed(6)} ↗
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
+            />
           </React.Fragment>
         );
       })}

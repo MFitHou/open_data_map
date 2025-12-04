@@ -25,6 +25,7 @@ import L from "leaflet";
 // Components
 import { SmartSearch } from "./SmartSearch";
 import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
+import { ServiceInfoPanel } from '../ui/ServiceInfoPanel';
 import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
 import { TopologyMarkers } from './TopologyMarkers';
@@ -40,7 +41,7 @@ import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapI
 import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
 import { fetchNearbyPlaces } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
-import type { NearbyPlace } from '../../utils/nearbyApi';
+import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 
 const SimpleMap: React.FC = () => {
   const { t } = useTranslation();
@@ -69,12 +70,17 @@ const SimpleMap: React.FC = () => {
   const [suggestionMarkers, setSuggestionMarkers] = useState<any[]>([]); // New: markers from search suggestions
   const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
   const [highlightName, setHighlightName] = useState<string>("");
+  const [forceHideSuggestions, setForceHideSuggestions] = useState(false); // Control SmartSearch suggestions visibility
   
   // Nearby places
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [nearbySearchCenter, setNearbySearchCenter] = useState<{ lat: number; lon: number } | null>(null);
   const [nearbySearchRadius, setNearbySearchRadius] = useState<number | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
+  
+  // Service InfoPanel - for service markers (from TopologyMarkers)
+  const [selectedServicePlace, setSelectedServicePlace] = useState<NearbyPlace | null>(null);
+  const [hoveredTopology, setHoveredTopology] = useState<{ topology: TopologyRelation; sourcePlace: NearbyPlace } | null>(null);
   
   // Layer control
   const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
@@ -423,6 +429,9 @@ out tags;
   const handleSuggestionMarkerClick = useCallback((marker: any) => {
     console.log('[SimpleMap] Suggestion marker clicked:', marker);
     
+    // Hide suggestions dropdown when marker is clicked
+    setForceHideSuggestions(true);
+    
     // Transform to SearchResult format
     const searchResult: SearchResult = {
       id: marker.wikidataId || `marker-${Date.now()}`,
@@ -594,6 +603,8 @@ out geom;
         onSuggestionsChange={handleSuggestionsChange}
         onClearSearch={handleClearSearch}
         currentLocation={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lon } : null}
+        forceHideSuggestions={forceHideSuggestions}
+        onInputFocus={() => setForceHideSuggestions(false)}
       />
 
       <CurrentLocationButton 
@@ -630,6 +641,31 @@ out geom;
             setSelectedPlace(place);
             if (place.lat && place.lon) {
               setSelectedLocation({ lat: place.lat, lon: place.lon });
+            }
+          }}
+        />
+      )}
+
+      {/* Service InfoPanel for service markers (TopologyMarkers) */}
+      {selectedServicePlace && (
+        <ServiceInfoPanel
+          place={selectedServicePlace}
+          onClose={() => {
+            setSelectedServicePlace(null);
+            setHoveredTopology(null);
+          }}
+          onTopologyHover={(topology, sourcePlace) => {
+            if (topology) {
+              setHoveredTopology({ topology, sourcePlace });
+            } else {
+              setHoveredTopology(null);
+            }
+          }}
+          onTopologyClick={(topology, _sourcePlace) => {
+            // When clicking topology, could fly to related location
+            const related = topology.related;
+            if (typeof related === 'object' && related.lat && related.lon) {
+              setSelectedLocation({ lat: related.lat, lon: related.lon });
             }
           }}
         />
@@ -700,9 +736,11 @@ out geom;
             searchRadiusKm={nearbySearchRadius || undefined}
             onPlaceSelect={(place) => {
               console.log('[SimpleMap] onPlaceSelect called:', place.name);
-              console.log('[SimpleMap] Setting selectedPlace, NOT setting selectedLocation');
-              setSelectedPlace(place);
+              console.log('[SimpleMap] Opening ServiceInfoPanel for:', place.name);
+              setSelectedServicePlace(place);
             }}
+            selectedServicePlace={selectedServicePlace}
+            hoveredTopology={hoveredTopology}
           />
         )}
 
@@ -712,8 +750,10 @@ out geom;
             places={layerPlaces}
             onPlaceSelect={(place) => {
               console.log('[SimpleMap] Layer marker clicked:', place.name);
-              setSelectedPlace(place);
+              setSelectedServicePlace(place);
             }}
+            selectedServicePlace={selectedServicePlace}
+            hoveredTopology={hoveredTopology}
           />
         )}
 

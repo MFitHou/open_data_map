@@ -18,10 +18,22 @@
 import { getApiEndpoint } from '../config/api';
 import API_CONFIG from '../config/api';
 
+export interface TopologyRelatedEntity {
+  poi: string;            // URI của entity liên quan
+  name: string | null;    // Tên của entity liên quan
+  lat: number | null;     // Vĩ độ
+  lon: number | null;     // Kinh độ
+  wkt: string | null;     // WKT format
+  amenity: string | null;
+  highway: string | null;
+  leisure: string | null;
+  brand: string | null;
+  operator: string | null;
+}
+
 export interface TopologyRelation {
   predicate: string;      // isNextTo, containedInPlace, amenityFeature, healthcareNetwork, campusAmenity
-  related: string;        // URI của entity liên quan
-  relatedName: string;    // Tên của entity liên quan
+  related: TopologyRelatedEntity; // Thông tin đầy đủ của entity liên quan
 }
 
 export interface NearbyPlace {
@@ -170,6 +182,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       bank: { icon: 'university', color: 'darkgreen' },
       parking: { icon: 'car', color: 'gray' },
       fuel: { icon: 'free-code-camp', color: 'orange' },
+      fuel_station: { icon: 'free-code-camp', color: 'orange' },
       supermarket: { icon: 'shopping-cart', color: 'green' },
       library: { icon: 'book', color: 'purple' },
       convenience_store: { icon: 'shopping-bag', color: 'green' },
@@ -349,7 +362,11 @@ export const getTopologyInfo = (place: NearbyPlace): string[] => {
   
   for (const rel of place.topology) {
     const label = predicateLabels[rel.predicate] || rel.predicate;
-    info.push(`${label}: ${rel.relatedName}`);
+    // Support both old (relatedName) and new (related.name) structure
+    const relatedName = typeof rel.related === 'object' 
+      ? (rel.related.name || rel.related.brand || 'Unknown')
+      : ((rel as any).relatedName || 'Unknown');
+    info.push(`${label}: ${relatedName}`);
   }
   
   return info;
