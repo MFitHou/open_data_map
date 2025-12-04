@@ -39,7 +39,7 @@ import { useCurrentLocation } from '../../hooks';
 // Utils & Types
 import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapIcons';
 import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
-import { fetchNearbyPlaces } from '../../utils/nearbyApi';
+import { fetchNearbyPlaces, fetchPOIByUri } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
 import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 
@@ -81,6 +81,7 @@ const SimpleMap: React.FC = () => {
   // Service InfoPanel - for service markers (from TopologyMarkers)
   const [selectedServicePlace, setSelectedServicePlace] = useState<NearbyPlace | null>(null);
   const [hoveredTopology, setHoveredTopology] = useState<{ topology: TopologyRelation; sourcePlace: NearbyPlace } | null>(null);
+  const [exploredMarkerPois, setExploredMarkerPois] = useState<Set<string>>(new Set()); // Track POIs added from topology exploration
   
   // Layer control
   const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
@@ -661,13 +662,79 @@ out geom;
               setHoveredTopology(null);
             }
           }}
-          onTopologyClick={(topology, _sourcePlace) => {
-            // When clicking topology, could fly to related location
+          onTopologyClick={async (topology, _sourcePlace) => {
+            // When clicking topology, fetch full POI info and display
             const related = topology.related;
-            if (typeof related === 'object' && related.lat && related.lon) {
-              setSelectedLocation({ lat: related.lat, lon: related.lon });
+            if (typeof related === 'object' && related.poi) {
+              console.log('[SimpleMap] Fetching full POI info for:', related.poi);
+              
+              // Fetch full info from backend
+              const fullPoi = await fetchPOIByUri(related.poi);
+              
+              if (fullPoi) {
+                console.log('[SimpleMap] Got full POI:', fullPoi);
+                
+                // Add POI to nearbyPlaces if not already there (so marker will be rendered)
+                setNearbyPlaces(prev => {
+                  const exists = prev.some(p => p.poi === fullPoi.poi);
+                  if (!exists) {
+                    console.log('[SimpleMap] Adding new POI to nearbyPlaces:', fullPoi.name);
+                    // Track this as an explored marker
+                    setExploredMarkerPois(prevSet => new Set([...prevSet, fullPoi.poi]));
+                    return [...prev, fullPoi];
+                  }
+                  return prev;
+                });
+                
+                // Update ServiceInfoPanel with full POI data
+                setSelectedServicePlace(fullPoi);
+                setHoveredTopology(null);
+                
+                // Fly to the location if coordinates available
+                if (fullPoi.lat && fullPoi.lon) {
+                  setSelectedLocation({ lat: fullPoi.lat, lon: fullPoi.lon });
+                }
+              } else if (related.lat && related.lon) {
+                // Fallback: create a minimal place from related data and add to list
+                const minimalPlace: NearbyPlace = {
+                  poi: related.poi,
+                  name: related.name || 'Unknown',
+                  amenity: related.amenity || undefined,
+                  highway: related.highway || undefined,
+                  leisure: related.leisure || undefined,
+                  brand: related.brand || undefined,
+                  lat: related.lat,
+                  lon: related.lon,
+                  distanceKm: 0,
+                  wkt: related.wkt || `POINT(${related.lon} ${related.lat})`,
+                };
+                
+                setNearbyPlaces(prev => {
+                  const exists = prev.some(p => p.poi === minimalPlace.poi);
+                  if (!exists) {
+                    // Track this as an explored marker
+                    setExploredMarkerPois(prevSet => new Set([...prevSet, minimalPlace.poi]));
+                    return [...prev, minimalPlace];
+                  }
+                  return prev;
+                });
+                
+                setSelectedServicePlace(minimalPlace);
+                setHoveredTopology(null);
+                setSelectedLocation({ lat: related.lat, lon: related.lon });
+              }
             }
           }}
+          onClearExploredMarkers={() => {
+            // Remove explored markers from nearbyPlaces
+            setNearbyPlaces(prev => prev.filter(p => !exploredMarkerPois.has(p.poi)));
+            setExploredMarkerPois(new Set());
+            // Close the panel if current selection was an explored marker
+            if (selectedServicePlace && exploredMarkerPois.has(selectedServicePlace.poi)) {
+              setSelectedServicePlace(null);
+            }
+          }}
+          exploredMarkersCount={exploredMarkerPois.size}
         />
       )}
 

@@ -29,6 +29,8 @@ interface ServiceInfoPanelProps {
   onClose: () => void;
   onTopologyHover?: (topology: TopologyRelation | null, place: NearbyPlace) => void;
   onTopologyClick?: (topology: TopologyRelation, place: NearbyPlace) => void;
+  onClearExploredMarkers?: () => void; // Clear all markers added from topology exploration
+  exploredMarkersCount?: number; // Number of markers added from topology exploration
 }
 
 // Group topology by predicate
@@ -47,7 +49,9 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
   place,
   onClose,
   onTopologyHover,
-  onTopologyClick
+  onTopologyClick,
+  onClearExploredMarkers,
+  exploredMarkersCount = 0
 }) => {
   const { t, i18n } = useTranslation();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
@@ -131,17 +135,7 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
             </div>
             <div className="service-info-row">
               <span className="label">{t('map.info.coordinates', 'Coordinates')}:</span>
-              <span className="value">
-                <a 
-                  href={`https://www.google.com/maps?q=${place.lat},${place.lon}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="coords-link"
-                >
-                  {place.lat.toFixed(6)}, {place.lon.toFixed(6)}
-                  <FontAwesomeIcon icon={faExternalLinkAlt} style={{ marginLeft: 4, fontSize: 10 }} />
-                </a>
-              </span>
+              <span className="value">{place.lat.toFixed(6)}, {place.lon.toFixed(6)}</span>
             </div>
             {place.access && (
               <div className="service-info-row">
@@ -161,7 +155,19 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
         {/* Topology Section */}
         {hasTopology && (
           <div className="service-info-section topology-section">
-            <h4><FontAwesomeIcon icon={faLink} /> {currentLanguage === 'vi' ? 'Quan hệ không gian' : 'Topology'} ({place.topology!.length})</h4>
+            <div className="topology-header-row">
+              <h4><FontAwesomeIcon icon={faLink} /> {currentLanguage === 'vi' ? 'Quan hệ không gian' : 'Topology'} ({place.topology!.length})</h4>
+              {exploredMarkersCount > 0 && onClearExploredMarkers && (
+                <button 
+                  className="clear-explored-btn"
+                  onClick={onClearExploredMarkers}
+                  title={currentLanguage === 'vi' ? 'Xóa các marker đã khám phá' : 'Clear explored markers'}
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                  <span>{exploredMarkersCount}</span>
+                </button>
+              )}
+            </div>
             <div className="topology-groups">
               {Object.entries(topologyGroups).map(([predicate, topos]) => (
                 <div key={predicate} className="topology-group">

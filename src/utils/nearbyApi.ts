@@ -396,3 +396,42 @@ export const hasTopology = (place: NearbyPlace): boolean => {
 export const hasIoT = (place: NearbyPlace): boolean => {
   return !!(place.iotStations && place.iotStations.length > 0);
 };
+
+/**
+ * Fetch full POI information by URI
+ * Used when clicking on a topology related entity to get full details
+ */
+export const fetchPOIByUri = async (
+  uri: string,
+  language: string = 'vi'
+): Promise<NearbyPlace | null> => {
+  try {
+    const params = new URLSearchParams({
+      uri: uri,
+      language: language,
+    });
+    
+    const url = `${API_CONFIG.fusekiBaseUrl}/poi?${params.toString()}`;
+    
+    console.log(`[fetchPOIByUri] Fetching POI:`, { uri, language });
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.found || !data.poi) {
+      console.warn(`[fetchPOIByUri] POI not found:`, uri);
+      return null;
+    }
+    
+    console.log(`[fetchPOIByUri] Found POI:`, data.poi);
+    
+    return data.poi as NearbyPlace;
+  } catch (error) {
+    console.error('[fetchPOIByUri] Error:', error);
+    return null;
+  }
+};

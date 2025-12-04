@@ -40,6 +40,13 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
   const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
   const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
 
+  // Sync selectedPlace with selectedServicePlace from parent
+  // When user clicks topology item or closes panel, selectedServicePlace changes
+  useEffect(() => {
+    // Always sync - including when selectedServicePlace becomes null (panel closed/cleared)
+    setSelectedPlace(selectedServicePlace);
+  }, [selectedServicePlace]);
+
   const handleMarkerClick = (place: NearbyPlace) => {
     console.log('[TopologyMarkers] Marker clicked:', place.name, '- Opening ServiceInfoPanel');
     setSelectedPlace(place);
@@ -126,8 +133,10 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
 
       {/* Vẽ đường kết nối khi hover topology từ ServiceInfoPanel */}
       {hoveredTopology && hoveredTopology.topology.related && (() => {
+        console.log('[TopologyMarkers] hoveredTopology:', hoveredTopology);
         const related = hoveredTopology.topology.related;
         const sourceLat = hoveredTopology.sourcePlace.lat;
+        console.log('[TopologyMarkers] related:', related, 'sourceLat:', sourceLat);
         const sourceLon = hoveredTopology.sourcePlace.lon;
         
         // Get target coordinates from related object
@@ -146,14 +155,45 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
           if (foundPlace) {
             targetLat = foundPlace.lat;
             targetLon = foundPlace.lon;
+            console.log('[TopologyMarkers] Found in places:', foundPlace.name);
+          } else {
+            console.log('[TopologyMarkers] Related POI not found in places, and no coordinates in related object');
           }
         }
+        
+        console.log('[TopologyMarkers] Final coordinates - source:', sourceLat, sourceLon, 'target:', targetLat, targetLon);
         
         if (targetLat !== null && targetLon !== null && 
             typeof targetLat === 'number' && !isNaN(targetLat) &&
             typeof targetLon === 'number' && !isNaN(targetLon) &&
             typeof sourceLat === 'number' && !isNaN(sourceLat) &&
             typeof sourceLon === 'number' && !isNaN(sourceLon)) {
+          console.log('[TopologyMarkers] Rendering hover connection line and marker');
+          
+          // Create a virtual place from related topology data for marker icon
+          const virtualPlace: NearbyPlace = typeof related === 'object' ? {
+            poi: related.poi || '',
+            name: related.name || 'Unknown',
+            amenity: related.amenity || undefined,
+            highway: related.highway || undefined,
+            leisure: related.leisure || undefined,
+            brand: related.brand || undefined,
+            operator: related.operator || undefined,
+            lat: targetLat,
+            lon: targetLon,
+            distanceKm: 0,
+            wkt: related.wkt || `POINT(${targetLon} ${targetLat})`,
+          } : {
+            poi: related,
+            name: 'Unknown',
+            lat: targetLat,
+            lon: targetLon,
+            distanceKm: 0,
+            wkt: `POINT(${targetLon} ${targetLat})`,
+          };
+          
+          const targetIcon = getAmenityIcon(virtualPlace);
+          
           return (
             <React.Fragment>
               {/* Animated connection line */}
@@ -182,7 +222,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
                 }}
               />
               
-              {/* Highlight target place */}
+              {/* Highlight target place with circle */}
               <CircleMarker
                 center={[targetLat, targetLon]}
                 radius={18}
@@ -192,6 +232,13 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
                   fillOpacity: 0.3,
                   weight: 3
                 }}
+              />
+              
+              {/* Marker with icon for target place */}
+              <Marker
+                position={[targetLat, targetLon]}
+                icon={targetIcon}
+                zIndexOffset={1000}
               />
             </React.Fragment>
           );
@@ -246,34 +293,20 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
         .map((place, idx) => {
         const icon = getAmenityIcon(place);
         const isRelated = isRelatedToSelected(place.poi);
-        const isSelected = selectedPlace?.poi === place.poi;
-        const isServiceSelected = selectedServicePlace?.poi === place.poi; // Selected in ServiceInfoPanel
+        // Use selectedServicePlace as the single source of truth for selection
+        const isSelected = selectedServicePlace?.poi === place.poi;
         const isHovered = hoveredPlace === place.poi;
 
         return (
           <React.Fragment key={idx}>
-            {/* Highlight cho service selected place (from ServiceInfoPanel) */}
-            {isServiceSelected && (
+            {/* Highlight cho selected place (from ServiceInfoPanel) */}
+            {isSelected && (
               <CircleMarker
                 center={[place.lat, place.lon]}
                 radius={22}
                 pathOptions={{
                   color: '#667eea',
                   fillColor: '#667eea',
-                  fillOpacity: 0.3,
-                  weight: 3
-                }}
-              />
-            )}
-            
-            {/* Highlight cho selected place */}
-            {isSelected && !isServiceSelected && (
-              <CircleMarker
-                center={[place.lat, place.lon]}
-                radius={20}
-                pathOptions={{
-                  color: '#4CAF50',
-                  fillColor: '#4CAF50',
                   fillOpacity: 0.3,
                   weight: 3
                 }}
