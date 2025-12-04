@@ -80,10 +80,10 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
   const [finalTranscript, setFinalTranscript] = useState('');
   const [isStopping, setIsStopping] = useState(false);
-  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stopStartTimeRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -335,7 +335,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
           searchParams.amenities, 
           true,  // includeTopology
           false, // includeIoT
-          'vi'   // language
+          'en'   // language
         );
         
         if (nearbyResponse && nearbyResponse.items) {

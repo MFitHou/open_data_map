@@ -16,12 +16,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Marker, Popup, LayersControl } from 'react-leaflet';
-import { Icon } from 'leaflet';
-import { getApiEndpoint } from '../../../config/api';
+import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl } from 'react-leaflet';
 import './AdminMap.css';
 
-// Types cho IoT data
+// Types for IoT data
 interface TrafficData {
   id: string;
   name: string;
@@ -40,23 +38,13 @@ interface FloodData {
   alertLevel: string;
 }
 
-// Icon cho flood markers
-const floodIcon = new Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
 const AdminMap: React.FC = () => {
   const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
   const [floodData, setFloodData] = useState<FloodData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Hà Nội center coordinates
+  // Hanoi center coordinates
   const hanoiCenter: [number, number] = [21.028, 105.854];
 
   // Fetch IoT data - DISABLED

@@ -42,7 +42,7 @@ import { useCurrentLocation } from '../../hooks';
 // Utils & Types
 import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapIcons';
 import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
-import { fetchNearbyPlaces, fetchPOIByUri } from '../../utils/nearbyApi';
+import { fetchPOIByUri } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
 import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 
@@ -88,7 +88,7 @@ const SimpleMap: React.FC = () => {
   
   // Layer control
   const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
-  const [isLoadingLayers, setIsLoadingLayers] = useState(false);
+  const [, setIsLoadingLayers] = useState(false);
   
   // AQI Layer
   const { 
@@ -177,7 +177,7 @@ const SimpleMap: React.FC = () => {
         try {
           console.log(`[SimpleMap] Fetching ${layer.name} (${layer.id}) with density ${layer.density}`);
           
-          const url = `${import.meta.env.VITE_FUSEKI_BASE_URL}/pois-by-type?type=${layer.id}&limit=${layer.density}&language=vi`;
+          const url = `${import.meta.env.VITE_FUSEKI_BASE_URL}/pois-by-type?type=${layer.id}&limit=${layer.density}&language=en`;
           const response = await fetch(url);
 
           if (!response.ok) {
@@ -609,7 +609,9 @@ out geom;
   useEffect(() => {
     if (!currentLocation && !isGettingLocation) {
       console.log('[SimpleMap] Auto-getting current location on mount');
-      getLocation();
+      getLocation(() => {
+        // Location received, no additional action needed
+      });
     }
   }, []); // Run once on mount
 
@@ -778,12 +780,6 @@ out geom;
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
         ref={setMap}
-        eventHandlers={{
-          click: () => {
-            // Clear selection when clicking map background
-            setSelectedPlace(null);
-          }
-        }}
       >
         <ZoomControl position="topright" />
         <TileLayer

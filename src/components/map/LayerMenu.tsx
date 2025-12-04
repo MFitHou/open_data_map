@@ -10,7 +10,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faWind, faCloudSun, faTimes, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
+import { faWind, faCloudSun, faTimes, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/components/LayerMenu.css';
 
 interface LayerMenuProps {

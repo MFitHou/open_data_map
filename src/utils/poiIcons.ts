@@ -127,7 +127,7 @@ export const PREDICATE_DISPLAY_NAMES: Record<string, { vi: string; en: string; i
 /**
  * Get display name for predicate based on language
  */
-export function getPredicateDisplayName(predicate: string, language: string = 'vi'): string {
+export function getPredicateDisplayName(predicate: string, language: string = 'en'): string {
   const displayInfo = PREDICATE_DISPLAY_NAMES[predicate] || PREDICATE_DISPLAY_NAMES['other'];
   const displayName = language === 'vi' ? displayInfo.vi : displayInfo.en;
   return `${displayInfo.icon} ${displayName}`;

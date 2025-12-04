@@ -29,7 +29,6 @@ import {
   faBook,
   faCircleXmark,
   faSpinner,
-  faRobot,
   faLock
 } from '@fortawesome/free-solid-svg-icons';
 

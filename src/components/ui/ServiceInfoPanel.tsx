@@ -83,7 +83,7 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
   const { t, i18n } = useTranslation();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   
-  // Get current language, default to 'vi'
+  // Get current language, default to 'en'
   const currentLanguage = i18n.language?.startsWith('vi') ? 'vi' : 'en';
 
   const toggleGroup = (predicate: string) => {

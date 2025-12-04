@@ -165,7 +165,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   };
 
   const handleSearchAction = (data: any) => {
-    const { action, params, results, location } = data;
+    const { action, params, results } = data;
 
     switch (action) {
       case 'nearby_search':
@@ -238,16 +238,6 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     // Clear selected marker and boundary
     if (onClearSearch) {
       onClearSearch();
-    }
-  };
-
-  const getSourceColor = (source?: string) => {
-    switch (source) {
-      case 'wikidata': return '#1976d2';
-      case 'overpass': return '#388e3c';
-      case 'fuseki': return '#f57c00';
-      case 'geocode': return '#7b1fa2';
-      default: return '#757575';
     }
   };
 

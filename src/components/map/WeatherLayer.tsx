@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCloudSun, faSpinner, faTemperatureHalf, faDroplet, faWind, faCloud } from '@fortawesome/free-solid-svg-icons';
+import { faCloudSun, faSpinner, faDroplet, faWind, faCloud } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/components/WeatherLayer.css';
 
 interface WeatherStation {
@@ -166,11 +166,8 @@ export const WeatherToggleButton: React.FC<WeatherToggleButtonProps> = ({
   onToggle,
   isLoading,
   isEnabled,
-  stationCount,
-  onShowForecast
+  stationCount
 }) => {
-  const { t } = useTranslation();
-
   return (
     <div className="weather-button-group">
       <button

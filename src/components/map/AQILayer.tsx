@@ -8,7 +8,6 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { CircleMarker, Popup } from 'react-leaflet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWind, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -115,8 +114,6 @@ export const AQIToggleButton: React.FC<AQIToggleButtonProps> = ({
   isEnabled,
   stationCount
 }) => {
-  const { t } = useTranslation();
-
   return (
     <button
       className={`aqi-toggle-button ${isEnabled ? 'active' : ''}`}

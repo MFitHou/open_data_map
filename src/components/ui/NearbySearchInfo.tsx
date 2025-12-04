@@ -30,7 +30,6 @@ interface NearbySearchInfoProps {
 
 export const NearbySearchInfo: React.FC<NearbySearchInfoProps> = ({
   placesCount,
-  searchCenter,
   searchRadiusKm,
   onClear
 }) => {

@@ -15,7 +15,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { getApiEndpoint } from '../config/api';
 import API_CONFIG from '../config/api';
 
 export interface TopologyRelatedEntity {
@@ -78,14 +77,14 @@ export interface NearbyResponse {
 }
 
 /**
- * Fetch nearby places với unified API
- * @param lon - Kinh độ
- * @param lat - Vĩ độ  
- * @param radiusKm - Bán kính (km)
- * @param types - Danh sách loại địa điểm (atm, hospital, school, cafe, etc.) - nếu empty thì query tất cả
- * @param includeTopology - Có lấy topology relationships không (mặc định: true)
- * @param includeIoT - Có lấy IoT coverage không (mặc định: false)
- * @param language - Ngôn ngữ hiển thị: 'vi', 'en', 'all' (mặc định: 'vi')
+ * Fetch nearby places with unified API
+ * @param lon - Longitude
+ * @param lat - Latitude  
+ * @param radiusKm - Radius (km)
+ * @param types - List of place types (atm, hospital, school, cafe, etc.) - if empty, query all
+ * @param includeTopology - Include topology relationships (default: true)
+ * @param includeIoT - Include IoT coverage (default: false)
+ * @param language - Display language: 'vi', 'en', 'all' (default: 'en')
  */
 export const fetchNearbyPlaces = async (
   lon: number,
@@ -94,7 +93,7 @@ export const fetchNearbyPlaces = async (
   types?: string[],
   includeTopology: boolean = true,
   includeIoT: boolean = false,
-  language: string = 'vi'
+  language: string = 'en'
 ): Promise<NearbyResponse | null> => {
   try {
     const params = new URLSearchParams({
@@ -158,6 +157,7 @@ export const getAmenityIconEmoji = (place: NearbyPlace): string => {
 
 
 export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
+  type MarkerColor = 'red' | 'darkred' | 'lightred' | 'orange' | 'beige' | 'green' | 'darkgreen' | 'lightgreen' | 'blue' | 'darkblue' | 'lightblue' | 'purple' | 'darkpurple' | 'pink' | 'cadetblue' | 'white' | 'gray' | 'lightgray' | 'black';
 
   if (place.highway) {
     if (place.highway === 'bus_stop') {
@@ -177,7 +177,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
   }
   
   if (place.amenity) {
-    const amenityConfig: Record<string, { icon: string; color: string }> = {
+    const amenityConfig: Record<string, { icon: string; color: MarkerColor }> = {
       toilets: { icon: 'female', color: 'lightblue' },
       atm: { icon: 'credit-card', color: 'green' },
       hospital: { icon: 'hospital-o', color: 'red' },
@@ -221,9 +221,10 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     });
   }
 
-  // ✅ Kiểm tra leisure (playground, park, garden)
+  // Check leisure (playground, park, garden)
   if (place.leisure) {
-    const leisureConfig: Record<string, { icon: string; color: string }> = {
+    type MarkerColor = 'red' | 'darkred' | 'lightred' | 'orange' | 'beige' | 'green' | 'darkgreen' | 'lightgreen' | 'blue' | 'darkblue' | 'lightblue' | 'purple' | 'darkpurple' | 'pink' | 'cadetblue' | 'white' | 'gray' | 'lightgray' | 'black';
+    const leisureConfig: Record<string, { icon: string; color: MarkerColor }> = {
       playground: { icon: 'child', color: 'orange' },
       park: { icon: 'tree', color: 'darkgreen' },
       garden: { icon: 'leaf', color: 'green' },
@@ -413,7 +414,7 @@ export const hasIoT = (place: NearbyPlace): boolean => {
  */
 export const fetchPOIByUri = async (
   uri: string,
-  language: string = 'vi'
+  language: string = 'en'
 ): Promise<NearbyPlace | null> => {
   try {
     const params = new URLSearchParams({
