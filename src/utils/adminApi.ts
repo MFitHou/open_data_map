@@ -147,3 +147,95 @@ export const checkAdminHealth = async (): Promise<boolean> => {
     return false;
   }
 };
+
+// ===== POI helpers & dynamic attributes =====
+
+// Basic POI info for lightweight map display
+export interface IPoiBasic {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lon: number;
+  wkt?: string;
+}
+
+export interface PoiListResponse {
+  success: boolean;
+  data: IPoiBasic[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+/**
+ * Fetch list of POIs with optional filters
+ */
+export const getPois = async (
+  type: string = 'all',
+  page: number = 1,
+  limit: number = 10,
+  lightweight: boolean = false,
+): Promise<PoiListResponse | null> => {
+  try {
+    const params = new URLSearchParams();
+    if (type) params.append('type', type);
+    params.append('page', String(page));
+    params.append('limit', String(limit));
+    params.append('lightweight', lightweight ? 'true' : 'false');
+
+    const url = `${getApiEndpoint.adminPois()}?${params.toString()}`;
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result: PoiListResponse = await response.json();
+    return result;
+  } catch (error) {
+    console.error('Error fetching POIs:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch full details of a single POI by ID
+ */
+export const getPoiDetail = async (id: string): Promise<IPoiBasic | null> => {
+  try {
+    const encodedId = encodeURIComponent(id);
+    const url = `${getApiEndpoint.adminPoi(encodedId)}`;
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result: ApiResponse<IPoiBasic> = await response.json();
+
+    if (result.success && result.data) return result.data;
+    throw new Error(result.error || 'Failed to fetch POI detail');
+  } catch (error) {
+    console.error('Error fetching POI detail:', error);
+    return null;
+  }
+};
+
+/**
+ * Fetch dynamic attributes for a POI
+ */
+export const getPoiAttributes = async (id: string) => {
+  try {
+    const encodedId = encodeURIComponent(id);
+    const url = `${getApiEndpoint.adminPoi(encodedId)}/attributes`;
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const result: ApiResponse<{ id: string; count: number }> = await response.json();
+
+    if (result.success && result.data) return result.data.count || 0;
+    throw new Error(result.error || 'Failed to fetch POI attributes');
+  } catch (error) {
+    console.error('Error fetching POI attributes:', error);
+    return null;
+  }
+};
+

@@ -29,7 +29,6 @@ export { SmartSearch } from './SmartSearch';
 export { FlyToLocation } from './FlyToLocation';
 export { NearbyMarkers } from './NearbyMarkers';
 export { MemberOutlines } from './MemberOutlines';
-export { Search } from './Search';
 export { default as MapChatbot } from './MapChatbot';
 export { LayerMenu } from './LayerMenu';
 

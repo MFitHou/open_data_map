@@ -899,7 +899,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, marginBottom: '4px', fontSize: '14px' }}>
-                            {getAmenityIconEmoji(related.amenity || related.highway || related.leisure || '')} {related.name || 'Unknown Place'}
+                            {getAmenityIconEmoji(related as NearbyPlace)} {related.name || 'Unknown Place'}
                           </div>
                           {related.amenity && (
                             <div style={{ fontSize: '12px', color: '#666', marginBottom: '2px' }}>
@@ -911,7 +911,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
                               Brand: {related.brand}
                             </div>
                           )}
-                          {related.distanceKm !== null && (
+                          {related.distanceKm !== null && related.distanceKm !== undefined && (
                             <div style={{ fontSize: '12px', color: '#2196F3', fontWeight: 500 }}>
                               📍 {(related.distanceKm * 1000).toFixed(0)}m away
                             </div>
