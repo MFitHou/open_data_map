@@ -323,18 +323,79 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {stats && stats.topCategories && stats.topCategories.length > 0 && (
-          <div className="dashboard__breakdown">
-            <h3 className="dashboard__breakdown-title">Top 5 Loại POI</h3>
-            <div className="dashboard__breakdown-grid">
-              {stats.topCategories.map((category, index) => (
-                <div key={category.type} className="dashboard__breakdown-item">
-                  <span className="breakdown-label">
-                    #{index + 1} {category.type.replace(/-/g, ' ').toUpperCase()}:
-                  </span>
-                  <span className="breakdown-value">{category.count.toLocaleString()}</span>
+
+
+        {/* Quick Stats Metrics */}
+        {stats && (
+          <div className="dashboard__quick-stats">
+            {/* Average POIs per Category */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">📊</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {Math.round(stats.totalPois / stats.graphCount).toLocaleString()}
                 </div>
-              ))}
+                <div className="quick-stat__label">TB POIs/Loại</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--neutral">
+                    {stats.graphCount} loại POI
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Largest Category */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">🏆</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {stats.topCategories[0]?.count.toLocaleString() || '0'}
+                </div>
+                <div className="quick-stat__label">POIs nhiều nhất</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--success">
+                    {stats.topCategories[0]?.type.replace(/_/g, ' ').toUpperCase() || 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Coverage */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">🗺️</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {Object.values(stats.breakdown).filter(count => count > 0).length}
+                </div>
+                <div className="quick-stat__label">Loại có dữ liệu</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--info">
+                    {Math.round((Object.values(stats.breakdown).filter(count => count > 0).length / stats.graphCount) * 100)}% coverage
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* POI Density */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">📍</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {(() => {
+                    const nonZero = Object.values(stats.breakdown).filter(count => count > 0);
+                    if (nonZero.length === 0) return '0';
+                    const min = Math.min(...nonZero);
+                    const max = Math.max(...nonZero);
+                    return `${min}-${max.toLocaleString()}`;
+                  })()}
+                </div>
+                <div className="quick-stat__label">Phân bố POIs</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--warning">
+                    Min-Max range
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         )}
