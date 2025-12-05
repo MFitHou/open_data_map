@@ -24,12 +24,16 @@ import L from "leaflet";
 
 // Components
 import { SmartSearch } from "./SmartSearch";
-import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton } from '../ui';
+import { SearchResult as SearchResultComponent, InfoPanel, CurrentLocationButton, NearbySearchInfo } from '../ui';
+import { ServiceInfoPanel } from '../ui/ServiceInfoPanel';
 import MapChatbot from './MapChatbot';
 import { FlyToLocation } from './FlyToLocation';
 import { TopologyMarkers } from './TopologyMarkers';
 import { MemberOutlines } from './MemberOutlines';
 import LayerControl from './LayerControl';
+import { AQIMarkers, AQIToggleButton, useAQILayer } from './AQILayer';
+import { WeatherMarkers, WeatherToggleButton, ForecastPanel, useWeatherLayer } from './WeatherLayer';
+import { LayerMenu } from './LayerMenu';
 import '../../styles/components/LayerControl.css';
 
 // Hooks
@@ -38,9 +42,9 @@ import { useCurrentLocation } from '../../hooks';
 // Utils & Types
 import { searchIcon, currentLocationIcon, wardStyle, outlineStyle } from './MapIcons';
 import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from './MapUtils';
-import { fetchNearbyPlaces } from '../../utils/nearbyApi';
+import { fetchNearbyPlaces, fetchPOIByUri } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
-import type { NearbyPlace } from '../../utils/nearbyApi';
+import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 
 const SimpleMap: React.FC = () => {
   const { t } = useTranslation();
@@ -69,6 +73,7 @@ const SimpleMap: React.FC = () => {
   const [suggestionMarkers, setSuggestionMarkers] = useState<any[]>([]); // New: markers from search suggestions
   const [highlightBounds, setHighlightBounds] = useState<number[][] | null>(null);
   const [highlightName, setHighlightName] = useState<string>("");
+  const [forceHideSuggestions, setForceHideSuggestions] = useState(false); // Control SmartSearch suggestions visibility
   
   // Nearby places
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
@@ -76,9 +81,34 @@ const SimpleMap: React.FC = () => {
   const [nearbySearchRadius, setNearbySearchRadius] = useState<number | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<NearbyPlace | null>(null);
   
+  // Service InfoPanel - for service markers (from TopologyMarkers)
+  const [selectedServicePlace, setSelectedServicePlace] = useState<NearbyPlace | null>(null);
+  const [hoveredTopology, setHoveredTopology] = useState<{ topology: TopologyRelation; sourcePlace: NearbyPlace } | null>(null);
+  const [exploredMarkerPois, setExploredMarkerPois] = useState<Set<string>>(new Set()); // Track POIs added from topology exploration
+  
   // Layer control
   const [layerPlaces, setLayerPlaces] = useState<NearbyPlace[]>([]);
   const [isLoadingLayers, setIsLoadingLayers] = useState(false);
+  
+  // AQI Layer
+  const { 
+    stations: aqiStations, 
+    isLoading: isLoadingAQI, 
+    isEnabled: isAQIEnabled, 
+    toggleLayer: toggleAQILayer 
+  } = useAQILayer();
+  
+  // Weather Layer
+  const {
+    stations: weatherStations,
+    forecast,
+    isLoading: isLoadingWeather,
+    isLoadingForecast,
+    isEnabled: isWeatherEnabled,
+    showForecast,
+    toggleLayer: toggleWeatherLayer,
+    closeForecast,
+  } = useWeatherLayer();
   
   // AI message from SmartSearch to Chatbot
   const [aiMessageForChatbot, setAiMessageForChatbot] = useState<string | null>(null);
@@ -115,6 +145,17 @@ const SimpleMap: React.FC = () => {
     setNearbyPlaces(places);
     setNearbySearchCenter(center || null);
     setNearbySearchRadius(radiusKm || null);
+  }, []);
+
+  // Clear all nearby search results
+  const handleClearNearbySearch = useCallback(() => {
+    console.log('[SimpleMap] Clearing nearby search results');
+    setNearbyPlaces([]);
+    setNearbySearchCenter(null);
+    setNearbySearchRadius(null);
+    setSelectedServicePlace(null);
+    setHoveredTopology(null);
+    setExploredMarkerPois(new Set());
   }, []);
 
   // Fetch layer data from backend
@@ -423,6 +464,9 @@ out tags;
   const handleSuggestionMarkerClick = useCallback((marker: any) => {
     console.log('[SimpleMap] Suggestion marker clicked:', marker);
     
+    // Hide suggestions dropdown when marker is clicked
+    setForceHideSuggestions(true);
+    
     // Transform to SearchResult format
     const searchResult: SearchResult = {
       id: marker.wikidataId || `marker-${Date.now()}`,
@@ -570,7 +614,7 @@ out geom;
   }, []); // Run once on mount
 
   return (
-    <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+    <div style={{ position: 'relative', height: '100%', width: '100%', overflow: 'hidden' }}>
       <SmartSearch 
         onLocationSelect={(latLng, name, data) => {
           const result: SearchResult = {
@@ -594,6 +638,8 @@ out geom;
         onSuggestionsChange={handleSuggestionsChange}
         onClearSearch={handleClearSearch}
         currentLocation={currentLocation ? { lat: currentLocation.lat, lng: currentLocation.lon } : null}
+        forceHideSuggestions={forceHideSuggestions}
+        onInputFocus={() => setForceHideSuggestions(false)}
       />
 
       <CurrentLocationButton 
@@ -632,6 +678,97 @@ out geom;
               setSelectedLocation({ lat: place.lat, lon: place.lon });
             }
           }}
+        />
+      )}
+
+      {/* Service InfoPanel for service markers (TopologyMarkers) */}
+      {selectedServicePlace && (
+        <ServiceInfoPanel
+          place={selectedServicePlace}
+          onClose={() => {
+            setSelectedServicePlace(null);
+            setHoveredTopology(null);
+          }}
+          onTopologyHover={(topology, sourcePlace) => {
+            if (topology) {
+              setHoveredTopology({ topology, sourcePlace });
+            } else {
+              setHoveredTopology(null);
+            }
+          }}
+          onTopologyClick={async (topology, _sourcePlace) => {
+            // When clicking topology, fetch full POI info and display
+            const related = topology.related;
+            if (typeof related === 'object' && related.poi) {
+              console.log('[SimpleMap] Fetching full POI info for:', related.poi);
+              
+              // Fetch full info from backend
+              const fullPoi = await fetchPOIByUri(related.poi);
+              
+              if (fullPoi) {
+                console.log('[SimpleMap] Got full POI:', fullPoi);
+                
+                // Add POI to nearbyPlaces if not already there (so marker will be rendered)
+                setNearbyPlaces(prev => {
+                  const exists = prev.some(p => p.poi === fullPoi.poi);
+                  if (!exists) {
+                    console.log('[SimpleMap] Adding new POI to nearbyPlaces:', fullPoi.name);
+                    // Track this as an explored marker
+                    setExploredMarkerPois(prevSet => new Set([...prevSet, fullPoi.poi]));
+                    return [...prev, fullPoi];
+                  }
+                  return prev;
+                });
+                
+                // Update ServiceInfoPanel with full POI data
+                setSelectedServicePlace(fullPoi);
+                setHoveredTopology(null);
+                
+                // Fly to the location if coordinates available
+                if (fullPoi.lat && fullPoi.lon) {
+                  setSelectedLocation({ lat: fullPoi.lat, lon: fullPoi.lon });
+                }
+              } else if (related.lat && related.lon) {
+                // Fallback: create a minimal place from related data and add to list
+                const minimalPlace: NearbyPlace = {
+                  poi: related.poi,
+                  name: related.name || 'Unknown',
+                  amenity: related.amenity || undefined,
+                  highway: related.highway || undefined,
+                  leisure: related.leisure || undefined,
+                  brand: related.brand || undefined,
+                  lat: related.lat,
+                  lon: related.lon,
+                  distanceKm: 0,
+                  wkt: related.wkt || `POINT(${related.lon} ${related.lat})`,
+                };
+                
+                setNearbyPlaces(prev => {
+                  const exists = prev.some(p => p.poi === minimalPlace.poi);
+                  if (!exists) {
+                    // Track this as an explored marker
+                    setExploredMarkerPois(prevSet => new Set([...prevSet, minimalPlace.poi]));
+                    return [...prev, minimalPlace];
+                  }
+                  return prev;
+                });
+                
+                setSelectedServicePlace(minimalPlace);
+                setHoveredTopology(null);
+                setSelectedLocation({ lat: related.lat, lon: related.lon });
+              }
+            }
+          }}
+          onClearExploredMarkers={() => {
+            // Remove explored markers from nearbyPlaces
+            setNearbyPlaces(prev => prev.filter(p => !exploredMarkerPois.has(p.poi)));
+            setExploredMarkerPois(new Set());
+            // Close the panel if current selection was an explored marker
+            if (selectedServicePlace && exploredMarkerPois.has(selectedServicePlace.poi)) {
+              setSelectedServicePlace(null);
+            }
+          }}
+          exploredMarkersCount={exploredMarkerPois.size}
         />
       )}
 
@@ -700,9 +837,11 @@ out geom;
             searchRadiusKm={nearbySearchRadius || undefined}
             onPlaceSelect={(place) => {
               console.log('[SimpleMap] onPlaceSelect called:', place.name);
-              console.log('[SimpleMap] Setting selectedPlace, NOT setting selectedLocation');
-              setSelectedPlace(place);
+              console.log('[SimpleMap] Opening ServiceInfoPanel for:', place.name);
+              setSelectedServicePlace(place);
             }}
+            selectedServicePlace={selectedServicePlace}
+            hoveredTopology={hoveredTopology}
           />
         )}
 
@@ -712,9 +851,21 @@ out geom;
             places={layerPlaces}
             onPlaceSelect={(place) => {
               console.log('[SimpleMap] Layer marker clicked:', place.name);
-              setSelectedPlace(place);
+              setSelectedServicePlace(place);
             }}
+            selectedServicePlace={selectedServicePlace}
+            hoveredTopology={hoveredTopology}
           />
+        )}
+
+        {/* AQI Layer markers */}
+        {isAQIEnabled && aqiStations.length > 0 && (
+          <AQIMarkers stations={aqiStations} />
+        )}
+
+        {/* Weather Layer markers */}
+        {isWeatherEnabled && weatherStations.length > 0 && (
+          <WeatherMarkers stations={weatherStations} />
         )}
 
         {selectedLocation && (
@@ -756,6 +907,51 @@ out geom;
           </Marker>
         )}
       </MapContainer>
+
+      {/* AQI Layer Toggle Button - Desktop only */}
+      <AQIToggleButton
+        onToggle={toggleAQILayer}
+        isLoading={isLoadingAQI}
+        isEnabled={isAQIEnabled}
+        stationCount={aqiStations.length}
+      />
+
+      {/* Weather Layer Toggle Button - Desktop only */}
+      <WeatherToggleButton
+        onToggle={toggleWeatherLayer}
+        isLoading={isLoadingWeather}
+        isEnabled={isWeatherEnabled}
+        stationCount={weatherStations.length}
+      />
+
+      {/* Layer Menu - Mobile only (hamburger menu) */}
+      <LayerMenu
+        isAQIEnabled={isAQIEnabled}
+        isLoadingAQI={isLoadingAQI}
+        aqiStationCount={aqiStations.length}
+        onToggleAQI={toggleAQILayer}
+        isWeatherEnabled={isWeatherEnabled}
+        isLoadingWeather={isLoadingWeather}
+        weatherStationCount={weatherStations.length}
+        onToggleWeather={toggleWeatherLayer}
+      />
+
+      {/* Weather Forecast Panel */}
+      {isWeatherEnabled && showForecast && (
+        <ForecastPanel
+          forecast={forecast}
+          isLoading={isLoadingForecast}
+          onClose={closeForecast}
+        />
+      )}
+
+      {/* Nearby Search Info Bar with Clear button */}
+      <NearbySearchInfo
+        placesCount={nearbyPlaces.length}
+        searchCenter={nearbySearchCenter}
+        searchRadiusKm={nearbySearchRadius}
+        onClear={handleClearNearbySearch}
+      />
 
       <MapChatbot 
         onNearbyPlacesChange={handleNearbyPlacesChange}

@@ -401,9 +401,6 @@ const Home: React.FC = () => {
                 <a href="/query" className="quick-link-button">
                   <FontAwesomeIcon icon={faSearch} /> {t('nav.query')}
                 </a>
-                <a href="/chatbot" className="quick-link-button">
-                  <FontAwesomeIcon icon={faRobot} /> AI Chatbot
-                </a>
               </div>
 
               {showResults && (

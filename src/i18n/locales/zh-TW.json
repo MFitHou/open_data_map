@@ -97,6 +97,7 @@
   },
   "map": {
     "title": "地圖",
+    "layers": "地圖圖層",
     "currentLocation": "📍 您目前的位置",
     "detectedByGPS": "由 GPS 偵測",
     "latitude": "緯度",
@@ -354,6 +355,41 @@
     "demo": {
       "title": "示範帳號",
       "credential": "使用者名稱/密碼："
+    }
+  },
+  "aqi": {
+    "title": "空氣品質",
+    "showLayer": "顯示空氣品質",
+    "hideLayer": "隱藏空氣品質",
+    "station": "監測站",
+    "level": {
+      "good": "良好",
+      "moderate": "普通",
+      "unhealthySensitive": "對敏感族群不健康",
+      "unhealthy": "不健康",
+      "veryUnhealthy": "非常不健康",
+      "hazardous": "危害",
+      "unknown": "未知"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "天氣",
+    "showLayer": "顯示天氣",
+    "hideLayer": "隱藏天氣",
+    "station": "監測站",
+    "temperature": "溫度",
+    "humidity": "濕度",
+    "windSpeed": "風速",
+    "rainfall": "降雨量",
+    "forecast": {
+      "title": "天氣預報",
+      "loading": "載入預報中...",
+      "chanceOfRain": "降雨機率",
+      "feelsLike": "體感溫度",
+      "high": "最高",
+      "low": "最低"
     }
   }
 }

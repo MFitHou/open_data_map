@@ -41,7 +41,9 @@ interface SmartSearchProps {
   onAIMessageReceived?: (message: string) => void; 
   currentLocation?: { lat: number; lng: number } | null;
   onSuggestionsChange?: (suggestions: Suggestion[]) => void; 
-  onClearSearch?: () => void; 
+  onClearSearch?: () => void;
+  forceHideSuggestions?: boolean; // When true, hide suggestions dropdown (controlled by parent)
+  onInputFocus?: () => void; // Callback when user focuses on input (to reset forceHideSuggestions)
 }
 
 interface Suggestion {
@@ -64,7 +66,9 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   onAIMessageReceived,
   currentLocation,
   onSuggestionsChange,
-  onClearSearch
+  onClearSearch,
+  forceHideSuggestions,
+  onInputFocus
 }) => {
   const { t } = useTranslation();
   const [query, setQuery] = useState('');
@@ -72,7 +76,15 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [previousQuery, setPreviousQuery] = useState<string>('');
+  const [showSuggestions, setShowSuggestions] = useState(true); // Control visibility of suggestions
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Hide suggestions when forceHideSuggestions is true
+  React.useEffect(() => {
+    if (forceHideSuggestions) {
+      setShowSuggestions(false);
+    }
+  }, [forceHideSuggestions]);
 
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -199,7 +211,15 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     if (lat && lon) {
       const name = suggestion.name || suggestion.label || 'Location';
       onLocationSelect(new LatLng(lat, lon), name, suggestion);
+      // Hide suggestions dropdown when user selects a location
+      setShowSuggestions(false);
     }
+  };
+
+  // Handle input focus - show suggestions again
+  const handleInputFocus = () => {
+    setShowSuggestions(true);
+    onInputFocus?.(); // Notify parent to reset forceHideSuggestions
   };
 
   const toggleAIMode = () => {
@@ -235,15 +255,18 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     <div className="smart-search">
       <div className="search-container">
         <div className="search-input-wrapper">
-          <button
-            className="search-btn"
-            onClick={handleSearchClick}
-            disabled={isLoading || query.trim().length < 2}
-            title={t('search.search', 'Tìm kiếm')}
-          >
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
+            <button
+              className={`ai-toggle ${isAIMode ? 'active' : ''}`}
+              onClick={toggleAIMode}
+              title={
+                isAIMode 
+                  ? t('search.switchToNormal', 'Switch to normal search') 
+                  : t('search.switchToAI', 'Switch to smart search')
+              }
+            >
+            <FontAwesomeIcon icon={faWandMagicSparkles} />
           </button>
-          
+
           <input
             ref={inputRef}
             type="text"
@@ -251,6 +274,8 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
             onChange={(e) => {
               const newValue = e.target.value;
               setQuery(newValue);
+              // Show suggestions when user types
+              setShowSuggestions(true);
               // Clear suggestions and markers when user clears input
               if (newValue.trim() === '') {
                 setSuggestions([]);
@@ -264,6 +289,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
               }
             }}
             onKeyPress={handleKeyPress}
+            onFocus={handleInputFocus}
             placeholder={
               isAIMode 
                 ? t('search.aiPlaceholder', 'Smart search with AI...') 
@@ -283,15 +309,12 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
           )}
 
           <button
-            className={`ai-toggle ${isAIMode ? 'active' : ''}`}
-            onClick={toggleAIMode}
-            title={
-              isAIMode 
-                ? t('search.switchToNormal', 'Switch to normal search') 
-                : t('search.switchToAI', 'Switch to smart search')
-            }
+            className="search-btn"
+            onClick={handleSearchClick}
+            disabled={isLoading || query.trim().length < 2}
+            title={t('search.search', 'Tìm kiếm')}
           >
-            <FontAwesomeIcon icon={faWandMagicSparkles} />
+            <FontAwesomeIcon icon={faMagnifyingGlass} />
           </button>
         </div>
 
@@ -302,7 +325,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
           </div>
         )}
 
-        {suggestions.length > 0 && !isLoading && (
+        {suggestions.length > 0 && !isLoading && showSuggestions && (
           <div className="suggestions-dropdown">
             {suggestions.map((suggestion, index) => (
               <div

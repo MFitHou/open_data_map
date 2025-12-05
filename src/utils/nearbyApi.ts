@@ -18,10 +18,30 @@
 import { getApiEndpoint } from '../config/api';
 import API_CONFIG from '../config/api';
 
+export interface TopologyRelatedEntity {
+  poi: string;            // URI của entity liên quan
+  name: string | null;    // Tên của entity liên quan
+  lat: number | null;     // Vĩ độ
+  lon: number | null;     // Kinh độ
+  wkt: string | null;     // WKT format
+  amenity: string | null;
+  highway: string | null;
+  leisure: string | null;
+  brand: string | null;
+  operator: string | null;
+}
+
 export interface TopologyRelation {
   predicate: string;      // isNextTo, containedInPlace, amenityFeature, healthcareNetwork, campusAmenity
-  related: string;        // URI của entity liên quan
-  relatedName: string;    // Tên của entity liên quan
+  related: TopologyRelatedEntity; // Thông tin đầy đủ của entity liên quan
+}
+
+// Sensor data from InfluxDB
+export interface SensorData {
+  aqi: number | null;           // Air Quality Index
+  temperature: number | null;   // Temperature in Celsius
+  noise_level: number | null;   // Noise level in dB
+  timestamp: string | null;     // ISO timestamp of last reading
 }
 
 export interface NearbyPlace {
@@ -42,7 +62,9 @@ export interface NearbyPlace {
   leisure?: string;      
   topology?: TopologyRelation[] | null;  
   iotStations?: string[] | null;         
-  relatedEntities?: Partial<NearbyPlace>[]; 
+  relatedEntities?: Partial<NearbyPlace>[];
+  device?: string | null;         // IoT device URI covering this POI
+  sensorData?: SensorData | null; // Sensor data from InfluxDB
 }
 
 export interface NearbyResponse {
@@ -170,6 +192,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       bank: { icon: 'university', color: 'darkgreen' },
       parking: { icon: 'car', color: 'gray' },
       fuel: { icon: 'free-code-camp', color: 'orange' },
+      fuel_station: { icon: 'free-code-camp', color: 'orange' },
       supermarket: { icon: 'shopping-cart', color: 'green' },
       library: { icon: 'book', color: 'purple' },
       convenience_store: { icon: 'shopping-bag', color: 'green' },
@@ -349,7 +372,11 @@ export const getTopologyInfo = (place: NearbyPlace): string[] => {
   
   for (const rel of place.topology) {
     const label = predicateLabels[rel.predicate] || rel.predicate;
-    info.push(`${label}: ${rel.relatedName}`);
+    // Support both old (relatedName) and new (related.name) structure
+    const relatedName = typeof rel.related === 'object' 
+      ? (rel.related.name || rel.related.brand || 'Unknown')
+      : ((rel as any).relatedName || 'Unknown');
+    info.push(`${label}: ${relatedName}`);
   }
   
   return info;
@@ -378,4 +405,43 @@ export const hasTopology = (place: NearbyPlace): boolean => {
  */
 export const hasIoT = (place: NearbyPlace): boolean => {
   return !!(place.iotStations && place.iotStations.length > 0);
+};
+
+/**
+ * Fetch full POI information by URI
+ * Used when clicking on a topology related entity to get full details
+ */
+export const fetchPOIByUri = async (
+  uri: string,
+  language: string = 'vi'
+): Promise<NearbyPlace | null> => {
+  try {
+    const params = new URLSearchParams({
+      uri: uri,
+      language: language,
+    });
+    
+    const url = `${API_CONFIG.fusekiBaseUrl}/poi?${params.toString()}`;
+    
+    console.log(`[fetchPOIByUri] Fetching POI:`, { uri, language });
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.found || !data.poi) {
+      console.warn(`[fetchPOIByUri] POI not found:`, uri);
+      return null;
+    }
+    
+    console.log(`[fetchPOIByUri] Found POI:`, data.poi);
+    
+    return data.poi as NearbyPlace;
+  } catch (error) {
+    console.error('[fetchPOIByUri] Error:', error);
+    return null;
+  }
 };
