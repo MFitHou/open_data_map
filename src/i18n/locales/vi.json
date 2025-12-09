@@ -305,7 +305,8 @@
       "noResults": "Không tìm thấy kết quả phù hợp",
       "unnamed": "Chưa đặt tên",
       "filter": {
-        "type": "Loại POI"
+        "type": "Loại POI",
+        "selectType": "Chọn loại POI..."
       },
       "table": {
         "name": "Tên",

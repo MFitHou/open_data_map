@@ -269,7 +269,8 @@
       "subtitle": "在地圖上管理興趣點 (POI)",
       "addNew": "新增 POI",
       "filter": {
-        "type": "類型"
+        "type": "類型",
+        "selectType": "選擇 POI 類型..."
       },
       "table": {
         "name": "名稱",

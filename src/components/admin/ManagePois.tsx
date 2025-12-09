@@ -18,9 +18,12 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { LatLngBounds } from 'leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { SearchableSelect } from '../ui/SearchableSelect';
+import type { IPoiBasic } from '../../utils/adminApi';
 import './ManagePois.css';
 
 // Fix Leaflet default marker icons
@@ -36,23 +39,33 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-interface POI {
-  id: string;
-  name: string;
-  type: string;
-  lat: number;
-  lon: number;
-  osm_id?: string;
-  osm_type?: string;
-  address?: string | null;
-  operator?: string | null;
-  brand?: string | null;
-  website?: string | null;
-  phone?: string | null;
-  addr_city?: string | null;
-  addr_district?: string | null;
-  addr_street?: string | null;
-}
+// POI Type Icon Configuration
+const POI_ICON_CONFIG: Record<string, { color: string; icon: string }> = {
+  school: { color: '#4CAF50', icon: '🎓' },
+  hospital: { color: '#f44336', icon: '🏥' },
+  clinic: { color: '#FF5722', icon: '⚕️' },
+  atm: { color: '#2196F3', icon: '🏧' },
+  bank: { color: '#1976D2', icon: '🏦' },
+  pharmacy: { color: '#E91E63', icon: '💊' },
+  restaurant: { color: '#FF9800', icon: '🍽️' },
+  cafe: { color: '#795548', icon: '☕' },
+  bus_stop: { color: '#9C27B0', icon: '🚌' },
+  police: { color: '#3F51B5', icon: '👮' },
+  fire_station: { color: '#F44336', icon: '🚒' },
+  library: { color: '#607D8B', icon: '📚' },
+  parking: { color: '#9E9E9E', icon: '🅿️' },
+  fuel: { color: '#FFC107', icon: '⛽' },
+  hotel: { color: '#00BCD4', icon: '🏨' },
+  charging_station: { color: '#8BC34A', icon: '🔌' },
+  toilets: { color: '#03A9F4', icon: '🚻' },
+  drinking_water: { color: '#00BCD4', icon: '💧' },
+  community_centre: { color: '#673AB7', icon: '🏘️' },
+  playground: { color: '#FFEB3B', icon: '🎪' },
+  default: { color: '#757575', icon: '📍' },
+};
+
+// Use IPoiBasic from adminApi
+type POI = IPoiBasic;
 
 interface CreatePOIFormData {
   name: string;
@@ -169,7 +182,7 @@ export const ManagePois: React.FC = () => {
   // Form state
   const [formData, setFormData] = useState<CreatePOIFormData>({
     name: '',
-    type: 'school',
+    type: '',
     lat: '',
     lon: '',
     address: '',
@@ -187,7 +200,8 @@ export const ManagePois: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/pois?type=${selectedType}&limit=1000`);
+      // Sử dụng lightweight=true để lấy TẤT CẢ POIs không giới hạn (cho map clustering)
+      const response = await fetch(`http://localhost:3000/api/admin/pois?type=${selectedType}&lightweight=true`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -293,34 +307,6 @@ export const ManagePois: React.FC = () => {
     }
   };
 
-  // Handle delete POI
-  const handleDelete = async (id: string) => {
-    if (!confirm(t('admin.pois.confirm.delete'))) {
-      return;
-    }
-
-    try {
-      const encodedId = encodeURIComponent(id);
-      const response = await fetch(`http://localhost:3000/api/admin/pois/${encodedId}`, {
-        method: 'DELETE',
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || t('admin.pois.error.deleteFailed'));
-      }
-
-      // Refresh danh sách POIs
-      await fetchPois();
-
-      alert(t('admin.pois.success.deleted'));
-    } catch (err) {
-      console.error('Error deleting POI:', err);
-      alert(err instanceof Error ? err.message : t('admin.pois.error.deleteFailed'));
-    }
-  };
-
   // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -360,19 +346,15 @@ export const ManagePois: React.FC = () => {
           <label className="manage-pois__filter-label" htmlFor="type-filter">
             {t('admin.pois.filter.type')}:
           </label>
-          <select
-            id="type-filter"
-            className="manage-pois__type-select"
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value)}
-            disabled={loading}
-          >
-            {poiTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
+          <div className="manage-pois__searchable-select-wrapper">
+            <SearchableSelect
+              options={poiTypes}
+              value={selectedType}
+              onChange={setSelectedType}
+              placeholder={t('admin.pois.filter.selectType')}
+              disabled={loading}
+            />
+          </div>
         </div>
         
         <span className="manage-pois__count">
@@ -405,40 +387,43 @@ export const ManagePois: React.FC = () => {
             
             <AutoFitBounds pois={pois} />
             
-            {pois.map((poi) => (
-              <Marker
-                key={poi.id}
-                position={[poi.lat, poi.lon]}
-                icon={createColoredIcon(poi.type)}
-              >
-                <Popup>
-                  <div className="poi-popup">
-                    <h3 className="poi-popup__title">{poi.name}</h3>
-                    <div className="poi-popup__info">
-                      <p><strong>Loại:</strong> {poi.type}</p>
-                      <p><strong>Tọa độ:</strong> {poi.lat.toFixed(5)}, {poi.lon.toFixed(5)}</p>
-                      {poi.osm_id && <p><strong>OSM ID:</strong> {poi.osm_id}</p>}
-                      {poi.operator && <p><strong>Vận hành:</strong> {poi.operator}</p>}
-                      {poi.addr_district && <p><strong>Quận:</strong> {poi.addr_district}</p>}
-                      {poi.website && (
-                        <p>
-                          <strong>Website:</strong>{' '}
-                          <a href={poi.website} target="_blank" rel="noopener noreferrer">
-                            {poi.website.substring(0, 30)}...
-                          </a>
-                        </p>
-                      )}
+            {/* MarkerClusterGroup để nhóm các markers lại khi zoom out */}
+            <MarkerClusterGroup
+              chunkedLoading
+              maxClusterRadius={60}
+              spiderfyOnMaxZoom={true}
+              showCoverageOnHover={false}
+              zoomToBoundsOnClick={true}
+            >
+              {pois.map((poi) => (
+                <Marker
+                  key={poi.id}
+                  position={[poi.lat, poi.lon]}
+                  icon={createColoredIcon(poi.type)}
+                >
+                  <Popup>
+                    <div className="poi-popup">
+                      <h3 className="poi-popup__title">{poi.name}</h3>
+                      <div className="poi-popup__info">
+                        <p><strong>Loại:</strong> {poi.type}</p>
+                        <p><strong>Tọa độ:</strong> {poi.lat.toFixed(5)}, {poi.lon.toFixed(5)}</p>
+                        {(poi as any).osm_id && <p><strong>OSM ID:</strong> {(poi as any).osm_id}</p>}
+                        {(poi as any).operator && <p><strong>Vận hành:</strong> {(poi as any).operator}</p>}
+                        {(poi as any).addr_district && <p><strong>Quận:</strong> {(poi as any).addr_district}</p>}
+                        {(poi as any).website && (
+                          <p>
+                            <strong>Website:</strong>{' '}
+                            <a href={(poi as any).website} target="_blank" rel="noopener noreferrer">
+                              {(poi as any).website.substring(0, 30)}...
+                            </a>
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <button
-                      className="poi-popup__delete-btn"
-                      onClick={() => handleDelete(poi.id)}
-                    >
-                      Xóa POI
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
           </MapContainer>
         </div>
       )}

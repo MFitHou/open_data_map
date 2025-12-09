@@ -25,9 +25,35 @@ import {
   faSpinner,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+} from 'chart.js';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { fetchDashboardStats, checkAdminHealth } from '../../utils/adminApi';
 import type { DashboardStats } from '../../utils/adminApi';
 import './Admin.css';
+
+// Đăng ký các components Chart.js cần thiết
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement
+);
 
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -65,6 +91,170 @@ export const Dashboard: React.FC = () => {
     checkHealth();
     loadStats();
   }, []);
+
+  // Chuẩn bị dữ liệu cho biểu đồ
+  const getChartData = () => {
+    if (!stats || !stats.breakdown) return null;
+
+    // Sắp xếp theo số lượng giảm dần
+    const sortedData = Object.entries(stats.breakdown)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10); // Lấy top 10
+
+    const labels = sortedData.map(([type]) => 
+      type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    );
+    const data = sortedData.map(([, count]) => count);
+
+    // Màu sắc cho biểu đồ
+    const colors = [
+      'rgba(59, 130, 246, 0.8)',   // Blue
+      'rgba(16, 185, 129, 0.8)',   // Green
+      'rgba(251, 146, 60, 0.8)',   // Orange
+      'rgba(139, 92, 246, 0.8)',   // Purple
+      'rgba(236, 72, 153, 0.8)',   // Pink
+      'rgba(245, 158, 11, 0.8)',   // Amber
+      'rgba(20, 184, 166, 0.8)',   // Teal
+      'rgba(239, 68, 68, 0.8)',    // Red
+      'rgba(168, 85, 247, 0.8)',   // Violet
+      'rgba(14, 165, 233, 0.8)',   // Sky
+    ];
+
+    const borderColors = colors.map(color => color.replace('0.8', '1'));
+
+    return {
+      labels,
+      data,
+      colors,
+      borderColors,
+    };
+  };
+
+  const chartData = getChartData();
+
+  // Cấu hình cho Bar Chart
+  const barChartData = chartData ? {
+    labels: chartData.labels,
+    datasets: [
+      {
+        label: 'Số lượng POIs',
+        data: chartData.data,
+        backgroundColor: chartData.colors,
+        borderColor: chartData.borderColors,
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      },
+    ],
+  } : null;
+
+  const barChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      title: {
+        display: true,
+        text: 'Top 10 Loại POI',
+        font: {
+          size: 18,
+          weight: 'bold' as const,
+        },
+        padding: 20,
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        titleFont: {
+          size: 14,
+        },
+        bodyFont: {
+          size: 13,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 11,
+          },
+          maxRotation: 45,
+          minRotation: 45,
+        },
+        grid: {
+          display: false,
+        },
+      },
+    },
+  };
+
+  // Cấu hình cho Doughnut Chart
+  const doughnutChartData = chartData ? {
+    labels: chartData.labels.slice(0, 5), // Top 5 cho doughnut
+    datasets: [
+      {
+        data: chartData.data.slice(0, 5),
+        backgroundColor: chartData.colors.slice(0, 5),
+        borderColor: chartData.borderColors.slice(0, 5),
+        borderWidth: 2,
+        hoverOffset: 10,
+      },
+    ],
+  } : null;
+
+  const doughnutChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          padding: 15,
+          font: {
+            size: 12,
+          },
+          usePointStyle: true,
+          pointStyle: 'circle',
+        },
+      },
+      title: {
+        display: true,
+        text: 'Phân bố Top 5 Loại POI',
+        font: {
+          size: 18,
+          weight: 'bold' as const,
+        },
+        padding: 20,
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: 12,
+        callbacks: {
+          label: function(context: any) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+          }
+        },
+      },
+    },
+  };
 
   return (
     <div className="dashboard">
@@ -133,38 +323,129 @@ export const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {stats && stats.topCategories && stats.topCategories.length > 0 && (
-          <div className="dashboard__breakdown">
-            <h3 className="dashboard__breakdown-title">Top 5 Loại POI</h3>
-            <div className="dashboard__breakdown-grid">
-              {stats.topCategories.map((category, index) => (
-                <div key={category.type} className="dashboard__breakdown-item">
-                  <span className="breakdown-label">
-                    #{index + 1} {category.type.replace(/-/g, ' ').toUpperCase()}:
-                  </span>
-                  <span className="breakdown-value">{category.count.toLocaleString()}</span>
+
+
+        {/* Quick Stats Metrics */}
+        {stats && (
+          <div className="dashboard__quick-stats">
+            {/* Average POIs per Category */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">📊</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {Math.round(stats.totalPois / stats.graphCount).toLocaleString()}
                 </div>
-              ))}
+                <div className="quick-stat__label">TB POIs/Loại</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--neutral">
+                    {stats.graphCount} loại POI
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Largest Category */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">🏆</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {stats.topCategories[0]?.count.toLocaleString() || '0'}
+                </div>
+                <div className="quick-stat__label">POIs nhiều nhất</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--success">
+                    {stats.topCategories[0]?.type.replace(/_/g, ' ').toUpperCase() || 'N/A'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Coverage */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">🗺️</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {Object.values(stats.breakdown).filter(count => count > 0).length}
+                </div>
+                <div className="quick-stat__label">Loại có dữ liệu</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--info">
+                    {Math.round((Object.values(stats.breakdown).filter(count => count > 0).length / stats.graphCount) * 100)}% coverage
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* POI Density */}
+            <div className="quick-stat-card">
+              <div className="quick-stat__icon">📍</div>
+              <div className="quick-stat__content">
+                <div className="quick-stat__value">
+                  {(() => {
+                    const nonZero = Object.values(stats.breakdown).filter(count => count > 0);
+                    if (nonZero.length === 0) return '0';
+                    const min = Math.min(...nonZero);
+                    const max = Math.max(...nonZero);
+                    return `${min}-${max.toLocaleString()}`;
+                  })()}
+                </div>
+                <div className="quick-stat__label">Phân bố POIs</div>
+                <div className="quick-stat__trend">
+                  <span className="trend-badge trend-badge--warning">
+                    Min-Max range
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {stats && stats.breakdown && Object.keys(stats.breakdown).length > 0 && (
-          <div className="dashboard__breakdown" style={{ marginTop: '2rem' }}>
-            <h3 className="dashboard__breakdown-title">Tất cả các loại POI ({Object.keys(stats.breakdown).length})</h3>
-            <div className="dashboard__breakdown-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
-              {Object.entries(stats.breakdown)
-                .sort(([, a], [, b]) => b - a)
-                .map(([type, count]) => (
-                  <div key={type} className="dashboard__breakdown-item">
-                    <span className="breakdown-label">
-                      {type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:
-                    </span>
-                    <span className="breakdown-value">{count.toLocaleString()}</span>
-                  </div>
-                ))}
+        {/* Biểu đồ phân tích dữ liệu */}
+        {stats && chartData && (
+          <>
+            {/* Charts Grid */}
+            <div className="dashboard__charts-grid">
+              {/* Bar Chart - Top 10 POIs */}
+              <div className="dashboard__chart-card">
+                <div className="chart-container" style={{ height: '400px', padding: '1rem' }}>
+                  {barChartData && <Bar data={barChartData} options={barChartOptions} />}
+                </div>
+              </div>
+
+              {/* Doughnut Chart - Top 5 POIs */}
+              <div className="dashboard__chart-card">
+                <div className="chart-container" style={{ height: '400px', padding: '1rem' }}>
+                  {doughnutChartData && <Doughnut data={doughnutChartData} options={doughnutChartOptions} />}
+                </div>
+              </div>
             </div>
-          </div>
+
+            {/* Chi tiết tất cả loại POI */}
+            <div className="dashboard__breakdown" style={{ marginTop: '2rem' }}>
+              <h3 className="dashboard__breakdown-title">
+                Tất cả các loại POI ({Object.keys(stats.breakdown).length})
+              </h3>
+              <div 
+                className="dashboard__breakdown-grid" 
+                style={{ 
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: '1rem',
+                  marginTop: '1rem',
+                }}
+              >
+                {Object.entries(stats.breakdown)
+                  .sort(([, a], [, b]) => b - a)
+                  .map(([type, count]) => (
+                    <div key={type} className="dashboard__breakdown-item">
+                      <span className="breakdown-label">
+                        {type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:
+                      </span>
+                      <span className="breakdown-value">{count.toLocaleString()}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

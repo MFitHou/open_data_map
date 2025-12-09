@@ -6,8 +6,7 @@
 .manage-pois {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding: 1.5rem;
+  height: 100%;
   gap: 1rem;
 }
 
@@ -16,7 +15,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 2rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -86,6 +84,12 @@
   font-weight: 500;
   color: #4a5568;
   white-space: nowrap;
+}
+
+.manage-pois__searchable-select-wrapper {
+  min-width: 250px;
+  flex: 1;
+  max-width: 400px;
 }
 
 .manage-pois__type-select {
@@ -167,6 +171,7 @@
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  position: relative;
 }
 
 /* POI Popup Styles */
@@ -613,4 +618,78 @@
   .poi-modal__content {
     max-height: 95vh;
   }
+}
+
+/* ============================================
+   Marker Cluster Styles
+   ============================================ */
+
+/* Cluster marker container */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-color: rgba(49, 130, 206, 0.6);
+  border-radius: 50%;
+  text-align: center;
+  font-weight: 700;
+  color: white;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background-color: rgba(49, 130, 206, 0.8);
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Small cluster (< 10 markers) */
+.marker-cluster-small {
+  width: 40px;
+  height: 40px;
+}
+
+.marker-cluster-small div {
+  font-size: 12px;
+}
+
+/* Medium cluster (10-99 markers) */
+.marker-cluster-medium {
+  width: 50px;
+  height: 50px;
+}
+
+.marker-cluster-medium div {
+  font-size: 14px;
+}
+
+/* Large cluster (100+ markers) */
+.marker-cluster-large {
+  width: 60px;
+  height: 60px;
+}
+
+.marker-cluster-large div {
+  font-size: 16px;
+}
+
+/* Hover effect for clusters */
+.marker-cluster:hover {
+  cursor: pointer;
+  opacity: 0.9;
+}
+
+/* Spiderfy animation (when cluster explodes) */
+.marker-cluster-animated {
+  transition: all 0.3s ease-out;
+}
+
+/* Cluster icon when expanded */
+.leaflet-cluster-anim .leaflet-marker-icon,
+.leaflet-cluster-anim .leaflet-marker-shadow {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-in;
 }
