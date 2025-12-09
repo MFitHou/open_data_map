@@ -20,6 +20,10 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import "leaflet/dist/leaflet.css";
+import 'font-awesome/css/font-awesome.min.css';
+import 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css';
+
+localStorage.setItem('i18nextLng', 'en');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

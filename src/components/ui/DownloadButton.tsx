@@ -16,6 +16,7 @@
  */
 
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { generateXML, generateRDF, downloadFile } from '../../utils/dataExport';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faFileCode, faLink } from '@fortawesome/free-solid-svg-icons';
@@ -34,6 +35,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
   wikidataProperties,
   rowPropLabels 
 }) => {
+  const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
 
   const handleDownloadXML = () => {
@@ -67,7 +69,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
       <button 
         className="download-btn"
         onClick={() => setShowMenu(!showMenu)}
-        title="Download data"
+        title={t('common.button.download')}
       >
         <FontAwesomeIcon icon={faDownload} />
       </button>
@@ -75,10 +77,10 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
       {showMenu && (
         <div className="download-menu">
           <button onClick={handleDownloadXML}>
-            <FontAwesomeIcon icon={faFileCode} /> Download as XML
+            <FontAwesomeIcon icon={faFileCode} /> {t('map.download.downloadXML')}
           </button>
           <button onClick={handleDownloadRDF}>
-            <FontAwesomeIcon icon={faLink} /> Download as RDF/XML
+            <FontAwesomeIcon icon={faLink} /> {t('map.download.downloadRDF')}
           </button>
         </div>
       )}

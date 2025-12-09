@@ -17,6 +17,7 @@
 
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import { getApiEndpoint } from '../../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -29,9 +30,10 @@ interface ChatInputProps {
 
 export const ChatInput: React.FC<ChatInputProps> = ({ 
   onMessageSent,
-  placeholder = "Ask me anything about Vietnam's locations, landmarks, or geography...",
+  placeholder,
   apiUrl = getApiEndpoint.chat()
 }) => {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<string>('');
@@ -65,7 +67,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       const data = await res.json();
       
       // Parse the response structure
-      let botResponse = 'No response received';
+      let botResponse = t('chatbot.noResponse');
       
       if (Array.isArray(data) && data.length > 0) {
         // Handle array response format
@@ -94,7 +96,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       setInputValue('');
     } catch (err) {
       console.error('Chat API Error:', err);
-      setResponse('⚠️ Failed to get response. Please try again.');
+      setResponse(t('chatbot.failedResponse'));
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +117,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={placeholder}
+          placeholder={placeholder || t('chatbot.inputPlaceholder')}
           disabled={isLoading}
           className="chat-input"
         />
@@ -133,7 +135,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
       </div>
       {response && (
         <div className="chat-response">
-          <strong>Response:</strong>
+          <strong>{t('chatbot.responseLabel')}</strong>
           <div className="markdown-content">
             <ReactMarkdown>{response}</ReactMarkdown>
           </div>

@@ -19,13 +19,15 @@
     },
     "language": {
       "vi": "Tiếng Việt",
-      "en": "English"
+      "en": "English",
+      "zh-TW": "繁體中文"
     }
   },
   "nav": {
     "home": "Trang chủ",
     "map": "Bản đồ",
-    "query": "Truy vấn"
+    "query": "Truy vấn",
+    "admin": "Quản trị"
   },
   "home": {
     "title": "OpenDataFitHou",
@@ -33,16 +35,71 @@
     "searchPlaceholder": "Tìm địa điểm trong nước... (VD: Hồ Gươm, Văn Miếu, BIDV)",
     "suggestionsTitle": "💡 Gợi ý tìm kiếm phổ biến:",
     "noResultsFor": "Không tìm thấy",
+    "description": "OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu, phân tích và phát triển ứng dụng trở nên dễ dàng hơn.",
+    "descriptionExtra": "Dự án góp phần chuyển đổi số và mở ra cơ hội khai thác dữ liệu mở cho nghiên cứu, giáo dục và cộng đồng. 🌍✨",
     "intro": {
       "title": "📋 Giới thiệu dự án",
+      "objectiveTitle": "Mục tiêu",
       "objective": "Thu thập, chuẩn hóa, và cung cấp dữ liệu mở dạng Linked Open Data",
+      "contextTitle": "Bối cảnh",
       "context": "Thuộc OLP PMNM 2025, phục vụ nghiên cứu & chuyển đổi số",
+      "visionTitle": "Tầm nhìn",
       "vision": "Minh bạch dữ liệu, hỗ trợ cộng đồng, dễ tái sử dụng"
     },
-    "description": "OpenDataFitHou là dự án mã nguồn mở thu thập và liên kết dữ liệu mở từ Wikidata, OpenStreetMap và nhiều nguồn khác. Chúng tôi chuẩn hóa dữ liệu thành định dạng Linked Open Data (RDF) và trực quan hóa trên bản đồ, giúp việc tra cứu – phân tích – phát triển ứng dụng trở nên dễ dàng hơn."
+    "features": {
+      "dataTypesTitle": "📊 Các loại dữ liệu",
+      "title": "⭐ Tính năng nổi bật",
+      "search": "Tìm kiếm địa điểm trong Việt Nam",
+      "display": "Hiển thị và đánh dấu địa điểm trên bản đồ",
+      "details": "Hiển thị thông tin chi tiết địa điểm",
+      "nearby": "Tìm dịch vụ xung quanh như ATM, trạm xe buýt",
+      "download": "Tải xuống dữ liệu địa điểm ở định dạng XML hoặc RDF",
+      "query": "Truy vấn dữ liệu với SPARQL"
+    },
+    "video": {
+      "title": "Video giới thiệu"
+    },
+    "license": {
+      "title": "📄 Thông tin giấy phép",
+      "name": "GNU General Public License v3.0",
+      "subtitle": "Giấy phép mã nguồn mở",
+      "description": "OpenDataFitHou được phát hành theo giấy phép <strong>GNU GPL v3.0</strong>, đảm bảo tính mở và tự do cho cộng đồng. Bạn có thể:",
+      "permissions": {
+        "use": "<strong>Sử dụng</strong> - Chạy chương trình cho bất kỳ mục đích nào",
+        "study": "<strong>Nghiên cứu</strong> - Xem và học từ mã nguồn",
+        "distribute": "<strong>Phân phối</strong> - Chia sẻ với người khác",
+        "modify": "<strong>Chỉnh sửa</strong> - Thay đổi và cải tiến"
+      },
+      "requirementsTitle": "📋 Yêu cầu sử dụng:",
+      "requirements": {
+        "preserve": "Giữ nguyên thông tin bản quyền và giấy phép",
+        "sameLicense": "Phân phối phải dùng cùng giấy phép GPL v3.0",
+        "disclose": "Tiết lộ mã nguồn khi phân phối phần mềm"
+      },
+      "links": {
+        "readFull": "📖 Đọc toàn văn giấy phép",
+        "viewFile": "📄 Xem file LICENSE",
+        "learnMore": "❓ Tìm hiểu thêm về GPL v3.0"
+      },
+      "copyright": "© 2025 OpenDataFitHou",
+      "contributors": "Tất cả các cộng tác viên",
+      "program": "Dự án thuộc chương trình <strong>OLP PMNM 2025</strong>",
+      "disclaimer": "<strong>Lưu ý:</strong> Đây chỉ là tóm tắt thông tin giấy phép. Vui lòng đọc toàn văn <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">GNU GPL v3.0</a> để hiểu đầy đủ quyền và nghĩa vụ của bạn."
+    },
+    "footer": {
+      "queryData": "Truy vấn dữ liệu",
+      "services": "Dịch vụ",
+      "resources": "Tài nguyên",
+      "contact": "Liên hệ",
+      "organization": "Tổ chức",
+      "githubRepo": "Kho lưu trữ GitHub",
+      "copyright": "© 2025 OpenDataFitHou. Được cấp phép theo GNU General Public License.",
+      "tagline": "Open Data for Digital Transformation 🌍✨"
+    }
   },
   "map": {
     "title": "Bản đồ",
+    "layers": "Lớp bản đồ",
     "currentLocation": "📍 Vị trí hiện tại của bạn",
     "detectedByGPS": "Được xác định bởi GPS",
     "latitude": "Vĩ độ",
@@ -56,9 +113,10 @@
     "nearby": {
       "title": "Địa điểm gần đây",
       "radius": "Bán kính",
-      "selectType": "🏷️ Loại địa điểm:",
+      "selectType": "Loại địa điểm:",
       "selectRadius": "📏 Bán kính:",
       "toilets": "🚻 Nhà vệ sinh",
+      "drinkingWater": "Nước uống",
       "atms": "🏧 ATM",
       "hospitals": "🏥 Bệnh viện",
       "busStops": "🚌 Trạm xe buýt",
@@ -72,16 +130,19 @@
       "found": "✅ Tìm thấy",
       "inRadius": "trong bán kính",
       "selectAndSearch": "ℹ️ Chọn loại địa điểm và bán kính, sau đó nhấn \"Tìm kiếm\"",
-      "noPlacesFound": "❌ Không tìm thấy"
+      "noPlacesFound": "❌ Không tìm thấy",
+      "results": "địa điểm",
+      "clear": "Xóa",
+      "clearResults": "Xóa kết quả tìm kiếm"
     },
     "info": {
       "title": "Thông tin địa điểm",
-      "basicTab": "📋 Cơ bản",
-      "identifiersTab": "🔗 Định danh",
-      "statementsTab": "📊 Thuộc tính",
-      "referencesTab": "📚 Tham chiếu",
-      "membersTab": "👥 Thành viên",
-      "tasksTab": "⚡ Tác vụ",
+      "basicTab": "Cơ bản",
+      "identifiersTab": "Định danh",
+      "statementsTab": "Thuộc tính",
+      "referencesTab": "Tham chiếu",
+      "membersTab": "Thành viên",
+      "tasksTab": "Tác vụ",
       "name": "Tên",
       "address": "Địa chỉ",
       "coordinates": "Tọa độ",
@@ -89,16 +150,67 @@
       "distance": "Khoảng cách",
       "viewOnWikidata": "Xem trên Wikidata",
       "viewOnOSM": "Xem trên OpenStreetMap",
-      "noData": "Không có dữ liệu"
+      "noData": "Không có dữ liệu",
+      "wardInfo": "Thông tin phường/xã",
+      "loadingBoundary": "Đang tải ranh giới...",
+      "area": "Diện tích",
+      "population": "Dân số",
+      "density": "Mật độ",
+      "peoplePerKm": "người/km²",
+      "publicServices": "Dịch vụ công cộng",
+      "loadingServices": "Đang tải dịch vụ...",
+      "schools": "Trường học",
+      "healthcare": "Y tế",
+      "restaurants": "Nhà hàng",
+      "banks": "Ngân hàng",
+      "emptyState": "Tìm kiếm và chọn một phường/xã để xem thông tin chi tiết",
+      "noCoordinates": "Không có tọa độ để tìm kiếm gần đây",
+      "nearbyPlaces": "Địa điểm gần đây",
+      "routeCalculator": "Tính toán lộ trình",
+      "statistics": "Thống kê",
+      "routeUnderDev": "Tính năng tính toán lộ trình đang được phát triển...",
+      "statsUnderDev": "Tính năng thống kê đang được phát triển...",
+      "access": "Truy cập",
+      "fee": "Phí",
+      "paid": "Có phí",
+      "free": "Miễn phí",
+      "poiUri": "POI URI",
+      "noIdentifiers": "Không có định danh",
+      "inception": "Thành lập",
+      "areaKm": "Diện tích (km²)",
+      "postalCode": "Mã bưu điện",
+      "noStatements": "Không có thuộc tính",
+      "noReferences": "Không có tham chiếu hoặc liên kết ngoài",
+      "externalLinks": "Liên kết ngoài",
+      "references": "Tham chiếu",
+      "reference": "Tham chiếu",
+      "noMembers": "Không có dữ liệu thành viên",
+      "outerWays": "Outer Ways",
+      "innerWays": "Inner Ways",
+      "nodes": "Nodes",
+      "subAreas": "Sub-areas (Relations)",
+      "membersOverview": "Tổng quan thành viên",
+      "total": "Tổng",
+      "members": "thành viên",
+      "type": "Loại",
+      "id": "ID",
+      "tags": "Tags",
+      "showingItems": "Hiển thị {{shown}}/{{total}} mục"
     },
     "download": {
       "button": "Tải xuống dữ liệu",
+      "downloadXML": "Tải xuống dưới dạng XML",
+      "downloadRDF": "Tải xuống dưới dạng RDF/XML",
       "formats": {
         "json": "JSON",
         "csv": "CSV",
         "geojson": "GeoJSON"
       }
-    }
+    },
+    "yourLocation": "Vị trí của bạn",
+    "memberType": "Loại",
+    "memberWay": "Đường",
+    "memberRelation": "Quan hệ"
   },
   "query": {
     "title": "Truy vấn SPARQL",
@@ -116,7 +228,14 @@
       "allATMs": "🏧 Lấy 10 ATM đầu tiên"
     },
     "prefixes": "Prefixes",
-    "count": "số kết quả"
+    "count": "số kết quả",
+    "emptyQueryError": "Truy vấn trống",
+    "emptyQueryMessage": "Vui lòng nhập truy vấn SPARQL",
+    "executionError": "Lỗi thực thi truy vấn",
+    "unknownError": "Lỗi không xác định",
+    "foundResults": "Tìm thấy <strong>{{count}}</strong> kết quả",
+    "downloadJSON": "Tải xuống JSON",
+    "editorTitle": "Trình soạn thảo truy vấn"
   },
   "tour": {
     "startTour": "Hướng dẫn sử dụng",
@@ -140,6 +259,204 @@
         "title": "Tải xuống dữ liệu",
         "description": "Xuất dữ liệu ra các định dạng khác nhau"
       }
+    }
+  },
+  "chatbot": {
+    "welcomeMessage": "Xin chào! Tôi là trợ lý AI của bạn. Tôi có thể giúp gì cho bạn hôm nay?",
+    "mapWelcomeMessage": "Xin chào! Tôi có thể giúp bạn thông tin về địa điểm, danh lam thắng cảnh và địa lý. Bạn muốn biết gì?",
+    "inputPlaceholder": "Hỏi tôi bất cứ điều gì về địa điểm, danh lam thắng cảnh hoặc địa lý Việt Nam...",
+    "mapInputPlaceholder": "Hỏi về địa điểm...",
+    "thinking": "Đang suy nghĩ...",
+    "sendButton": "Gửi tin nhắn",
+    "startListening": "Nhấn để nói",
+    "stopListening": "Đang nghe...",
+    "processingError": "Xin lỗi, tôi không thể xử lý yêu cầu của bạn.",
+    "errorMessage": "⚠️ Xin lỗi, tôi gặp lỗi. Vui lòng thử lại sau.",
+    "noResponse": "Không nhận được phản hồi",
+    "failedResponse": "⚠️ Không thể nhận phản hồi. Vui lòng thử lại.",
+    "responseLabel": "Phản hồi:",
+    "aiAssistant": "Trợ lý AI",
+    "openAiAssistant": "Mở trợ lý AI"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Quản trị",
+      "dashboard": "Tổng quan",
+      "environment": "Giám sát môi trường",
+      "pois": "Quản lý điểm",
+      "reports": "Báo cáo"
+    },
+    "dashboard": {
+      "title": "Tổng quan hệ thống",
+      "subtitle": "Chào mừng đến với trang quản trị OpenDataFitHou",
+      "welcome": "Chào mừng đến trang quản trị",
+      "description": "Đây là trang tổng quan hệ thống quản trị OpenDataFitHou. Sử dụng menu bên trái để điều hướng đến các chức năng quản lý khác nhau.",
+      "totalPois": "Tổng số điểm",
+      "monitoringPoints": "Điểm giám sát",
+      "totalReports": "Tổng số báo cáo"
+    },
+    "pois": {
+      "title": "Quản lý điểm quan tâm (POIs)",
+      "subtitle": "Thêm, sửa và xóa các điểm quan tâm trong hệ thống",
+      "addNew": "Thêm POI mới",
+      "searchPlaceholder": "Tìm kiếm theo tên hoặc loại...",
+      "loading": "Đang tải dữ liệu...",
+      "noData": "Chưa có dữ liệu POI",
+      "noResults": "Không tìm thấy kết quả phù hợp",
+      "unnamed": "Chưa đặt tên",
+      "filter": {
+        "type": "Loại POI"
+      },
+      "table": {
+        "name": "Tên",
+        "type": "Loại",
+        "coordinates": "Tọa độ",
+        "address": "Địa chỉ",
+        "phone": "Số điện thoại",
+        "operator": "Nhà vận hành",
+        "actions": "Thao tác",
+        "openingHours": "Giờ mở cửa",
+        "fee": "Phí",
+        "wheelchair": "Hỗ trợ xe lăn",
+        "educationLevel": "Cấp học",
+        "routes": "Tuyến xe",
+        "shelter": "Nhà chờ",
+        "bench": "Ghế ngồi",
+        "lighting": "Chiếu sáng",
+        "surface": "Mặt sân",
+        "drinkable": "Nước uống"
+      },
+      "type": {
+        "toilet": "Nhà vệ sinh",
+        "school": "Trường học",
+        "busStop": "Trạm xe buýt",
+        "playGround": "Sân chơi",
+        "drinkingWater": "Nước uống"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "delete": "Xóa"
+      },
+      "pagination": {
+        "previous": "Trước",
+        "next": "Sau",
+        "page": "Trang"
+      },
+      "modal": {
+        "title": "Thêm POI mới"
+      },
+      "form": {
+        "name": "Tên",
+        "namePlaceholder": "Vd: ATM Vietcombank Láng Hạ",
+        "type": "Loại",
+        "latitude": "Vĩ độ",
+        "longitude": "Kinh độ",
+        "address": "Địa chỉ",
+        "addressPlaceholder": "Vd: 123 Đường ABC, Quận XYZ, Hà Nội",
+        "cancel": "Hủy",
+        "submit": "Tạo POI",
+        "submitting": "Đang tạo..."
+      },
+      "error": {
+        "fetchFailed": "Không thể tải danh sách POI",
+        "nameRequired": "Vui lòng nhập tên",
+        "typeRequired": "Vui lòng chọn loại",
+        "invalidLat": "Vĩ độ không hợp lệ (-90 đến 90)",
+        "invalidLon": "Kinh độ không hợp lệ (-180 đến 180)",
+        "createFailed": "Không thể tạo POI",
+        "deleteFailed": "Không thể xóa POI"
+      },
+      "success": {
+        "created": "Tạo POI thành công!",
+        "deleted": "Xóa POI thành công!"
+      },
+      "confirm": {
+        "delete": "Bạn có chắc chắn muốn xóa POI này?"
+      }
+    }
+  },
+  "login": {
+    "system": {
+      "title": "HỆ THỐNG XÁC THỰC",
+      "subtitle": "MFITHOU"
+    },
+    "form": {
+      "title": "ĐĂNG NHẬP",
+      "subtitle": "Vui lòng nhập thông tin đăng nhập của bạn",
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập",
+      "submitting": "Đang xử lý...",
+      "forgotPassword": "Quên mật khẩu?"
+    },
+    "error": {
+      "invalid": "Tên đăng nhập hoặc mật khẩu không đúng"
+    },
+    "demo": {
+      "title": "Thông tin đăng nhập demo",
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu"
+    }
+  },
+  "layerControl": {
+    "title": "Layers",
+    "enableAll": "Bật tất cả",
+    "disableAll": "Tắt tất cả",
+    "density": "Mật độ",
+    "points": "điểm",
+    "layers": {
+      "atm": "ATM",
+      "bank": "Ngân hàng",
+      "restaurant": "Nhà hàng",
+      "cafe": "Quán cà phê",
+      "hospital": "Bệnh viện",
+      "school": "Trường học",
+      "bus_stop": "Trạm xe buýt",
+      "park": "Công viên",
+      "charging_station": "Trạm sạc",
+      "pharmacy": "Hiệu thuốc",
+      "police": "Đồn công an",
+      "fire_station": "Trạm cứu hỏa",
+      "parking": "Bãi đỗ xe",
+      "fuel_station": "Trạm xăng",
+      "supermarket": "Siêu thị",
+      "library": "Thư viện",
+      "convenience_store": "Cửa hàng tiện lợi"
+    }
+  },
+  "aqi": {
+    "title": "Chất lượng không khí",
+    "showLayer": "Hiển thị AQI",
+    "hideLayer": "Ẩn AQI",
+    "station": "Trạm",
+    "level": {
+      "good": "Tốt",
+      "moderate": "Trung bình",
+      "unhealthySensitive": "Kém (nhạy cảm)",
+      "unhealthy": "Xấu",
+      "veryUnhealthy": "Rất xấu",
+      "hazardous": "Nguy hại",
+      "unknown": "Không xác định"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "Thời tiết",
+    "showLayer": "Hiển thị thời tiết",
+    "hideLayer": "Ẩn thời tiết",
+    "station": "Trạm",
+    "temperature": "Nhiệt độ",
+    "humidity": "Độ ẩm",
+    "windSpeed": "Tốc độ gió",
+    "rainfall": "Lượng mưa",
+    "forecast": {
+      "title": "Dự báo thời tiết",
+      "loading": "Đang tải dự báo...",
+      "chanceOfRain": "Khả năng mưa",
+      "feelsLike": "Cảm giác như",
+      "high": "Cao nhất",
+      "low": "Thấp nhất"
     }
   }
 }

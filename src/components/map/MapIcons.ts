@@ -16,70 +16,50 @@
  */
 
 import L from "leaflet";
+import 'leaflet.awesome-markers';
+import 'leaflet.awesome-markers/dist/leaflet.awesome-markers.css';
 
-// Custom icons cho các loại POI - THU NHỎ SIZE
-export const schoolIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
+// Custom icons using leaflet.awesome-markers with FontAwesome
+export const schoolIcon = L.AwesomeMarkers.icon({
+  icon: 'graduation-cap',
+  markerColor: 'green',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
-export const hospitalIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
+export const hospitalIcon = L.AwesomeMarkers.icon({
+  icon: 'hospital',
+  markerColor: 'red',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
-export const restaurantIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
+export const restaurantIcon = L.AwesomeMarkers.icon({
+  icon: 'cutlery',
+  markerColor: 'orange',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
-export const bankIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
-  iconSize: [20, 33],
-  iconAnchor: [10, 33],
-  popupAnchor: [0, -33],
+export const bankIcon = L.AwesomeMarkers.icon({
+  icon: 'bank',
+  markerColor: 'blue',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
-export const searchIcon = new L.Icon({
-  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [0, -41],
+export const searchIcon = L.AwesomeMarkers.icon({
+  icon: 'search',
+  markerColor: 'purple',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
-export const currentLocationIcon = L.divIcon({
-  html: `
-    <div style="
-      width: 20px;
-      height: 20px;
-      background: #4285F4;
-      border: 3px solid white;
-      border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      position: relative;
-    ">
-      <div style="
-        position: absolute;
-        width: 40px;
-        height: 40px;
-        background: rgba(66, 133, 244, 0.2);
-        border-radius: 50%;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        animation: pulse 2s infinite;
-      "></div>
-    </div>
-  `,
-  className: 'current-location-marker',
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
+export const currentLocationIcon = L.AwesomeMarkers.icon({
+  icon: 'location-arrow',
+  markerColor: 'cadetblue',
+  prefix: 'fa',
+  iconColor: 'white'
 });
 
 // Ward boundary style

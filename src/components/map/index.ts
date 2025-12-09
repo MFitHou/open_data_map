@@ -18,12 +18,24 @@
 // Main component
 export { default as SimpleMap } from './SimpleMap';
 
+// Layer Control
+export { default as LayerControl } from './LayerControl';
+
+// Search components
+export { Search } from './Search';
+export { SmartSearch } from './SmartSearch';
+
 // Map-specific sub-components
 export { FlyToLocation } from './FlyToLocation';
 export { NearbyMarkers } from './NearbyMarkers';
 export { MemberOutlines } from './MemberOutlines';
 export { Search } from './Search';
 export { default as MapChatbot } from './MapChatbot';
+export { LayerMenu } from './LayerMenu';
+
+// AQI & Weather Layers
+export { AQIMarkers, AQIToggleButton, useAQILayer } from './AQILayer';
+export { WeatherMarkers, WeatherToggleButton, ForecastPanel, useWeatherLayer } from './WeatherLayer';
 
 // Utils
 export * from './MapUtils';

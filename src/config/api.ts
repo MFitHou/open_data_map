@@ -30,9 +30,17 @@ export const API_CONFIG = {
   // Fuseki SPARQL endpoints
   fusekiBaseUrl: import.meta.env.VITE_FUSEKI_BASE_URL || 'https://opendatamap.hou.edu.vn/api/fuseki',
   
-  // External APIs
-  overpassApiUrl: import.meta.env.VITE_OVERPASS_API_URL || 'https://overpass-api.de/api/interpreter',
-  wikidataSparqlUrl: import.meta.env.VITE_WIKIDATA_SPARQL_URL || 'https://query.wikidata.org/sparql',
+  // Wikidata API
+  wikidataBaseUrl: import.meta.env.VITE_WIKIDATA_BASE_URL || 'https://opendatamap.hou.edu.vn/api/wikidata',
+  
+  // Overpass API 
+  overpassBaseUrl: import.meta.env.VITE_OVERPASS_BASE_URL || 'https://opendatamap.hou.edu.vn/api/overpass',
+  
+  // Admin API
+  adminBaseUrl: import.meta.env.VITE_ADMIN_BASE_URL || 'http://localhost:3000/api/admin',
+
+  // Smart Search API
+  smartSearchApiUrl: import.meta.env.VITE_SMART_SEARCH_API_URL || 'https://opendatamap.hou.edu.vn/api/chat/smart-search',
 } as const;
 
 /**
@@ -47,9 +55,32 @@ export const getApiEndpoint = {
   fusekiAtms: () => `${API_CONFIG.fusekiBaseUrl}/atms`,
   fusekiNearby: (amenity: string) => `${API_CONFIG.fusekiBaseUrl}/${amenity}/nearby`,
   
-  // External APIs
-  overpass: () => API_CONFIG.overpassApiUrl,
-  wikidata: () => API_CONFIG.wikidataSparqlUrl,
+  // Wikidata endpoints
+  wikidataInfo: (qid: string) => `${API_CONFIG.wikidataBaseUrl}/info/${qid}`,
+  wikidataLabels: (ids: string[]) => `${API_CONFIG.wikidataBaseUrl}/labels?ids=${ids.join(',')}`,
+  wikidataSearch: (query: string, limit?: number) => {
+    const params = new URLSearchParams({ query });
+    if (limit) params.append('limit', limit.toString());
+    return `${API_CONFIG.wikidataBaseUrl}/search?${params.toString()}`;
+  },
+  
+  // Overpass endpoints 
+  overpassRaw: (qid: string) => `${API_CONFIG.overpassBaseUrl}/raw/${qid}`,
+  overpassOutline: (qid: string) => `${API_CONFIG.overpassBaseUrl}/outline/${qid}`,
+  overpassRelation: (relationId: number) => `${API_CONFIG.overpassBaseUrl}/relation/${relationId}`,
+  
+  // Admin endpoints
+  adminStats: () => `${API_CONFIG.adminBaseUrl}/stats`,
+  adminPois: () => `${API_CONFIG.adminBaseUrl}/pois`,
+  adminPoi: (id?: string) => id ? `${API_CONFIG.adminBaseUrl}/pois/${id}` : `${API_CONFIG.adminBaseUrl}/pois`,
+  adminHealth: () => `${API_CONFIG.adminBaseUrl}/health`,
+  
+  // Admin IoT endpoints
+  adminIotTraffic: () => `${API_CONFIG.adminBaseUrl}/iot/traffic`,
+  adminIotFlood: () => `${API_CONFIG.adminBaseUrl}/iot/flood`,
+
+  // Smart Search API
+  smartSearch: () => API_CONFIG.smartSearchApiUrl,
 } as const;
 
 export default API_CONFIG;

@@ -21,6 +21,12 @@ import Home from './components/home/Home';
 import SimpleMap from './components/map/SimpleMap';
 import { Query } from './components/query/Query';
 import Chatbot from './components/chatbot/Chatbot';
+import { AdminLayout } from './components/admin/AdminLayout';
+import { Dashboard } from './components/admin/Dashboard';
+import { EnvironmentMonitoring } from './components/admin/EnvironmentMonitoring';
+import { ManagePois } from './components/admin/ManagePois';
+import { Login } from './components/auth/Login';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import './i18n/config';
 
 function App() {
@@ -33,6 +39,19 @@ function App() {
           <Route path="/map" element={<SimpleMap />} />
           <Route path="/query" element={<Query />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/login" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="environment" element={<EnvironmentMonitoring />} />
+            <Route path="pois" element={<ManagePois />} />
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>

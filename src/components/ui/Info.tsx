@@ -16,6 +16,7 @@
  */
 
 import React from "react";
+import { useTranslation } from 'react-i18next';
 import "../../styles/components/Info.css";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faSpinner, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -44,10 +45,12 @@ export const Info: React.FC<InfoProps> = ({
   isLoadingBoundary,
   isLoadingPOIs,
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="info-container">
       <div className="info-header">
-        <h4><FontAwesomeIcon icon={faChartBar} /> Ward Information</h4>
+        <h4><FontAwesomeIcon icon={faChartBar} /> {t('map.info.wardInfo')}</h4>
       </div>
 
       {isLoadingBoundary ? (
@@ -55,7 +58,7 @@ export const Info: React.FC<InfoProps> = ({
           <div className="loading-spinner">
             <FontAwesomeIcon icon={faSpinner} spin />
           </div>
-          <p>Loading boundary...</p>
+          <p>{t('map.info.loadingBoundary')}</p>
         </div>
       ) : wardName ? (
         <div className="info-content">
@@ -70,7 +73,7 @@ export const Info: React.FC<InfoProps> = ({
             <div className="stat-item">
               <div className="stat-icon">📏</div>
               <div className="stat-details">
-                <div className="stat-label">Area</div>
+                <div className="stat-label">{t('map.info.area')}</div>
                 <div className="stat-value">{stats.calculatedArea} km²</div>
               </div>
             </div>
@@ -79,7 +82,7 @@ export const Info: React.FC<InfoProps> = ({
               <div className="stat-item">
                 <div className="stat-icon">👥</div>
                 <div className="stat-details">
-                  <div className="stat-label">Population</div>
+                  <div className="stat-label">{t('map.info.population')}</div>
                   <div className="stat-value">
                     {stats.population.toLocaleString()}
                   </div>
@@ -91,9 +94,9 @@ export const Info: React.FC<InfoProps> = ({
               <div className="stat-item">
                 <div className="stat-icon">🏘️</div>
                 <div className="stat-details">
-                  <div className="stat-label">Density</div>
+                  <div className="stat-label">{t('map.info.density')}</div>
                   <div className="stat-value">
-                    {stats.density.toLocaleString()} people/km²
+                    {stats.density.toLocaleString()} {t('map.info.peoplePerKm')}
                   </div>
                 </div>
               </div>
@@ -102,14 +105,14 @@ export const Info: React.FC<InfoProps> = ({
 
           {/* POIs */}
           <div className="info-section">
-            <div className="section-title">Public Services</div>
+            <div className="section-title">{t('map.info.publicServices')}</div>
             
             {isLoadingPOIs ? (
               <div className="poi-loading">
                 <div className="loading-spinner">
                   <FontAwesomeIcon icon={faSpinner} spin />
                 </div>
-                <span>Loading services...</span>
+                <span>{t('map.info.loadingServices')}</span>
               </div>
             ) : (
               <div className="poi-grid">
@@ -145,7 +148,7 @@ export const Info: React.FC<InfoProps> = ({
           <div className="empty-icon">
             <FontAwesomeIcon icon={faSearch} size="2x" />
           </div>
-          <p>Search and select a ward to view detailed information</p>
+          <p>{t('map.info.emptyState')}</p>
         </div>
       )}
     </div>

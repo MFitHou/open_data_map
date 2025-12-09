@@ -17,6 +17,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTranslation } from 'react-i18next';
 import { getApiEndpoint } from '../../config/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -36,10 +37,12 @@ interface Message {
 }
 
 const Chatbot: React.FC = () => {
+  const { t } = useTranslation();
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Hello! I am your AI assistant. How can I help you today?',
+      content: t('chatbot.welcomeMessage'),
       isUser: false,
       timestamp: new Date()
     }
@@ -101,7 +104,7 @@ const Chatbot: React.FC = () => {
       const data = await response.json();
       
       // Parse the response structure
-      let botResponseText = 'Sorry, I could not process your request.';
+      let botResponseText = t('chatbot.processingError');
       
       if (Array.isArray(data) && data.length > 0) {
         // Handle array response format
@@ -135,7 +138,7 @@ const Chatbot: React.FC = () => {
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: '⚠️ Sorry, I encountered an error. Please try again later.',
+        content: t('chatbot.errorMessage'),
         isUser: false,
         timestamp: new Date()
       };
@@ -204,7 +207,7 @@ const Chatbot: React.FC = () => {
             <div className="message-content">
               <div className="message-text typing-indicator">
                 <FontAwesomeIcon icon={faSpinner} spin />
-                <span>Thinking...</span>
+                <span>{t('chatbot.thinking')}</span>
               </div>
             </div>
           </div>
@@ -220,7 +223,7 @@ const Chatbot: React.FC = () => {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Ask me anything about Vietnam's locations, landmarks, or geography..."
+          placeholder={t('chatbot.inputPlaceholder')}
           disabled={isLoading}
           className="chatbot-input"
         />
@@ -228,7 +231,7 @@ const Chatbot: React.FC = () => {
           onClick={sendMessage}
           disabled={!inputValue.trim() || isLoading}
           className="send-btn"
-          title="Send message"
+          title={t('chatbot.sendButton')}
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>

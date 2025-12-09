@@ -1,0 +1,394 @@
+{
+  "common": {
+    "button": {
+      "search": "搜尋",
+      "close": "關閉",
+      "download": "下載",
+      "findNearby": "尋找附近地點",
+      "execute": "執行",
+      "cancel": "取消",
+      "clear": "清除",
+      "getCurrentLocation": "目前位置"
+    },
+    "status": {
+      "loading": "載入中...",
+      "noData": "無資料",
+      "error": "發生錯誤",
+      "searching": "搜尋中...",
+      "noResults": "找不到結果"
+    },
+    "language": {
+      "vi": "越南文",
+      "en": "英文",
+      "zh-TW": "繁體中文"
+    }
+  },
+  "nav": {
+    "home": "首頁",
+    "map": "地圖",
+    "query": "查詢",
+    "admin": "管理"
+  },
+  "home": {
+    "title": "OpenDataFitHou",
+    "slogan": "開放資料促進數位轉型",
+    "searchPlaceholder": "搜尋越南地點... (例如：還劍湖、文廟、BIDV)",
+    "suggestionsTitle": "💡 熱門搜尋建議：",
+    "noResultsFor": "找不到",
+    "description": "OpenDataFitHou 是一個開源專案，從 Wikidata、OpenStreetMap 和其他來源收集並連結開放資料。我們將資料標準化為關聯開放資料 (RDF) 格式，並在地圖上視覺化，使查詢、分析和應用程式開發更加容易。",
+    "descriptionExtra": "此專案促進數位轉型，為研究、教育和社群開放資料探索創造機會。🌍✨",
+    "intro": {
+      "title": "📋 專案簡介",
+      "objectiveTitle": "目標",
+      "objective": "收集、標準化並提供關聯開放資料格式的開放資料",
+      "contextTitle": "背景",
+      "context": "屬於 OLP PMNM 2025，服務研究與數位轉型",
+      "visionTitle": "願景",
+      "vision": "資料透明、社群支援、易於重用"
+    },
+    "features": {
+      "dataTypesTitle": "📊 資料類型",
+      "title": "⭐ 主要功能",
+      "search": "搜尋越南地點",
+      "display": "在地圖上顯示和標記地點",
+      "details": "顯示詳細地點資訊",
+      "nearby": "尋找附近服務，如 ATM、公車站",
+      "download": "下載 XML 或 RDF 格式的地點資料",
+      "query": "使用 SPARQL 查詢資料"
+    },
+    "video": {
+      "title": "介紹影片"
+    },
+    "license": {
+      "title": "📄 授權資訊",
+      "name": "GNU 通用公共授權條款 v3.0",
+      "subtitle": "開源授權",
+      "description": "OpenDataFitHou 採用 <strong>GNU GPL v3.0</strong> 授權，確保社群的開放性和自由。您可以：",
+      "permissions": {
+        "use": "<strong>使用</strong> - 自由使用於任何目的",
+        "share": "<strong>分享</strong> - 複製和分發",
+        "modify": "<strong>修改</strong> - 變更和改進"
+      },
+      "requirementsTitle": "📋 使用要求：",
+      "requirements": {
+        "copyleft": "衍生作品必須使用相同授權",
+        "attribution": "保留原作者資訊",
+        "disclose": "分發軟體時必須公開原始碼"
+      },
+      "links": {
+        "fullText": "📜 完整授權條款",
+        "learnMore": "❓ 了解更多關於 GPL v3.0"
+      },
+      "copyright": "© 2025 OpenDataFitHou",
+      "contributors": "所有貢獻者",
+      "program": "專案屬於 <strong>OLP PMNM 2025</strong> 計畫",
+      "disclaimer": "<strong>注意：</strong>這僅是授權資訊摘要。請閱讀完整的 <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">GNU GPL v3.0</a> 以全面了解您的權利和義務。"
+    },
+    "footer": {
+      "queryData": "查詢資料",
+      "services": "服務",
+      "resources": "資源",
+      "contact": "聯絡",
+      "organization": "組織",
+      "githubRepo": "GitHub 儲存庫",
+      "copyright": "© 2025 OpenDataFitHou. 根據 GNU 通用公共授權條款授權。",
+      "tagline": "開放資料促進數位轉型 🌍✨"
+    }
+  },
+  "map": {
+    "title": "地圖",
+    "layers": "地圖圖層",
+    "currentLocation": "📍 您目前的位置",
+    "detectedByGPS": "由 GPS 偵測",
+    "latitude": "緯度",
+    "longitude": "經度",
+    "accuracy": "精確度",
+    "search": {
+      "placeholder": "在地圖上搜尋地點... (例如：還劍湖、文廟、BIDV)",
+      "noResults": "找不到結果",
+      "searching": "搜尋中..."
+    },
+    "nearby": {
+      "title": "附近地點",
+      "radius": "半徑",
+      "selectType": "地點類型：",
+      "selectRadius": "📏 半徑：",
+      "toilets": "🚻 廁所",
+      "drinkingWater": "飲用水",
+      "atms": "🏧 ATM",
+      "hospitals": "🏥 醫院",
+      "busStops": "🚌 公車站",
+      "distance": "距離",
+      "type": "類型",
+      "brand": "品牌",
+      "operator": "營運者",
+      "km": "公里",
+      "noResults": "找不到地點",
+      "searching": "⏳ 搜尋附近地點中...",
+      "found": "✅ 找到",
+      "inRadius": "在半徑內",
+      "selectAndSearch": "ℹ️ 選擇地點類型和半徑，然後按「搜尋」",
+      "noPlacesFound": "❌ 找不到地點"
+    },
+    "info": {
+      "title": "地點資訊",
+      "basicTab": "基本",
+      "identifiersTab": "識別碼",
+      "statementsTab": "陳述",
+      "referencesTab": "參考",
+      "membersTab": "成員",
+      "tasksTab": "任務",
+      "name": "名稱",
+      "address": "地址",
+      "coordinates": "座標",
+      "properties": "屬性",
+      "distance": "距離",
+      "viewOnWikidata": "在 Wikidata 上查看",
+      "viewOnOSM": "在 OpenStreetMap 上查看",
+      "noData": "無資料",
+      "wardInfo": "行政區資訊",
+      "loadingBoundary": "載入邊界中...",
+      "area": "面積",
+      "population": "人口",
+      "density": "密度",
+      "peoplePerKm": "人/平方公里",
+      "publicServices": "公共服務",
+      "loadingServices": "載入服務中...",
+      "schools": "學校",
+      "healthcare": "醫療",
+      "restaurants": "餐廳",
+      "banks": "銀行",
+      "emptyState": "搜尋並選擇行政區以查看詳細資訊",
+      "noCoordinates": "無座標可進行附近搜尋",
+      "nearbyPlaces": "附近地點",
+      "routeCalculator": "路線計算",
+      "statistics": "統計",
+      "routeUnderDev": "路線計算功能開發中...",
+      "statsUnderDev": "統計功能開發中...",
+      "access": "存取",
+      "fee": "費用",
+      "paid": "付費",
+      "free": "免費",
+      "poiUri": "POI URI",
+      "noIdentifiers": "無識別碼",
+      "inception": "成立",
+      "areaKm": "面積 (平方公里)",
+      "postalCode": "郵遞區號",
+      "noStatements": "無陳述",
+      "noReferences": "無參考或外部連結",
+      "externalLinks": "外部連結",
+      "references": "參考",
+      "reference": "參考",
+      "noMembers": "無成員資料",
+      "outerWays": "外部路徑",
+      "innerWays": "內部路徑",
+      "nodes": "節點",
+      "showAll": "顯示全部",
+      "hideExtra": "隱藏額外內容",
+      "showingItems": "顯示 {{shown}}/{{total}} 項目"
+    },
+    "download": {},
+    "yourLocation": "您的位置",
+    "memberType": "類型",
+    "memberWay": "路徑",
+    "memberRelation": "關係"
+  },
+  "query": {
+    "title": "SPARQL 查詢",
+    "subtitle": "查詢 MFithou 資料",
+    "placeholder": "在此輸入 SPARQL 查詢...",
+    "execute": "執行查詢",
+    "results": "結果",
+    "noResults": "無結果",
+    "error": "查詢錯誤",
+    "characters": "字元",
+    "tableView": "表格",
+    "placeholderText": "輸入查詢並按「執行」查看結果",
+    "examples": {
+      "atms": "🏧 ATM",
+      "allATMs": "🏧 取得前 10 個 ATM"
+    },
+    "prefixes": "前綴",
+    "count": "結果",
+    "emptyQueryError": "空查詢",
+    "emptyQueryMessage": "請輸入 SPARQL 查詢",
+    "executionError": "查詢執行錯誤",
+    "unknownError": "未知錯誤",
+    "foundResults": "找到 <strong>{{count}}</strong> 個結果",
+    "downloadJSON": "下載 JSON",
+    "editorTitle": "查詢編輯器"
+  },
+  "tour": {
+    "startTour": "開始導覽",
+    "next": "下一步",
+    "previous": "上一步",
+    "close": "關閉",
+    "steps": {
+      "welcome": "歡迎使用 OpenDataFitHou！讓我們快速導覽主要功能。",
+      "search": "在此搜尋越南的地點。嘗試「還劍湖」或「河內」。",
+      "map": "地點將顯示在互動式地圖上。點擊標記以查看詳細資訊。",
+      "nearby": "尋找附近服務，如 ATM、公車站和醫院。",
+      "info": "查看詳細地點資訊，包括座標和屬性。",
+      "download": "將資料下載為 XML 或 RDF 格式以供您使用。"
+    }
+  },
+  "chatbot": {
+    "welcomeMessage": "您好！我是您的 AI 助理。今天我能為您做什麼？",
+    "mapWelcomeMessage": "您好！我可以幫助您了解地點、地標和地理資訊。您想知道什麼？",
+    "inputPlaceholder": "詢問我任何關於越南地點、地標或地理的問題...",
+    "mapInputPlaceholder": "詢問地點...",
+    "thinking": "思考中...",
+    "sendButton": "傳送訊息",
+    "startListening": "點擊說話",
+    "stopListening": "聆聽中...",
+    "processingError": "抱歉，我無法處理您的請求。",
+    "errorMessage": "⚠️ 抱歉，我遇到錯誤。請稍後再試。",
+    "noResponse": "未收到回應",
+    "failedResponse": "⚠️ 無法取得回應。請重試。",
+    "responseLabel": "回應：",
+    "aiAssistant": "AI 助理",
+    "openAiAssistant": "開啟 AI 助理"
+  },
+  "admin": {
+    "sidebar": {
+      "dashboard": "儀表板",
+      "pois": "POI 管理",
+      "users": "使用者",
+      "map": "地圖監控",
+      "reports": "報告"
+    },
+    "dashboard": {
+      "title": "管理儀表板",
+      "totalPOIs": "總 POI 數",
+      "totalUsers": "總使用者數",
+      "activeUsers": "活躍使用者",
+      "totalReports": "總報告數"
+    },
+    "pois": {
+      "title": "POI 管理",
+      "subtitle": "在地圖上管理興趣點 (POI)",
+      "addNew": "新增 POI",
+      "filter": {
+        "type": "類型"
+      },
+      "table": {
+        "name": "名稱",
+        "type": "類型",
+        "coordinates": "座標",
+        "address": "地址",
+        "actions": "操作",
+        "operator": "營運者",
+        "openingHours": "營業時間",
+        "fee": "費用",
+        "wheelchair": "輪椅無障礙",
+        "phone": "電話",
+        "educationLevel": "教育程度",
+        "routes": "路線",
+        "shelter": "遮蔽",
+        "bench": "座位",
+        "lighting": "照明",
+        "surface": "地表",
+        "drinkable": "可飲用"
+      },
+      "actions": {
+        "edit": "編輯",
+        "delete": "刪除"
+      },
+      "loading": "載入中...",
+      "noData": "無 POI 資料",
+      "searchPlaceholder": "搜尋 POI...",
+      "noResults": "找不到結果",
+      "pagination": {
+        "previous": "上一頁",
+        "next": "下一頁",
+        "page": "頁面"
+      },
+      "modal": {
+        "title": "新增 POI"
+      },
+      "form": {
+        "name": "名稱",
+        "namePlaceholder": "輸入 POI 名稱",
+        "type": "類型",
+        "latitude": "緯度",
+        "longitude": "經度",
+        "address": "地址",
+        "addressPlaceholder": "輸入地址（選填）",
+        "submit": "新增 POI",
+        "submitting": "正在新增...",
+        "cancel": "取消"
+      },
+      "error": {
+        "fetchFailed": "載入 POI 失敗",
+        "createFailed": "建立 POI 失敗",
+        "deleteFailed": "刪除 POI 失敗",
+        "nameRequired": "需要名稱",
+        "typeRequired": "需要類型",
+        "invalidLat": "緯度無效（-90 到 90）",
+        "invalidLon": "經度無效（-180 到 180）"
+      },
+      "success": {
+        "created": "POI 建立成功",
+        "deleted": "POI 刪除成功"
+      },
+      "confirm": {
+        "delete": "確定要刪除此 POI 嗎？"
+      }
+    }
+  },
+  "login": {
+    "system": {
+      "title": "管理系統",
+      "subtitle": "MFITHOU"
+    },
+    "form": {
+      "username": "使用者名稱",
+      "password": "密碼",
+      "login": "登入",
+      "loggingIn": "登入中...",
+      "forgotPassword": "忘記密碼？"
+    },
+    "error": {
+      "invalid": "使用者名稱或密碼無效"
+    },
+    "demo": {
+      "title": "示範帳號",
+      "credential": "使用者名稱/密碼："
+    }
+  },
+  "aqi": {
+    "title": "空氣品質",
+    "showLayer": "顯示空氣品質",
+    "hideLayer": "隱藏空氣品質",
+    "station": "監測站",
+    "level": {
+      "good": "良好",
+      "moderate": "普通",
+      "unhealthySensitive": "對敏感族群不健康",
+      "unhealthy": "不健康",
+      "veryUnhealthy": "非常不健康",
+      "hazardous": "危害",
+      "unknown": "未知"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "天氣",
+    "showLayer": "顯示天氣",
+    "hideLayer": "隱藏天氣",
+    "station": "監測站",
+    "temperature": "溫度",
+    "humidity": "濕度",
+    "windSpeed": "風速",
+    "rainfall": "降雨量",
+    "forecast": {
+      "title": "天氣預報",
+      "loading": "載入預報中...",
+      "chanceOfRain": "降雨機率",
+      "feelsLike": "體感溫度",
+      "high": "最高",
+      "low": "最低"
+    }
+  }
+}

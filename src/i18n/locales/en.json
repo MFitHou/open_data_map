@@ -19,13 +19,15 @@
     },
     "language": {
       "vi": "Vietnamese",
-      "en": "English"
+      "en": "English",
+      "zh-TW": "繁體中文 (Traditional Chinese)"
     }
   },
   "nav": {
     "home": "Home",
     "map": "Map",
-    "query": "Query"
+    "query": "Query",
+    "admin": "Admin"
   },
   "home": {
     "title": "OpenDataFitHou",
@@ -33,16 +35,71 @@
     "searchPlaceholder": "Search locations in Vietnam... (e.g. Hoan Kiem Lake, Temple of Literature, BIDV)",
     "suggestionsTitle": "💡 Popular search suggestions:",
     "noResultsFor": "No results found for",
+    "description": "OpenDataFitHou is an open-source project that collects and links open data from Wikidata, OpenStreetMap, and many other sources. We standardize data into Linked Open Data (RDF) format and visualize it on maps, making queries, analysis, and application development easier.",
+    "descriptionExtra": "The project contributes to digital transformation and opens up opportunities to exploit open data for research, education, and the community. 🌍✨",
     "intro": {
       "title": "📋 Project Introduction",
+      "objectiveTitle": "Objective",
       "objective": "Collect, standardize, and provide open data in Linked Open Data format",
+      "contextTitle": "Context",
       "context": "Part of OLP PMNM 2025, serving research & digital transformation",
+      "visionTitle": "Vision",
       "vision": "Data transparency, community support, easy reuse"
     },
-    "description": "OpenDataFitHou is an open-source project that collects and links open data from Wikidata, OpenStreetMap and other sources. We standardize data into Linked Open Data (RDF) format and visualize it on maps, making lookup, analysis, and application development easier."
+    "features": {
+      "dataTypesTitle": "📊 Data Types",
+      "title": "⭐ Key Features",
+      "search": "Search places in Vietnam",
+      "display": "Display and highlight places on map",
+      "details": "Display detailed place information",
+      "nearby": "Find nearby services like ATMs, Bus stops",
+      "download": "Download place data in XML or RDF format",
+      "query": "Query data with SPARQL"
+    },
+    "video": {
+      "title": "Introduction Video"
+    },
+    "license": {
+      "title": "📄 License Information",
+      "name": "GNU General Public License v3.0",
+      "subtitle": "Open Source License",
+      "description": "OpenDataFitHou is released under the <strong>GNU GPL v3.0</strong> license, ensuring openness and freedom for the community. You can:",
+      "permissions": {
+        "use": "<strong>Use</strong> - Run the program for any purpose",
+        "study": "<strong>Study</strong> - View and learn from the source code",
+        "distribute": "<strong>Distribute</strong> - Share with others",
+        "modify": "<strong>Modify</strong> - Change and improve"
+      },
+      "requirementsTitle": "📋 Usage Requirements:",
+      "requirements": {
+        "preserve": "Preserve copyright and license notices",
+        "sameLicense": "Distributions must use the same GPL v3.0 license",
+        "disclose": "Disclose source code when distributing software"
+      },
+      "links": {
+        "readFull": "📖 Read full license text",
+        "viewFile": "📄 View LICENSE file",
+        "learnMore": "❓ Learn more about GPL v3.0"
+      },
+      "copyright": "© 2025 OpenDataFitHou",
+      "contributors": "All contributors",
+      "program": "Project under <strong>OLP PMNM 2025</strong> program",
+      "disclaimer": "<strong>Note:</strong> This is only a summary of the license information. Please read the full <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\" target=\"_blank\" rel=\"noopener noreferrer\">GNU GPL v3.0</a> to fully understand your rights and obligations."
+    },
+    "footer": {
+      "queryData": "Query Data",
+      "services": "Services",
+      "resources": "Resources",
+      "contact": "Contact",
+      "organization": "Organization",
+      "githubRepo": "GitHub Repository",
+      "copyright": "© 2025 OpenDataFitHou. Licensed under GNU General Public License.",
+      "tagline": "Open Data for Digital Transformation 🌍✨"
+    }
   },
   "map": {
     "title": "Map",
+    "layers": "Map Layers",
     "currentLocation": "📍 Your Current Location",
     "detectedByGPS": "Detected by GPS",
     "latitude": "Latitude",
@@ -56,9 +113,10 @@
     "nearby": {
       "title": "Nearby Places",
       "radius": "Radius",
-      "selectType": "🏷️ Place Type:",
+      "selectType": "Place Type:",
       "selectRadius": "📏 Radius:",
       "toilets": "🚻 Toilets",
+      "drinkingWater": "Drinking Water",
       "atms": "🏧 ATMs",
       "hospitals": "🏥 Hospitals",
       "busStops": "🚌 Bus Stops",
@@ -72,16 +130,19 @@
       "found": "✅ Found",
       "inRadius": "within radius",
       "selectAndSearch": "ℹ️ Select place type and radius, then press \"Search\"",
-      "noPlacesFound": "❌ No places found"
+      "noPlacesFound": "❌ No places found",
+      "results": "places",
+      "clear": "Clear",
+      "clearResults": "Clear search results"
     },
     "info": {
       "title": "Place Information",
-      "basicTab": "📋 Basic",
-      "identifiersTab": "🔗 Identifiers",
-      "statementsTab": "📊 Statements",
-      "referencesTab": "📚 References",
-      "membersTab": "👥 Members",
-      "tasksTab": "⚡ Tasks",
+      "basicTab": "Basic",
+      "identifiersTab": "Identifiers",
+      "statementsTab": "Statements",
+      "referencesTab": "References",
+      "membersTab": "Members",
+      "tasksTab": "Tasks",
       "name": "Name",
       "address": "Address",
       "coordinates": "Coordinates",
@@ -89,16 +150,67 @@
       "distance": "Distance",
       "viewOnWikidata": "View on Wikidata",
       "viewOnOSM": "View on OpenStreetMap",
-      "noData": "No data available"
+      "noData": "No data available",
+      "wardInfo": "Ward Information",
+      "loadingBoundary": "Loading boundary...",
+      "area": "Area",
+      "population": "Population",
+      "density": "Density",
+      "peoplePerKm": "people/km²",
+      "publicServices": "Public Services",
+      "loadingServices": "Loading services...",
+      "schools": "Schools",
+      "healthcare": "Healthcare",
+      "restaurants": "Restaurants",
+      "banks": "Banks",
+      "emptyState": "Search and select a ward to view detailed information",
+      "noCoordinates": "No coordinates available for nearby search",
+      "nearbyPlaces": "Nearby Places",
+      "routeCalculator": "Route Calculator",
+      "statistics": "Statistics",
+      "routeUnderDev": "Route calculation feature is under development...",
+      "statsUnderDev": "Statistics feature is under development...",
+      "access": "Access",
+      "fee": "Fee",
+      "paid": "Paid",
+      "free": "Free",
+      "poiUri": "POI URI",
+      "noIdentifiers": "No identifiers available",
+      "inception": "Inception",
+      "areaKm": "Area (km²)",
+      "postalCode": "Postal Code",
+      "noStatements": "No statements available",
+      "noReferences": "No references or external links available",
+      "externalLinks": "External Links",
+      "references": "References",
+      "reference": "Reference",
+      "noMembers": "No members data available",
+      "outerWays": "Outer Ways",
+      "innerWays": "Inner Ways",
+      "nodes": "Nodes",
+      "subAreas": "Sub-areas (Relations)",
+      "membersOverview": "Members Overview",
+      "total": "Total",
+      "members": "members",
+      "type": "Type",
+      "id": "ID",
+      "tags": "Tags",
+      "showingItems": "Showing {{shown}}/{{total}} items"
     },
     "download": {
       "button": "Download Data",
+      "downloadXML": "Download as XML",
+      "downloadRDF": "Download as RDF/XML",
       "formats": {
         "json": "JSON",
         "csv": "CSV",
         "geojson": "GeoJSON"
       }
-    }
+    },
+    "yourLocation": "Your Location",
+    "memberType": "Type",
+    "memberWay": "Way",
+    "memberRelation": "Relation"
   },
   "query": {
     "title": "SPARQL Query",
@@ -116,7 +228,14 @@
       "allATMs": "🏧 Get first 10 ATMs"
     },
     "prefixes": "Prefixes",
-    "count": "results"
+    "count": "results",
+    "emptyQueryError": "Empty query",
+    "emptyQueryMessage": "Please enter a SPARQL query",
+    "executionError": "Query execution error",
+    "unknownError": "Unknown error",
+    "foundResults": "Found <strong>{{count}}</strong> results",
+    "downloadJSON": "Download JSON",
+    "editorTitle": "Query Editor"
   },
   "tour": {
     "startTour": "Start Tour",
@@ -140,6 +259,204 @@
         "title": "Download Data",
         "description": "Export data to different formats"
       }
+    }
+  },
+  "chatbot": {
+    "welcomeMessage": "Hello! I am your AI assistant. How can I help you today?",
+    "mapWelcomeMessage": "Hello! I can help you with information about locations, landmarks, and geography. What would you like to know?",
+    "inputPlaceholder": "Ask me anything about Vietnam's locations, landmarks, or geography...",
+    "mapInputPlaceholder": "Ask about locations...",
+    "thinking": "Thinking...",
+    "sendButton": "Send message",
+    "startListening": "Click to speak",
+    "stopListening": "Listening...",
+    "processingError": "Sorry, I could not process your request.",
+    "errorMessage": "⚠️ Sorry, I encountered an error. Please try again later.",
+    "noResponse": "No response received",
+    "failedResponse": "⚠️ Failed to get response. Please try again.",
+    "responseLabel": "Response:",
+    "aiAssistant": "AI Assistant",
+    "openAiAssistant": "Open AI Assistant"
+  },
+  "admin": {
+    "sidebar": {
+      "title": "Admin",
+      "dashboard": "Dashboard",
+      "environment": "Environment Monitoring",
+      "pois": "Manage POIs",
+      "reports": "Reports"
+    },
+    "dashboard": {
+      "title": "System Dashboard",
+      "subtitle": "Welcome to OpenDataFitHou Admin Panel",
+      "welcome": "Welcome to Admin Panel",
+      "description": "This is the OpenDataFitHou admin system dashboard. Use the left menu to navigate to different management functions.",
+      "totalPois": "Total POIs",
+      "monitoringPoints": "Monitoring Points",
+      "totalReports": "Total Reports"
+    },
+    "pois": {
+      "title": "Manage Points of Interest (POIs)",
+      "subtitle": "Add, edit, and delete points of interest in the system",
+      "addNew": "Add New POI",
+      "searchPlaceholder": "Search by name or type...",
+      "loading": "Loading data...",
+      "noData": "No POI data available",
+      "noResults": "No matching results found",
+      "unnamed": "Unnamed",
+      "filter": {
+        "type": "POI Type"
+      },
+      "table": {
+        "name": "Name",
+        "type": "Type",
+        "coordinates": "Coordinates",
+        "address": "Address",
+        "phone": "Phone",
+        "operator": "Operator",
+        "actions": "Actions",
+        "openingHours": "Opening Hours",
+        "fee": "Fee",
+        "wheelchair": "Wheelchair Access",
+        "educationLevel": "Education Level",
+        "routes": "Bus Routes",
+        "shelter": "Shelter",
+        "bench": "Bench",
+        "lighting": "Lighting",
+        "surface": "Surface",
+        "drinkable": "Drinkable"
+      },
+      "type": {
+        "toilet": "Toilet",
+        "school": "School",
+        "busStop": "Bus Stop",
+        "playGround": "Playground",
+        "drinkingWater": "Drinking Water"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page"
+      },
+      "modal": {
+        "title": "Add New POI"
+      },
+      "form": {
+        "name": "Name",
+        "namePlaceholder": "E.g.: Vietcombank ATM Lang Ha",
+        "type": "Type",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "address": "Address",
+        "addressPlaceholder": "E.g.: 123 ABC Street, XYZ District, Hanoi",
+        "cancel": "Cancel",
+        "submit": "Create POI",
+        "submitting": "Creating..."
+      },
+      "error": {
+        "fetchFailed": "Failed to load POI list",
+        "nameRequired": "Please enter a name",
+        "typeRequired": "Please select a type",
+        "invalidLat": "Invalid latitude (-90 to 90)",
+        "invalidLon": "Invalid longitude (-180 to 180)",
+        "createFailed": "Failed to create POI",
+        "deleteFailed": "Failed to delete POI"
+      },
+      "success": {
+        "created": "POI created successfully!",
+        "deleted": "POI deleted successfully!"
+      },
+      "confirm": {
+        "delete": "Are you sure you want to delete this POI?"
+      }
+    }
+  },
+  "login": {
+    "system": {
+      "title": "AUTHENTICATION SYSTEM",
+      "subtitle": "MFITHOU"
+    },
+    "form": {
+      "title": "LOGIN",
+      "subtitle": "Please enter your login credentials",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Login",
+      "submitting": "Processing...",
+      "forgotPassword": "Forgot password?"
+    },
+    "error": {
+      "invalid": "Invalid username or password"
+    },
+    "demo": {
+      "title": "Demo credentials",
+      "username": "Username",
+      "password": "Password"
+    }
+  },
+  "layerControl": {
+    "title": "Layers",
+    "enableAll": "Enable All",
+    "disableAll": "Disable All",
+    "density": "Density",
+    "points": "points",
+    "layers": {
+      "atm": "ATM",
+      "bank": "Bank",
+      "restaurant": "Restaurant",
+      "cafe": "Cafe",
+      "hospital": "Hospital",
+      "school": "School",
+      "bus_stop": "Bus Stop",
+      "park": "Park",
+      "charging_station": "Charging Station",
+      "pharmacy": "Pharmacy",
+      "police": "Police Station",
+      "fire_station": "Fire Station",
+      "parking": "Parking",
+      "fuel_station": "Gas Station",
+      "supermarket": "Supermarket",
+      "library": "Library",
+      "convenience_store": "Convenience Store"
+    }
+  },
+  "aqi": {
+    "title": "Air Quality",
+    "showLayer": "Show AQI",
+    "hideLayer": "Hide AQI",
+    "station": "Station",
+    "level": {
+      "good": "Good",
+      "moderate": "Moderate",
+      "unhealthySensitive": "Unhealthy for Sensitive Groups",
+      "unhealthy": "Unhealthy",
+      "veryUnhealthy": "Very Unhealthy",
+      "hazardous": "Hazardous",
+      "unknown": "Unknown"
+    },
+    "pm25": "PM2.5",
+    "pm10": "PM10"
+  },
+  "weather": {
+    "title": "Weather",
+    "showLayer": "Show Weather",
+    "hideLayer": "Hide Weather",
+    "station": "Station",
+    "temperature": "Temperature",
+    "humidity": "Humidity",
+    "windSpeed": "Wind Speed",
+    "rainfall": "Rainfall",
+    "forecast": {
+      "title": "Weather Forecast",
+      "loading": "Loading forecast...",
+      "chanceOfRain": "Chance of rain",
+      "feelsLike": "Feels like",
+      "high": "High",
+      "low": "Low"
     }
   }
 }
