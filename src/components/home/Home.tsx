@@ -34,6 +34,7 @@ import {
   faRobot,
   faLock
 } from '@fortawesome/free-solid-svg-icons';
+import { faProjectDiagram } from '@fortawesome/free-solid-svg-icons/faProjectDiagram';
 
 interface SearchResult {
   id: string;
@@ -292,11 +293,11 @@ const Home: React.FC = () => {
       setShowResults(true);
 
       if (sortedResults.length === 0) {
-        setError("No results found. Try different keywords.");
+        setError(t('common.status.noResultsFound'));
       }
     } catch (error) {
       console.error("Error searching:", error);
-      setError("Connection error. Please try again later.");
+      setError(t('common.status.connectionError'));
       setResults([]);
       setShowResults(true);
     } finally {
@@ -466,6 +467,9 @@ const Home: React.FC = () => {
                 </a>
                 <a href="/query" className="quick-link-button">
                   <FontAwesomeIcon icon={faSearch} /> {t('nav.query')}
+                </a>
+                <a href="/data-explorer" className="quick-link-button">
+                  <FontAwesomeIcon icon={faProjectDiagram} /> Query Builder
                 </a>
               </div>
 

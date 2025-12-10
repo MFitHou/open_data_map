@@ -237,6 +237,47 @@
     "downloadJSON": "Download JSON",
     "editorTitle": "Query Editor"
   },
+  "dataExplorer": {
+    "title": "Data Explorer",
+    "selectDataType": "Select Data Type",
+    "iotData": "IoT Data",
+    "mapData": "Map Data",
+    "selectMeasurement": "Select Measurement",
+    "selectMapType": "Select Map Type",
+    "execute": "Execute Query",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "foundResults": "Found <strong>{{count}}</strong> results",
+    "viewScript": "View Script",
+    "hideScript": "Hide Script",
+    "download": "Download",
+    "downloadJSON": "Download JSON",
+    "queryScript": "Query Script",
+    "tableView": "Table View",
+    "emptyState": "Select a data type and measurement, then click Execute to view results",
+    "selectFields": "Select Fields",
+    "selectAll": "All",
+    "clearAll": "Clear",
+    "selectedCount": "Selected: {{count}} fields",
+    "timeRange": "Time Range",
+    "iot": {
+      "airQuality": "Air Quality",
+      "weather": "Weather",
+      "traffic": "Traffic",
+      "flood": "Flood",
+      "station": "Station",
+      "allStations": "All Stations"
+    },
+    "map": {
+      "atm": "ATM",
+      "hospital": "Hospital",
+      "school": "School",
+      "restaurant": "Restaurant"
+    },
+    "errors": {
+      "unknown": "An unknown error occurred"
+    }
+  },
   "tour": {
     "startTour": "Start Tour",
     "next": "Next",

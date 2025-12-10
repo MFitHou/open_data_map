@@ -218,6 +218,47 @@
     "downloadJSON": "下載 JSON",
     "editorTitle": "查詢編輯器"
   },
+  "dataExplorer": {
+    "title": "資料探索器",
+    "selectDataType": "選擇資料類型",
+    "iotData": "IoT 資料",
+    "mapData": "地圖資料",
+    "selectMeasurement": "選擇測量類型",
+    "selectMapType": "選擇地圖類型",
+    "execute": "執行查詢",
+    "loading": "載入中...",
+    "noResults": "找不到結果",
+    "foundResults": "找到 <strong>{{count}}</strong> 個結果",
+    "viewScript": "檢視腳本",
+    "hideScript": "隱藏腳本",
+    "download": "下載",
+    "downloadJSON": "下載 JSON",
+    "queryScript": "查詢腳本",
+    "tableView": "表格檢視",
+    "emptyState": "選擇資料類型和測量，然後點擊執行以查看結果",
+    "selectFields": "選擇欄位",
+    "selectAll": "全選",
+    "clearAll": "清除",
+    "selectedCount": "已選擇：{{count}} 個欄位",
+    "timeRange": "時間範圍",
+    "iot": {
+      "airQuality": "空氣品質",
+      "weather": "天氣",
+      "traffic": "交通",
+      "flood": "洪水",
+      "station": "監測站",
+      "allStations": "所有站點"
+    },
+    "map": {
+      "atm": "自動提款機",
+      "hospital": "醫院",
+      "school": "學校",
+      "restaurant": "餐廳"
+    },
+    "errors": {
+      "unknown": "發生未知錯誤"
+    }
+  },
   "tour": {
     "startTour": "開始導覽",
     "next": "下一步",

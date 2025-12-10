@@ -323,17 +323,17 @@ export const getDrinkingWaterDetails = (place: NearbyPlace): string[] => {
   }
   
   if (place.bottle === 'yes') {
-    details.push('🍶 Bottle refill available');
+    details.push('🍶 Có thể rót chai');
   }
   
   if (place.fee === 'no') {
-    details.push('💰 Free');
+    details.push('💰 Miễn phí');
   } else if (place.fee === 'yes') {
-    details.push('💵 Fee required');
+    details.push('💵 Có phí');
   }
   
   if (place.access) {
-    details.push(`🚪 Access: ${place.access}`);
+    details.push(`🚪 Truy cập: ${place.access}`);
   }
   
   return details;

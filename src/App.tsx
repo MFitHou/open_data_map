@@ -21,6 +21,7 @@ import Home from './components/home/Home';
 import SimpleMap from './components/map/SimpleMap';
 import { Query } from './components/query/Query';
 import Chatbot from './components/chatbot/Chatbot';
+import { DataExplorer } from './components/data-explorer/DataExplorer';
 import { AdminLayout } from './components/admin/AdminLayout';
 import { Dashboard } from './components/admin/Dashboard';
 import { EnvironmentMonitoring } from './components/admin/EnvironmentMonitoring';
@@ -40,6 +41,7 @@ function App() {
           <Route path="/map" element={<SimpleMap />} />
           <Route path="/query" element={<Query />} />
           <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/data-explorer" element={<DataExplorer />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route

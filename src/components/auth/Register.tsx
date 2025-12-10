@@ -167,7 +167,7 @@ export const Register: React.FC = () => {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="login-password-toggle"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={showPassword ? t('common.accessibility.hidePassword') : t('common.accessibility.showPassword')}
               >
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </button>
@@ -189,7 +189,7 @@ export const Register: React.FC = () => {
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="login-password-toggle"
-                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                aria-label={showConfirmPassword ? t('common.accessibility.hidePassword') : t('common.accessibility.showPassword')}
               >
                 <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
               </button>
