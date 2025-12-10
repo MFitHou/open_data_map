@@ -26,6 +26,7 @@ import { Dashboard } from './components/admin/Dashboard';
 import { EnvironmentMonitoring } from './components/admin/EnvironmentMonitoring';
 import { ManagePois } from './components/admin/ManagePois';
 import { Login } from './components/auth/Login';
+import { Register } from './components/auth/Register';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import './i18n/config';
 
@@ -40,10 +41,11 @@ function App() {
           <Route path="/query" element={<Query />} />
           <Route path="/chatbot" element={<Chatbot />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route
             path="/admin"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute requireAdmin={true}>
                 <AdminLayout />
               </ProtectedRoute>
             }

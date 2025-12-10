@@ -16,7 +16,7 @@
  */
 
 import React, { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -37,14 +37,28 @@ export const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validation
+    if (!username || !password) {
+      setError('Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simple authentication check
-    if (username === 'admin' && password === '123456') {
-      login();
-      navigate('/admin');
-    } else {
-      setError(t('login.error.invalid'));
+    try {
+      const user = await login({ username, password });
+      
+      // Điều hướng dựa trên role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -117,24 +131,11 @@ export const Login: React.FC = () => {
               {isLoading ? t('login.form.submitting') : t('login.form.submit')}
             </button>
 
-            {/* Forgot Password Link */}
-            {/* <div className="login-footer">
-              <a href="#" className="login-forgot-link">
-                {t('login.form.forgotPassword')}
-              </a>
-            </div> */}
+            {/* Register Link */}
+            <div className="login-footer" style={{ marginTop: '1rem', textAlign: 'center' }}>
+              Chưa có tài khoản? <Link to="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>Đăng ký ngay</Link>
+            </div>
           </form>
-
-          {/* Demo Credentials Info */}
-          {/* <div className="login-demo-info">
-            <p className="login-demo-title">{t('login.demo.title')}</p>
-            <p className="login-demo-text">
-              <strong>{t('login.demo.username')}:</strong> admin
-            </p>
-            <p className="login-demo-text">
-              <strong>{t('login.demo.password')}:</strong> 123456
-            </p>
-          </div> */}
 
         </div>
       </div>

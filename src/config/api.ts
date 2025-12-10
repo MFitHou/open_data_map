@@ -37,7 +37,7 @@ export const API_CONFIG = {
   overpassBaseUrl: import.meta.env.VITE_OVERPASS_BASE_URL || 'https://opendatamap.hou.edu.vn/api/overpass',
   
   // Admin API
-  adminBaseUrl: import.meta.env.VITE_ADMIN_BASE_URL || 'http://localhost:3000/api/admin',
+  adminBaseUrl: import.meta.env.VITE_ADMIN_BASE_URL || 'https://opendatamap.hou.edu.vn/api/admin',
 
   // Smart Search API
   smartSearchApiUrl: import.meta.env.VITE_SMART_SEARCH_API_URL || 'https://opendatamap.hou.edu.vn/api/chat/smart-search',
