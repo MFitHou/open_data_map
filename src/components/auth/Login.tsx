@@ -53,7 +53,8 @@ export const Login: React.FC = () => {
       if (user.role === 'admin') {
         navigate('/admin');
       } else {
-        navigate('/');
+        // Redirect về home với state đăng nhập thành công
+        navigate('/home', { state: { loginSuccess: true, username: user.username } });
       }
     } catch (err: any) {
       console.error('Login error:', err);

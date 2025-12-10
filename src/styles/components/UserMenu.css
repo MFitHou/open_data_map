@@ -1,0 +1,186 @@
+/**
+ * UserMenu Component Styles
+ */
+
+.user-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.user-menu__login-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.user-menu__login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.user-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.user-menu__trigger:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.user-menu__icon {
+  font-size: 1rem;
+  color: #667eea;
+}
+
+.user-menu__username {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu__arrow {
+  font-size: 0.75rem;
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.user-menu__trigger:hover .user-menu__arrow {
+  transform: translateY(2px);
+}
+
+.user-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-menu__header {
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.user-menu__user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.user-menu__name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.user-menu__email {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.user-menu__role {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.3rem;
+  width: fit-content;
+}
+
+.user-menu__divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 0;
+}
+
+.user-menu__actions {
+  padding: 0.5rem;
+}
+
+.user-menu__action {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #333;
+  text-align: left;
+}
+
+.user-menu__action:hover {
+  background: #f5f5f5;
+}
+
+.user-menu__action-icon {
+  font-size: 1rem;
+  color: #667eea;
+}
+
+.user-menu__action--logout {
+  color: #d32f2f;
+}
+
+.user-menu__action--logout:hover {
+  background: #ffebee;
+}
+
+.user-menu__action--logout .user-menu__action-icon {
+  color: #d32f2f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .user-menu__username {
+    max-width: 80px;
+  }
+
+  .user-menu__dropdown {
+    min-width: 240px;
+    right: -10px;
+  }
+}

@@ -17,17 +17,19 @@
 
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../styles/pages/Home.css';
 import { useTranslation } from 'react-i18next';
 import { HelpButton } from '../../tours';
 import { LanguageSwitcher } from '../common/LanguageSwitcher';
+import { UserMenu } from '../common/UserMenu';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSearch, 
   faMapLocationDot, 
   faBook,
   faCircleXmark,
+  faCircleCheck,
   faSpinner,
   faRobot,
   faLock
@@ -66,15 +68,34 @@ interface SearchResult {
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLoginSuccess, setShowLoginSuccess] = useState(false);
   
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Hiển thị thông báo đăng nhập thành công
+  useEffect(() => {
+    const state = location.state as { loginSuccess?: boolean; username?: string };
+    console.log('Home - location.state:', state);
+    if (state?.loginSuccess) {
+      console.log('Showing login success notification');
+      setShowLoginSuccess(true);
+      // Tự động ẩn sau 5 giây
+      const timer = setTimeout(() => {
+        setShowLoginSuccess(false);
+      }, 5000);
+      // Xóa state để không hiển thị lại khi refresh
+      window.history.replaceState({}, document.title);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   // ✅ Copy EXACT từ Search.tsx - searchWikidata function
   const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
@@ -358,6 +379,51 @@ const Home: React.FC = () => {
 
   return (
     <div className="home-container">
+      {/* Login Success Notification */}
+      {showLoginSuccess && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '20px',
+          zIndex: 1002,
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          padding: '1rem 1.5rem',
+          borderRadius: '12px',
+          boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          animation: 'slideInRight 0.3s ease',
+          maxWidth: '300px'
+        }}>
+          <FontAwesomeIcon icon={faCircleCheck} style={{ fontSize: '1.5rem' }} />
+          <div>
+            <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Đăng nhập thành công!</div>
+            <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>Chào mừng bạn trở lại</div>
+          </div>
+          <button
+            onClick={() => setShowLoginSuccess(false)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'white',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              marginLeft: 'auto'
+            }}
+          >
+            <FontAwesomeIcon icon={faCircleXmark} />
+          </button>
+        </div>
+      )}
+
+      {/* User Menu & Language Switcher - Fixed position top right */}
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1001, display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <LanguageSwitcher inline={true} />
+        <UserMenu />
+      </div>
+
       {/* Section 1: Hero with OpenDataFitHou + Slogan */}
       <section className="hero-section">
         <div className="hero-content">
@@ -746,9 +812,6 @@ const Home: React.FC = () => {
           </div>
         </div>
       </footer>
-      
-      {/* Language Switcher - Fixed Position */}
-      <LanguageSwitcher />
       
       {/* Help Button */}
       <HelpButton tourType="home" />

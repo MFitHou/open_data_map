@@ -489,5 +489,11 @@
       "high": "Cao nhất",
       "low": "Thấp nhất"
     }
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "adminPanel": "Quản trị",
+    "confirmLogout": "Bạn có chắc muốn đăng xuất?"
   }
 }

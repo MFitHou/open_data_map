@@ -489,5 +489,11 @@
       "high": "High",
       "low": "Low"
     }
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "adminPanel": "Admin Panel",
+    "confirmLogout": "Are you sure you want to logout?"
   }
 }
