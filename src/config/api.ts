@@ -43,6 +43,9 @@ export const API_CONFIG = {
   smartSearchApiUrl: import.meta.env.VITE_SMART_SEARCH_API_URL || 'https://opendatamap.hou.edu.vn/api/chat/smart-search',
 } as const;
 
+// Export base URL for backward compatibility
+export const API_BASE_URL = API_CONFIG.baseUrl;
+
 /**
  * Helper functions to build specific endpoints
  */
