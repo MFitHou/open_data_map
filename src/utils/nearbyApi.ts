@@ -206,7 +206,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       console.log('[getAmenityIcon] Using amenity config:', place.amenity, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
-        markerColor: config.color,
+        markerColor: config.color as any,
         prefix: 'fa',
         iconColor: 'white'
       });
@@ -236,7 +236,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       console.log('[getAmenityIcon] Using leisure config:', place.leisure, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
-        markerColor: config.color,
+        markerColor: config.color as any,
         prefix: 'fa',
         iconColor: 'white'
       });

@@ -16,7 +16,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, GeoJSON, ZoomControl, Popup, useMapEvents } from "react-leaflet";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import "leaflet/dist/leaflet.css";
@@ -45,6 +45,16 @@ import { connectWays, calculatePolygonArea, fetchPopulationData, makeRows } from
 import { fetchNearbyPlaces, fetchPOIByUri } from '../../utils/nearbyApi';
 import type { SearchResult, LocationState, WardMembers, WardStats, SelectedInfo, MemberOutline, Location, SearchMarker } from './types';
 import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
+
+// MapClickHandler component - must be inside MapContainer
+const MapClickHandler: React.FC<{ onMapClick: () => void }> = ({ onMapClick }) => {
+  useMapEvents({
+    click: () => {
+      onMapClick();
+    }
+  });
+  return null;
+};
 
 const SimpleMap: React.FC = () => {
   const { t } = useTranslation();
@@ -609,7 +619,7 @@ out geom;
   useEffect(() => {
     if (!currentLocation && !isGettingLocation) {
       console.log('[SimpleMap] Auto-getting current location on mount');
-      getLocation();
+      getLocation(() => {});
     }
   }, []); // Run once on mount
 
@@ -778,13 +788,8 @@ out geom;
         style={{ height: "100%", width: "100%" }}
         zoomControl={false}
         ref={setMap}
-        eventHandlers={{
-          click: () => {
-            // Clear selection when clicking map background
-            setSelectedPlace(null);
-          }
-        }}
       >
+        <MapClickHandler onMapClick={() => setSelectedPlace(null)} />
         <ZoomControl position="topright" />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

@@ -586,7 +586,7 @@ WHERE {
         const relatedPoiUri = binding.related;
         
         if (poiMap.has(targetPoi)) {
-          const relatedPoiInfo = relatedPoiMap.get(relatedPoiUri);
+          const relatedPoiInfo = relatedPoiMap.get(relatedPoiUri) as any;
           
           poiMap.get(targetPoi)!.relationships.push({
             predicate: binding.predicate || selectedRelationship,
