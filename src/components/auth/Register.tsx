@@ -17,12 +17,16 @@
 
 import React, { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faEye, faEyeSlash, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { register } from '../../utils/auth';
+import imglogin1 from '../../assets/imglogin1.jpg';
+import imglogin2 from '../../assets/imglogin2.jpg';
 import '../../styles/pages/Login.css';
 
 export const Register: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -47,17 +51,17 @@ export const Register: React.FC = () => {
 
     // Validation
     if (!formData.username || !formData.email || !formData.password) {
-      setError('Vui lòng nhập đầy đủ thông tin bắt buộc');
+      setError(t('register.error.required'));
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
+      setError(t('register.error.passwordMismatch'));
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
+      setError(t('register.error.passwordTooShort'));
       return;
     }
 
@@ -71,11 +75,11 @@ export const Register: React.FC = () => {
         fullName: formData.fullName || undefined,
       });
 
-      alert('Đăng ký thành công! Vui lòng đăng nhập.');
+      alert(t('register.success.message'));
       navigate('/login');
     } catch (err: any) {
       console.error('Register error:', err);
-      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+      setError(err.message || t('register.error.registerFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -83,130 +87,135 @@ export const Register: React.FC = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Đăng ký tài khoản</h1>
-          <p>Tạo tài khoản mới để sử dụng OpenDataFitHou</p>
+      {/* Left Column - Branding */}
+      <div className="login-left" style={{ backgroundImage: `url(${imglogin1})` }}>
+        <div className="login-overlay">
+          <div className="login-branding">
+            <img src="/logo-hou-249x300.png" alt="Logo" className="login-logo" />
+            <h1 className="login-title">{t('login.system.title')} <br /> {t('login.system.subtitle')}</h1>
+          </div>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          {error && <div className="error-message">{error}</div>}
+      {/* Right Column - Form */}
+      <div className="login-right" style={{ backgroundImage: `url(${imglogin2})` }}>
+        <div className="login-form-container">
+          <h2 className="login-form-title">{t('register.form.title')}</h2>
+          <p className="login-form-subtitle">{t('register.form.subtitle')}</p>
 
-          <div className="form-group">
-            <label htmlFor="username">
-              Tên đăng nhập <span className="required">*</span>
-            </label>
-            <div className="input-wrapper">
-              <FontAwesomeIcon icon={faUser} className="input-icon" />
+          <form onSubmit={handleSubmit} className="login-form">
+            {error && <div className="login-error">{error}</div>}
+
+            {/* Username Field */}
+            <div className="login-input-group">
+              <FontAwesomeIcon icon={faUser} className="login-input-icon" />
               <input
-                id="username"
                 type="text"
                 value={formData.username}
                 onChange={(e) => handleChange('username', e.target.value)}
-                placeholder="Nhập tên đăng nhập"
+                placeholder={t('register.form.username')}
+                className="login-input"
+                required
                 disabled={isLoading}
                 minLength={3}
                 maxLength={50}
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="email">
-              Email <span className="required">*</span>
-            </label>
-            <div className="input-wrapper">
-              <FontAwesomeIcon icon={faEnvelope} className="input-icon" />
+            {/* Email Field */}
+            <div className="login-input-group">
+              <FontAwesomeIcon icon={faEnvelope} className="login-input-icon" />
               <input
-                id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                placeholder="Nhập email"
+                placeholder={t('register.form.email')}
+                className="login-input"
+                required
                 disabled={isLoading}
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="fullName">Họ và tên</label>
-            <div className="input-wrapper">
-              <FontAwesomeIcon icon={faUser} className="input-icon" />
+            {/* Full Name Field */}
+            <div className="login-input-group">
+              <FontAwesomeIcon icon={faUser} className="login-input-icon" />
               <input
-                id="fullName"
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
-                placeholder="Nhập họ và tên (tùy chọn)"
+                placeholder={t('register.form.fullName')}
+                className="login-input"
                 disabled={isLoading}
                 maxLength={100}
               />
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="password">
-              Mật khẩu <span className="required">*</span>
-            </label>
-            <div className="input-wrapper">
-              <FontAwesomeIcon icon={faLock} className="input-icon" />
+            {/* Password Field */}
+            <div className="login-input-group">
+              <FontAwesomeIcon icon={faLock} className="login-input-icon" />
               <input
-                id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={formData.password}
                 onChange={(e) => handleChange('password', e.target.value)}
-                placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+                placeholder={t('register.form.password')}
+                className="login-input"
+                required
                 disabled={isLoading}
                 minLength={6}
               />
               <button
                 type="button"
-                className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                className="login-password-toggle"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
               </button>
             </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="confirmPassword">
-              Xác nhận mật khẩu <span className="required">*</span>
-            </label>
-            <div className="input-wrapper">
-              <FontAwesomeIcon icon={faLock} className="input-icon" />
+            {/* Confirm Password Field */}
+            <div className="login-input-group">
+              <FontAwesomeIcon icon={faLock} className="login-input-icon" />
               <input
-                id="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
                 value={formData.confirmPassword}
                 onChange={(e) => handleChange('confirmPassword', e.target.value)}
-                placeholder="Nhập lại mật khẩu"
+                placeholder={t('register.form.confirmPassword')}
+                className="login-input"
+                required
                 disabled={isLoading}
               />
               <button
                 type="button"
-                className="toggle-password"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                aria-label={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                className="login-password-toggle"
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
               >
                 <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
               </button>
             </div>
-          </div>
 
-          <button 
-            type="submit" 
-            className="login-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
-          </button>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="login-submit-button"
+              disabled={isLoading}
+            >
+              {isLoading ? t('register.form.submitting') : t('register.form.submit')}
+            </button>
 
-          <div className="register-link">
-            Đã có tài khoản? <Link to="/login">Đăng nhập ngay</Link>
-          </div>
-        </form>
+            {/* Login Link */}
+            <div className="login-footer" style={{ marginTop: '1rem', textAlign: 'center' }}>
+              {t('register.form.hasAccount')} <Link to="/login" style={{ color: '#1976d2', textDecoration: 'none' }}>{t('register.form.loginNow')}</Link>
+            </div>
+
+            {/* Back to Home Link */}
+            <div className="login-footer" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+              <Link to="/" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>← {t('register.form.backToHome')}</Link>
+            </div>
+          </form>
+
+        </div>
       </div>
     </div>
   );

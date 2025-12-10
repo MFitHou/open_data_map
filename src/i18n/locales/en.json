@@ -388,15 +388,45 @@
       "password": "Password",
       "submit": "Login",
       "submitting": "Processing...",
-      "forgotPassword": "Forgot password?"
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "registerNow": "Register now",
+      "backToHome": "Back to Home"
     },
     "error": {
-      "invalid": "Invalid username or password"
+      "invalid": "Invalid username or password",
+      "required": "Please fill in all required fields",
+      "loginFailed": "Login failed. Please try again."
     },
     "demo": {
       "title": "Demo credentials",
       "username": "Username",
       "password": "Password"
+    }
+  },
+  "register": {
+    "form": {
+      "title": "REGISTER ACCOUNT",
+      "subtitle": "Create a new account to use the system",
+      "username": "Username",
+      "email": "Email",
+      "fullName": "Full Name (optional)",
+      "password": "Password (minimum 6 characters)",
+      "confirmPassword": "Confirm Password",
+      "submit": "Register",
+      "submitting": "Processing...",
+      "hasAccount": "Already have an account?",
+      "loginNow": "Login now",
+      "backToHome": "Back to Home"
+    },
+    "error": {
+      "required": "Please fill in all required fields",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "registerFailed": "Registration failed. Please try again."
+    },
+    "success": {
+      "message": "Registration successful! Please login."
     }
   },
   "layerControl": {

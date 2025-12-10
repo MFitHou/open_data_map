@@ -40,7 +40,7 @@ export const Login: React.FC = () => {
     
     // Validation
     if (!username || !password) {
-      setError('Vui lòng nhập đầy đủ thông tin');
+      setError(t('login.error.required'));
       return;
     }
 
@@ -57,7 +57,7 @@ export const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+      setError(err.message || t('login.error.loginFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -133,7 +133,12 @@ export const Login: React.FC = () => {
 
             {/* Register Link */}
             <div className="login-footer" style={{ marginTop: '1rem', textAlign: 'center' }}>
-              Chưa có tài khoản? <Link to="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>Đăng ký ngay</Link>
+              {t('login.form.noAccount')} <Link to="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>{t('login.form.registerNow')}</Link>
+            </div>
+
+            {/* Back to Home Link */}
+            <div className="login-footer" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+              <Link to="/" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>← {t('login.form.backToHome')}</Link>
             </div>
           </form>
 
