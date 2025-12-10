@@ -52,6 +52,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats | null> => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -81,6 +82,7 @@ export const createPoi = async (data: CreatePoiData): Promise<ApiResponse<any>> 
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
 
@@ -110,6 +112,7 @@ export const deletePoi = async (id: string): Promise<ApiResponse<any>> => {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -134,6 +137,7 @@ export const checkAdminHealth = async (): Promise<boolean> => {
   try {
     const response = await fetch(getApiEndpoint.adminHealth(), {
       method: 'GET',
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -188,7 +192,7 @@ export const getPois = async (
     params.append('lightweight', lightweight ? 'true' : 'false');
 
     const url = `${getApiEndpoint.adminPois()}?${params.toString()}`;
-    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const result: PoiListResponse = await response.json();
@@ -206,7 +210,7 @@ export const getPoiDetail = async (id: string): Promise<IPoiBasic | null> => {
   try {
     const encodedId = encodeURIComponent(id);
     const url = `${getApiEndpoint.adminPoi(encodedId)}`;
-    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const result: ApiResponse<IPoiBasic> = await response.json();
@@ -226,7 +230,7 @@ export const getPoiAttributes = async (id: string) => {
   try {
     const encodedId = encodeURIComponent(id);
     const url = `${getApiEndpoint.adminPoi(encodedId)}/attributes`;
-    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
 
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const result: ApiResponse<{ id: string; count: number }> = await response.json();

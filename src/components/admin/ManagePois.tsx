@@ -24,6 +24,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { SearchableSelect } from '../ui/SearchableSelect';
 import type { IPoiBasic } from '../../utils/adminApi';
+import { API_CONFIG } from '../../config/api';
 import './ManagePois.css';
 
 // Fix Leaflet default marker icons
@@ -201,7 +202,9 @@ export const ManagePois: React.FC = () => {
 
     try {
       // Sử dụng lightweight=true để lấy TẤT CẢ POIs không giới hạn (cho map clustering)
-      const response = await fetch(`http://localhost:3000/api/admin/pois?type=${selectedType}&lightweight=true`);
+      const response = await fetch(`${API_CONFIG.baseUrl}/admin/pois?type=${selectedType}&lightweight=true`, {
+        credentials: 'include', // Gửi session cookies
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -270,11 +273,12 @@ export const ManagePois: React.FC = () => {
         address: formData.address.trim() || undefined,
       };
 
-      const response = await fetch('http://localhost:3000/api/admin/pois', {
+      const response = await fetch(`${API_CONFIG.baseUrl}/admin/pois`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Gửi session cookies
         body: JSON.stringify(payload),
       });
 

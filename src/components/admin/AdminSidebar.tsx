@@ -16,7 +16,7 @@
  */
 
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -24,12 +24,24 @@ import {
   faLeaf,
   faMapMarkerAlt,
   faFileAlt,
+  faSignOutAlt,
+  faUser,
 } from '@fortawesome/free-solid-svg-icons';
+import { getCurrentUser, logout } from '../../utils/auth';
 import './Admin.css';
 
 export const AdminSidebar: React.FC = () => {
   const { t } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
+  const user = getCurrentUser();
+
+  const handleLogout = async () => {
+    if (confirm('Bạn có chắc muốn đăng xuất?')) {
+      await logout();
+      navigate('/login');
+    }
+  };
 
   const menuItems = [
     {
@@ -58,6 +70,12 @@ export const AdminSidebar: React.FC = () => {
     <aside className="admin-sidebar">
       <div className="admin-sidebar__header">
         <h2 className="admin-sidebar__title">{t('admin.sidebar.title')}</h2>
+        {user && (
+          <div className="admin-sidebar__user">
+            <FontAwesomeIcon icon={faUser} />
+            <span>{user.username}</span>
+          </div>
+        )}
       </div>
       <nav className="admin-sidebar__nav">
         <ul className="admin-sidebar__menu">
@@ -76,6 +94,12 @@ export const AdminSidebar: React.FC = () => {
           ))}
         </ul>
       </nav>
+      <div className="admin-sidebar__footer">
+        <button onClick={handleLogout} className="admin-sidebar__logout">
+          <FontAwesomeIcon icon={faSignOutAlt} className="admin-sidebar__icon" />
+          <span className="admin-sidebar__label">Đăng xuất</span>
+        </button>
+      </div>
     </aside>
   );
 };

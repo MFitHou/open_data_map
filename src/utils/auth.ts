@@ -15,44 +15,144 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-const AUTH_TOKEN_KEY = import.meta.env.VITE_AUTH_TOKEN_KEY || 'admin-auth-token';
-const AUTH_TOKEN_VALUE = import.meta.env.VITE_AUTH_TOKEN_VALUE || 'admin-authenticated';
+import { API_CONFIG } from '../config/api';
+
+const USER_KEY = 'opendatafithou_user';
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  fullName?: string;
+  role: 'admin' | 'moderator' | 'user';
+  isActive: boolean;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+  fullName?: string;
+}
 
 /**
- * Xác thực người dùng và lưu token vào localStorage
+ * Đăng nhập và lưu thông tin user
  */
-export const login = (): void => {
-  localStorage.setItem(AUTH_TOKEN_KEY, AUTH_TOKEN_VALUE);
+export const login = async (credentials: LoginCredentials): Promise<User> => {
+  const response = await fetch(`${API_CONFIG.baseUrl}/users/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include', // Quan trọng: gửi và nhận cookies
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Đăng nhập thất bại');
+  }
+
+  const data = await response.json();
+  const user = data.user;
+  
+  // Lưu thông tin user vào localStorage
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  
+  return user;
 };
 
 /**
- * Đăng xuất người dùng và xóa token khỏi localStorage
+ * Đăng ký tài khoản mới
  */
-export const logout = (): void => {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+export const register = async (userData: RegisterData): Promise<User> => {
+  const response = await fetch(`${API_CONFIG.baseUrl}/users/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Đăng ký thất bại');
+  }
+
+  const data = await response.json();
+  return data.user;
 };
 
 /**
- * Kiểm tra trạng thái xác thực của người dùng
- * @returns true nếu người dùng đã đăng nhập, false nếu chưa
+ * Đăng xuất
+ */
+export const logout = async (): Promise<void> => {
+  try {
+    await fetch(`${API_CONFIG.baseUrl}/users/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch (error) {
+    console.error('Logout error:', error);
+  } finally {
+    localStorage.removeItem(USER_KEY);
+  }
+};
+
+/**
+ * Lấy thông tin user hiện tại từ localStorage
+ */
+export const getCurrentUser = (): User | null => {
+  const userStr = localStorage.getItem(USER_KEY);
+  if (!userStr) return null;
+  
+  try {
+    return JSON.parse(userStr);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Kiểm tra user đã đăng nhập chưa
  */
 export const isAuthenticated = (): boolean => {
-  const token = localStorage.getItem(AUTH_TOKEN_KEY);
-  return token === AUTH_TOKEN_VALUE;
+  return getCurrentUser() !== null;
 };
 
 /**
- * Lấy token từ localStorage
- * @returns Token nếu tồn tại, null nếu không
+ * Kiểm tra user có quyền admin không
  */
-export const getToken = (): string | null => {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+export const isAdmin = (): boolean => {
+  const user = getCurrentUser();
+  return user?.role === 'admin';
 };
 
 /**
- * Lưu token vào localStorage
- * @param token - Token cần lưu
+ * Lấy thông tin profile từ server
  */
-export const setToken = (token: string): void => {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+export const getProfile = async (): Promise<User> => {
+  const response = await fetch(`${API_CONFIG.baseUrl}/users/profile`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Không thể lấy thông tin profile');
+  }
+
+  const data = await response.json();
+  const user = data.user;
+  
+  // Cập nhật localStorage
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  
+  return user;
 };
+

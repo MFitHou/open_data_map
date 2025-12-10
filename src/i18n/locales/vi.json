@@ -388,15 +388,45 @@
       "password": "Mật khẩu",
       "submit": "Đăng nhập",
       "submitting": "Đang xử lý...",
-      "forgotPassword": "Quên mật khẩu?"
+      "forgotPassword": "Quên mật khẩu?",
+      "noAccount": "Chưa có tài khoản?",
+      "registerNow": "Đăng ký ngay",
+      "backToHome": "Quay về trang chủ"
     },
     "error": {
-      "invalid": "Tên đăng nhập hoặc mật khẩu không đúng"
+      "invalid": "Tên đăng nhập hoặc mật khẩu không đúng",
+      "required": "Vui lòng nhập đầy đủ thông tin",
+      "loginFailed": "Đăng nhập thất bại. Vui lòng thử lại."
     },
     "demo": {
       "title": "Thông tin đăng nhập demo",
       "username": "Tên đăng nhập",
       "password": "Mật khẩu"
+    }
+  },
+  "register": {
+    "form": {
+      "title": "ĐĂNG KÝ TÀI KHOẢN",
+      "subtitle": "Tạo tài khoản mới để sử dụng hệ thống",
+      "username": "Tên đăng nhập",
+      "email": "Email",
+      "fullName": "Họ và tên (tùy chọn)",
+      "password": "Mật khẩu (tối thiểu 6 ký tự)",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "submit": "Đăng ký",
+      "submitting": "Đang xử lý...",
+      "hasAccount": "Đã có tài khoản?",
+      "loginNow": "Đăng nhập ngay",
+      "backToHome": "Quay về trang chủ"
+    },
+    "error": {
+      "required": "Vui lòng nhập đầy đủ thông tin bắt buộc",
+      "passwordMismatch": "Mật khẩu xác nhận không khớp",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "registerFailed": "Đăng ký thất bại. Vui lòng thử lại."
+    },
+    "success": {
+      "message": "Đăng ký thành công! Vui lòng đăng nhập."
     }
   },
   "layerControl": {
@@ -459,5 +489,11 @@
       "high": "Cao nhất",
       "low": "Thấp nhất"
     }
+  },
+  "auth": {
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "adminPanel": "Quản trị",
+    "confirmLogout": "Bạn có chắc muốn đăng xuất?"
   }
 }

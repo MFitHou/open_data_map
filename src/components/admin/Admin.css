@@ -109,6 +109,41 @@
   font-weight: 500;
 }
 
+.admin-sidebar__user {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.admin-sidebar__footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar__logout {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  color: #bdc3c7;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.admin-sidebar__logout:hover {
+  background-color: rgba(255, 77, 79, 0.1);
+  color: #e74c3c;
+}
+
 /* ========================================
    DASHBOARD
    ======================================== */

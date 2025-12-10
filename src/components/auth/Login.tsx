@@ -16,7 +16,7 @@
  */
 
 import React, { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -37,14 +37,29 @@ export const Login: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    
+    // Validation
+    if (!username || !password) {
+      setError(t('login.error.required'));
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simple authentication check
-    if (username === 'admin' && password === '123456') {
-      login();
-      navigate('/admin');
-    } else {
-      setError(t('login.error.invalid'));
+    try {
+      const user = await login({ username, password });
+      
+      // Điều hướng dựa trên role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        // Redirect về home với state đăng nhập thành công
+        navigate('/home', { state: { loginSuccess: true, username: user.username } });
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.message || t('login.error.loginFailed'));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -117,24 +132,16 @@ export const Login: React.FC = () => {
               {isLoading ? t('login.form.submitting') : t('login.form.submit')}
             </button>
 
-            {/* Forgot Password Link */}
-            {/* <div className="login-footer">
-              <a href="#" className="login-forgot-link">
-                {t('login.form.forgotPassword')}
-              </a>
-            </div> */}
-          </form>
+            {/* Register Link */}
+            <div className="login-footer" style={{ marginTop: '1rem', textAlign: 'center' }}>
+              {t('login.form.noAccount')} <Link to="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>{t('login.form.registerNow')}</Link>
+            </div>
 
-          {/* Demo Credentials Info */}
-          {/* <div className="login-demo-info">
-            <p className="login-demo-title">{t('login.demo.title')}</p>
-            <p className="login-demo-text">
-              <strong>{t('login.demo.username')}:</strong> admin
-            </p>
-            <p className="login-demo-text">
-              <strong>{t('login.demo.password')}:</strong> 123456
-            </p>
-          </div> */}
+            {/* Back to Home Link */}
+            <div className="login-footer" style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+              <Link to="/" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>← {t('login.form.backToHome')}</Link>
+            </div>
+          </form>
 
         </div>
       </div>

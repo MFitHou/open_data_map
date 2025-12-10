@@ -110,13 +110,13 @@
   font-size: 2rem;
   font-weight: 700;
   color: #1f2937;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0rem;
+  margin-top: 0rem;
 }
 
 .login-form-subtitle {
   font-size: 0.95rem;
   color: #6b7280;
-  margin-bottom: 2rem;
 }
 
 /* ==================== Form Elements ==================== */

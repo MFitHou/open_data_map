@@ -17,19 +17,28 @@
 
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { isAuthenticated } from '../../utils/auth';
+import { isAuthenticated, isAdmin } from '../../utils/auth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAdmin?: boolean;
 }
 
 /**
  * Component bảo vệ route yêu cầu xác thực
  * Nếu chưa đăng nhập, chuyển hướng đến trang login
+ * Nếu requireAdmin=true, kiểm tra quyền admin
  */
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requireAdmin = false 
+}) => {
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && !isAdmin()) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

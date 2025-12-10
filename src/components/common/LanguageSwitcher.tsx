@@ -21,7 +21,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGlobe, faChevronDown, faCheck } from '@fortawesome/free-solid-svg-icons';
 import '../../styles/LanguageSwitcher.css';
 
-export const LanguageSwitcher: React.FC = () => {
+interface LanguageSwitcherProps {
+  inline?: boolean;
+}
+
+export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ inline = false }) => {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -55,7 +59,7 @@ export const LanguageSwitcher: React.FC = () => {
   }, []);
 
   return (
-    <div className="language-switcher" ref={dropdownRef}>
+    <div className={inline ? "language-switcher language-switcher--inline" : "language-switcher"} ref={dropdownRef}>
       <button 
         className="language-switcher__trigger"
         onClick={() => setIsOpen(!isOpen)}
