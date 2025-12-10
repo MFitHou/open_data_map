@@ -284,10 +284,10 @@ export const useWeatherLayer = () => {
       }
       
       const stationsData = await stationsResponse.json();
-      console.log('[Weather Layer] IoT stations:', stationsData);
+      // console.log('[Weather Layer] IoT stations:', stationsData);
       
       if (!stationsData.stations || stationsData.stations.length === 0) {
-        console.log('[Weather Layer] No IoT stations found');
+        // console.log('[Weather Layer] No IoT stations found');
         setStations([]);
         return;
       }
@@ -300,7 +300,7 @@ export const useWeatherLayer = () => {
       
       if (influxResponse.ok) {
         const influxData = await influxResponse.json();
-        console.log('[Weather Layer] InfluxDB data:', influxData);
+        // console.log('[Weather Layer] InfluxDB data:', influxData);
         
         if (influxData.data && influxData.data.length > 0) {
           influxData.data.forEach((s: any) => {
@@ -331,7 +331,7 @@ export const useWeatherLayer = () => {
         };
       });
       
-      console.log('[Weather Layer] Merged stations:', mergedStations);
+      // console.log('[Weather Layer] Merged stations:', mergedStations);
       setStations(mergedStations);
       
       // Also fetch forecast for Hanoi
@@ -353,7 +353,7 @@ export const useWeatherLayer = () => {
       
       if (response.ok) {
         const result = await response.json();
-        console.log('[Weather Layer] Forecast data:', result);
+        // console.log('[Weather Layer] Forecast data:', result);
         setForecast(result.data || result);
       }
     } catch (err: any) {

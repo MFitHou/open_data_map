@@ -103,6 +103,32 @@
   color: #333;
 }
 
+/* Update button */
+.service-info-panel .update-btn {
+  transition: all 0.2s;
+}
+
+.service-info-panel .update-btn:hover {
+  background-color: #45a049 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.service-info-panel .update-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive update button */
+@media (max-width: 768px) {
+  .service-info-panel .update-btn span {
+    display: none;
+  }
+  .service-info-panel .update-btn {
+    padding: 6px !important;
+    min-width: 32px;
+  }
+}
+
 /* Sensor Badges Container */
 .sensor-badges-container {
   display: flex;

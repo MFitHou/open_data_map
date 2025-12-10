@@ -129,7 +129,7 @@ export const EnvironmentMonitoring: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('Historical data response:', result);
+      // console.log('Historical data response:', result);
       
       // Transform data from array of {time, field, value} to grouped by time
       if (result.data && result.data.length > 0) {
@@ -149,7 +149,7 @@ export const EnvironmentMonitoring: React.FC = () => {
           ...fields
         }));
         
-        console.log('Transformed historical data:', transformedData);
+        // console.log('Transformed historical data:', transformedData);
         setHistoricalData(transformedData);
       } else {
         setHistoricalData([]);
@@ -176,7 +176,7 @@ export const EnvironmentMonitoring: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log('Latest data response from /stations:', result);
+      // console.log('Latest data response from /stations:', result);
       
       if (result.success && result.data) {
         // Extract station ID from URI and find matching station
@@ -185,7 +185,7 @@ export const EnvironmentMonitoring: React.FC = () => {
           const stationId = item.stationId.split(':').pop();
           return stationId === selectedStation;
         });
-        console.log('Filtered station data:', stationData);
+        // console.log('Filtered station data:', stationData); 
         
         if (stationData) {
           setLatestData(stationData);

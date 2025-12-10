@@ -94,7 +94,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   // Tìm kiếm với SPARQL mở rộng
   const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
     try {
-      console.log('🔍 Searching for:', searchTerm);
+      // console.log('🔍 Searching for:', searchTerm);
       
       // Call backend search endpoint
       const url = getApiEndpoint.wikidataSearch(searchTerm, 15);
@@ -105,7 +105,7 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
       }
 
       const results: SearchResult[] = await response.json();
-      console.log(`Found ${results.length} results with metadata`);
+      // console.log(`Found ${results.length} results with metadata`);
       return results;
 
     } catch (error) {
@@ -172,9 +172,9 @@ export const Search: React.FC<SearchProps> = ({ onSelectLocation }) => {
   };
 
   const handleSelectResult = (result: SearchResult) => {
-    console.log('Selected:', result);
-    console.log('Identifiers:', result.identifiers);
-    console.log('Statements:', result.statements);
+    // console.log('Selected:', result);
+    // console.log('Identifiers:', result.identifiers);
+    // console.log('Statements:', result.statements);
     setSearchTerm(result.name);
     setShowResults(false);
     setError(null);

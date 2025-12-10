@@ -48,7 +48,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
   }, [selectedServicePlace]);
 
   const handleMarkerClick = (place: NearbyPlace) => {
-    console.log('[TopologyMarkers] Marker clicked:', place.name, '- Opening ServiceInfoPanel');
+    // console.log('[TopologyMarkers] Marker clicked:', place.name, '- Opening ServiceInfoPanel');
     setSelectedPlace(place);
     if (onPlaceSelect) {
       onPlaceSelect(place);
@@ -102,16 +102,16 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
 
   // Debug: Log whenever places prop changes
   useEffect(() => {
-    console.log('[TopologyMarkers] Received', places.length, 'places to render');
-    console.log('[TopologyMarkers] Places:', places.map(p => ({ 
-      name: p.name, 
-      lon: p.lon, 
-      lat: p.lat,
-      amenity: p.amenity,
-      highway: p.highway,
-      leisure: p.leisure,
-      hasRelated: !!(p.relatedEntities && p.relatedEntities.length > 0)
-    })));
+    // console.log('[TopologyMarkers] Received', places.length, 'places to render');
+    // console.log('[TopologyMarkers] Places:', places.map(p => ({ 
+    //   name: p.name, 
+    //   lon: p.lon, 
+    //   lat: p.lat,
+    //   amenity: p.amenity,
+    //   highway: p.highway,
+    //   leisure: p.leisure,
+    //   hasRelated: !!(p.relatedEntities && p.relatedEntities.length > 0)
+    // })));
   }, [places]);
 
   return (
@@ -133,10 +133,10 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
 
       {/* Vẽ đường kết nối khi hover topology từ ServiceInfoPanel */}
       {hoveredTopology && hoveredTopology.topology.related && (() => {
-        console.log('[TopologyMarkers] hoveredTopology:', hoveredTopology);
+        // console.log('[TopologyMarkers] hoveredTopology:', hoveredTopology);
         const related = hoveredTopology.topology.related;
         const sourceLat = hoveredTopology.sourcePlace.lat;
-        console.log('[TopologyMarkers] related:', related, 'sourceLat:', sourceLat);
+        // console.log('[TopologyMarkers] related:', related, 'sourceLat:', sourceLat);
         const sourceLon = hoveredTopology.sourcePlace.lon;
         
         // Get target coordinates from related object
@@ -155,20 +155,20 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
           if (foundPlace) {
             targetLat = foundPlace.lat;
             targetLon = foundPlace.lon;
-            console.log('[TopologyMarkers] Found in places:', foundPlace.name);
+            // console.log('[TopologyMarkers] Found in places:', foundPlace.name);
           } else {
-            console.log('[TopologyMarkers] Related POI not found in places, and no coordinates in related object');
+            // console.log('[TopologyMarkers] Related POI not found in places, and no coordinates in related object');
           }
         }
         
-        console.log('[TopologyMarkers] Final coordinates - source:', sourceLat, sourceLon, 'target:', targetLat, targetLon);
+        // console.log('[TopologyMarkers] Final coordinates - source:', sourceLat, sourceLon, 'target:', targetLat, targetLon);
         
         if (targetLat !== null && targetLon !== null && 
             typeof targetLat === 'number' && !isNaN(targetLat) &&
             typeof targetLon === 'number' && !isNaN(targetLon) &&
             typeof sourceLat === 'number' && !isNaN(sourceLat) &&
             typeof sourceLon === 'number' && !isNaN(sourceLon)) {
-          console.log('[TopologyMarkers] Rendering hover connection line and marker');
+          // console.log('[TopologyMarkers] Rendering hover connection line and marker');
           
           // Create a virtual place from related topology data for marker icon
           const virtualPlace: NearbyPlace = typeof related === 'object' ? {
