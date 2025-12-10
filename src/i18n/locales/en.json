@@ -57,7 +57,77 @@
       "query": "Query data with SPARQL"
     },
     "video": {
-      "title": "Introduction Video"
+      "title": "Introduction Video",
+      "introTitle": "🎬 Project Introduction Video",
+      "placeholder": "Introduction video will be placed here (16:9)"
+    },
+    "problemSolution": {
+      "problemTitle": "Problem",
+      "problem": "Open data is scattered, lacks standardization, difficult to access and integrate",
+      "solutionTitle": "Solution",
+      "solution": "OpenDataFitHou collects, standardizes into Linked Open Data, visualizes and provides API"
+    },
+    "featuresTabs": {
+      "title": "⚡ Key Features",
+      "map": {
+        "title": "Map",
+        "description": "Search and display places on interactive map with multiple data layers"
+      },
+      "chatbot": {
+        "title": "AI Chatbot",
+        "description": "Smart AI assistant helps answer questions about places and data"
+      },
+      "query": {
+        "title": "Query",
+        "description": "Query RDF data with SPARQL, visual Query Builder"
+      },
+      "admin": {
+        "title": "Admin",
+        "description": "Manage POIs, monitor environment, and system reports"
+      }
+    },
+    "dataSources": {
+      "title": "📊 Data Sources",
+      "columns": {
+        "source": "Data Source",
+        "description": "Description",
+        "reliability": "Reliability"
+      },
+      "sources": {
+        "osm": "Base map data, location of facilities (parking lots, roads, POI) via Overpass API",
+        "openweather": "Real-time weather data",
+        "openaq": "Global air quality data",
+        "iotSimulation": "IoT Simulation Data",
+        "iotDescription": "Simulated data: traffic, noise, flooding based on logic, time, real weather"
+      },
+      "reliability": {
+        "high": "High (community updated)",
+        "medium": "Medium (depends on coverage, fallback simulation if missing)"
+      },
+      "viewDetails": "View scenario"
+    },
+    "techStack": {
+      "title": "💻 Modern Technology",
+      "backend": {
+        "title": "Backend",
+        "description": "NestJS 11.0, TypeScript 5.7, Apache Jena Fuseki, SPARQL, RDF/XML"
+      },
+      "frontend": {
+        "title": "Frontend",
+        "description": "React 19.1, TypeScript 5.8, Vite 7, Leaflet 1.9, React Router 7, i18next"
+      },
+      "pipeline": {
+        "title": "Data Pipeline",
+        "description": "Python ETL, Wikidata API, Overpass API, RDF Transformation, Data Validation"
+      },
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Docker, Git, GitHub Actions, ESLint, Prettier, Jest"
+      }
+    },
+    "team": {
+      "title": "👥 Development Team",
+      "role": "Developer"
     },
     "license": {
       "title": "📄 License Information",
@@ -536,5 +606,21 @@
     "logout": "Logout",
     "adminPanel": "Admin Panel",
     "confirmLogout": "Are you sure you want to logout?"
+  },
+  "landing": {
+    "getStarted": "Get Started",
+    "videoPlaceholder": "Introduction video will be placed here",
+    "dataSources": {
+      "title": "Data Sources",
+      "source": "Data Source",
+      "description": "Description",
+      "reliability": "Reliability",
+      "wikidata": "Open knowledge base with structured data",
+      "osm": "Community-driven open map, geospatial data",
+      "fuseki": "SPARQL server, RDF management",
+      "daily": "Updated daily",
+      "realtime": "Realtime",
+      "weekly": "Updated weekly"
+    }
   }
 }

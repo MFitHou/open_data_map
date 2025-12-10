@@ -67,7 +67,77 @@
       "query": "Truy vấn dữ liệu với SPARQL"
     },
     "video": {
-      "title": "Video giới thiệu"
+      "title": "Video giới thiệu",
+      "introTitle": "🎬 Video giới thiệu dự án",
+      "placeholder": "Video giới thiệu sẽ được đặt ở đây (16:9)"
+    },
+    "problemSolution": {
+      "problemTitle": "Vấn đề",
+      "problem": "Dữ liệu mở phân tán, thiếu chuẩn hóa, khó truy cập và tích hợp",
+      "solutionTitle": "Giải pháp",
+      "solution": "OpenDataFitHou thu thập, chuẩn hóa thành Linked Open Data, trực quan hóa và cung cấp API"
+    },
+    "featuresTabs": {
+      "title": "⚡ Tính năng nổi bật",
+      "map": {
+        "title": "Bản đồ",
+        "description": "Tìm kiếm và hiển thị địa điểm trên bản đồ tương tác với nhiều layer dữ liệu"
+      },
+      "chatbot": {
+        "title": "AI Chatbot",
+        "description": "Trợ lý AI thông minh giúp trả lời câu hỏi về địa điểm và dữ liệu"
+      },
+      "query": {
+        "title": "Truy vấn",
+        "description": "Truy vấn dữ liệu RDF với SPARQL, Query Builder trực quan"
+      },
+      "admin": {
+        "title": "Quản trị",
+        "description": "Quản lý POIs, giám sát môi trường, và báo cáo hệ thống"
+      }
+    },
+    "dataSources": {
+      "title": "📊 Nguồn dữ liệu",
+      "columns": {
+        "source": "Nguồn dữ liệu",
+        "description": "Mô tả",
+        "reliability": "Độ tin cậy"
+      },
+      "sources": {
+        "osm": "Dữ liệu bản đồ nền, vị trí các tiện ích (bãi đỗ xe, đường, POI) qua Overpass API",
+        "openweather": "Dữ liệu thời tiết thực tế",
+        "openaq": "Dữ liệu chất lượng không khí toàn cầu",
+        "iotSimulation": "Dữ liệu IoT giả lập",
+        "iotDescription": "Dữ liệu mô phỏng: giao thông, tiếng ồn, ngập lụt dựa trên logic, thời gian, thời tiết thực tế"
+      },
+      "reliability": {
+        "high": "Cao (cộng đồng cập nhật)",
+        "medium": "Trung bình (phụ thuộc coverage, fallback mô phỏng nếu thiếu)"
+      },
+      "viewDetails": "Xem kịch bản"
+    },
+    "techStack": {
+      "title": "💻 Công nghệ hiện đại",
+      "backend": {
+        "title": "Backend",
+        "description": "NestJS 11.0, TypeScript 5.7, Apache Jena Fuseki, SPARQL, RDF/XML"
+      },
+      "frontend": {
+        "title": "Frontend",
+        "description": "React 19.1, TypeScript 5.8, Vite 7, Leaflet 1.9, React Router 7, i18next"
+      },
+      "pipeline": {
+        "title": "Data Pipeline",
+        "description": "Python ETL, Wikidata API, Overpass API, RDF Transformation, Data Validation"
+      },
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Docker, Git, GitHub Actions, ESLint, Prettier, Jest"
+      }
+    },
+    "team": {
+      "title": "👥 Đội ngũ phát triển",
+      "role": "Developer"
     },
     "license": {
       "title": "📄 Thông tin giấy phép",
@@ -560,5 +630,21 @@
     "logout": "Đăng xuất",
     "adminPanel": "Quản trị",
     "confirmLogout": "Bạn có chắc muốn đăng xuất?"
+  },
+  "landing": {
+    "getStarted": "Bắt đầu",
+    "videoPlaceholder": "Video giới thiệu sẽ được đặt ở đây",
+    "dataSources": {
+      "title": "Nguồn dữ liệu",
+      "source": "Nguồn dữ liệu",
+      "description": "Mô tả",
+      "reliability": "Độ tin cậy",
+      "wikidata": "Cơ sở dữ liệu tri thức mở, có cấu trúc",
+      "osm": "Bản đồ mở cộng đồng, dữ liệu địa lý",
+      "fuseki": "SPARQL server, quản lý RDF",
+      "daily": "Cập nhật hàng ngày",
+      "realtime": "Realtime",
+      "weekly": "Cập nhật hàng tuần"
+    }
   }
 }
