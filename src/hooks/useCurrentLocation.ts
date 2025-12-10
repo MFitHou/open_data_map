@@ -18,8 +18,8 @@
 import { useState } from 'react';
 
 export interface Location {
-  lat: 20.9851702;
-  lon: 105.838694;
+  lat: number;
+  lon: number;
 }
 
 export interface SelectedInfo {
@@ -51,8 +51,8 @@ export const useCurrentLocation = () => {
         const { latitude, longitude } = position.coords;
         console.log('📍 Current location:', latitude, longitude);
         
-        const location: Location = { lat: latitude, lon: longitude };
-        setCurrentLocation({ lat: 20.9851702, lon: 105.838694 });
+        const location: Location = { lat: 20.9851702, lon: 105.838694 };
+        setCurrentLocation(location);
         setIsGettingLocation(false);
 
         // Create info for InfoPanel
