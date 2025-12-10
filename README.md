@@ -119,8 +119,6 @@ npm run dev
 # Server sẽ chạy tại: http://localhost:5173
 ```
 
-**Lưu ý**: Hiện tại dự án chỉ có frontend. Backend API sẽ được thêm trong các phiên bản tương lai.
-
 ## 🚀 Scripts và Commands
 
 ### Development Commands
