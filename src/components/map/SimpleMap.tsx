@@ -149,9 +149,9 @@ const SimpleMap: React.FC = () => {
   }, [getLocation]);
 
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[], center?: { lat: number; lon: number }, radiusKm?: number) => {
-    console.log('[SimpleMap] handleNearbyPlacesChange called with', places.length, 'places');
-    console.log('[SimpleMap] Center:', center, 'Radius:', radiusKm);
-    console.log('[SimpleMap] Places:', places.map(p => ({ name: p.name, lon: p.lon, lat: p.lat })));
+    // console.log('[SimpleMap] handleNearbyPlacesChange called with', places.length, 'places');
+    // console.log('[SimpleMap] Center:', center, 'Radius:', radiusKm);
+    // console.log('[SimpleMap] Places:', places.map(p => ({ name: p.name, lon: p.lon, lat: p.lat })));
     setNearbyPlaces(places);
     setNearbySearchCenter(center || null);
     setNearbySearchRadius(radiusKm || null);
@@ -159,7 +159,7 @@ const SimpleMap: React.FC = () => {
 
   // Clear all nearby search results
   const handleClearNearbySearch = useCallback(() => {
-    console.log('[SimpleMap] Clearing nearby search results');
+    // console.log('[SimpleMap] Clearing nearby search results');
     setNearbyPlaces([]);
     setNearbySearchCenter(null);
     setNearbySearchRadius(null);
@@ -171,13 +171,13 @@ const SimpleMap: React.FC = () => {
   // Fetch layer data from backend
   const fetchLayerData = useCallback(async (enabledLayers: Array<{ id: string; name: string; density: number }>) => {
     if (enabledLayers.length === 0) {
-      console.log('[SimpleMap] No layers to fetch');
+      // console.log('[SimpleMap] No layers to fetch');
       setLayerPlaces([]);
       return;
     }
 
     setIsLoadingLayers(true);
-    console.log('[SimpleMap] Fetching layer data for', enabledLayers.length, 'layers');
+    // console.log('[SimpleMap] Fetching layer data for', enabledLayers.length, 'layers');
 
     try {
       const allPlaces: NearbyPlace[] = [];
@@ -185,7 +185,7 @@ const SimpleMap: React.FC = () => {
       // Fetch data for each enabled layer using new API
       for (const layer of enabledLayers) {
         try {
-          console.log(`[SimpleMap] Fetching ${layer.name} (${layer.id}) with density ${layer.density}`);
+          // console.log(`[SimpleMap] Fetching ${layer.name} (${layer.id}) with density ${layer.density}`);
           
           const url = `${import.meta.env.VITE_FUSEKI_BASE_URL}/pois-by-type?type=${layer.id}&limit=${layer.density}&language=vi`;
           const response = await fetch(url);
@@ -196,7 +196,7 @@ const SimpleMap: React.FC = () => {
           }
 
           const data = await response.json();
-          console.log(`[SimpleMap] Fetched ${data.results?.length || 0} places for ${layer.name}`);
+          // console.log(`[SimpleMap] Fetched ${data.results?.length || 0} places for ${layer.name}`);
           
           if (data.results && Array.isArray(data.results)) {
             allPlaces.push(...data.results);
@@ -206,7 +206,7 @@ const SimpleMap: React.FC = () => {
         }
       }
 
-      console.log(`[SimpleMap] Total layer places fetched: ${allPlaces.length}`);
+      // console.log(`[SimpleMap] Total layer places fetched: ${allPlaces.length}`);
       setLayerPlaces(allPlaces);
     } catch (error) {
       console.error('[SimpleMap] Error fetching layer data:', error);
@@ -218,7 +218,7 @@ const SimpleMap: React.FC = () => {
 
   // Handle layer changes from LayerControl
   const handleLayerChange = useCallback((enabledLayers: Array<{ id: string; name: string; density: number }>) => {
-    console.log('[SimpleMap] Layer change:', enabledLayers);
+    // console.log('[SimpleMap] Layer change:', enabledLayers);
     fetchLayerData(enabledLayers);
   }, [fetchLayerData]);
 
@@ -396,7 +396,7 @@ out tags;
               };
 
               setWardData(geoJson);
-              console.log('Boundary loaded successfully');
+              // console.log('Boundary loaded successfully');
             }
           }
         }
@@ -417,7 +417,7 @@ out tags;
     type?: string;
     image?: string;
   }) => {
-    console.log('Chatbot location select:', location);
+    // console.log('Chatbot location select:', location);
     
     // Transform chatbot location data to SearchResult format
     const searchResult: SearchResult = {
@@ -441,7 +441,7 @@ out tags;
 
   // HANDLER: Suggestions from SmartSearch - display as markers
   const handleSuggestionsChange = useCallback((suggestions: any[]) => {
-    console.log('[SimpleMap] Received', suggestions.length, 'suggestions to display as markers');
+    // console.log('[SimpleMap] Received', suggestions.length, 'suggestions to display as markers');
     
     // Transform suggestions to markers
     const markers = suggestions.map(s => {
@@ -467,12 +467,12 @@ out tags;
     }).filter(m => m.lat && m.lon);
     
     setSuggestionMarkers(markers);
-    console.log('[SimpleMap] Created', markers.length, 'suggestion markers');
+    // console.log('[SimpleMap] Created', markers.length, 'suggestion markers');
   }, []);
 
   // HANDLER: Click on suggestion marker
   const handleSuggestionMarkerClick = useCallback((marker: any) => {
-    console.log('[SimpleMap] Suggestion marker clicked:', marker);
+    // console.log('[SimpleMap] Suggestion marker clicked:', marker);
     
     // Hide suggestions dropdown when marker is clicked
     setForceHideSuggestions(true);
@@ -499,7 +499,7 @@ out tags;
   // HANDLER: Clear search - remove all markers, boundaries, and selections
   // BUT keep nearby places if they exist (from topology/nearby search)
   const handleClearSearch = useCallback(() => {
-    console.log('[SimpleMap] Clearing search - removing suggestion markers and boundaries');
+    // console.log('[SimpleMap] Clearing search - removing suggestion markers and boundaries');
     setSearchMarker(null);
     setSuggestionMarkers([]);
     setSelectedLocation(null);
@@ -518,7 +518,7 @@ out tags;
 
   // HANDLER: Member click
   const handleMemberClick = useCallback(async (member: { type: string; ref: number; role?: string }) => {
-    console.log('Fetching member:', member);
+    // console.log('Fetching member:', member);
     
     const query = `
 [out:json][timeout:25];
@@ -609,7 +609,7 @@ out geom;
   useEffect(() => {
     const state = location.state as LocationState;
     if (state?.searchResult && map) {
-      console.log('🏠 Received FULL DATA from Home:', state.searchResult);
+      // console.log('🏠 Received FULL DATA from Home:', state.searchResult);
       handleSelectLocation(state.searchResult);
       window.history.replaceState({}, document.title);
     }
@@ -618,8 +618,8 @@ out geom;
   // Auto-get current location on mount
   useEffect(() => {
     if (!currentLocation && !isGettingLocation) {
-      console.log('[SimpleMap] Auto-getting current location on mount');
-      getLocation(() => {});
+      // console.log('[SimpleMap] Auto-getting current location on mount');
+      getLocation();
     }
   }, []); // Run once on mount
 
@@ -681,8 +681,8 @@ out geom;
           onNearbyPlacesChange={handleNearbyPlacesChange}
           selectedPlace={selectedPlace}
           onRelatedPlaceClick={(place) => {
-            console.log('[SimpleMap] onRelatedPlaceClick called:', place.name);
-            console.log('[SimpleMap] THIS will fly to location');
+            // console.log('[SimpleMap] onRelatedPlaceClick called:', place.name);
+            // console.log('[SimpleMap] THIS will fly to location');
             setSelectedPlace(place);
             if (place.lat && place.lon) {
               setSelectedLocation({ lat: place.lat, lon: place.lon });
@@ -710,19 +710,19 @@ out geom;
             // When clicking topology, fetch full POI info and display
             const related = topology.related;
             if (typeof related === 'object' && related.poi) {
-              console.log('[SimpleMap] Fetching full POI info for:', related.poi);
+              // console.log('[SimpleMap] Fetching full POI info for:', related.poi);
               
               // Fetch full info from backend
               const fullPoi = await fetchPOIByUri(related.poi);
               
               if (fullPoi) {
-                console.log('[SimpleMap] Got full POI:', fullPoi);
+                // console.log('[SimpleMap] Got full POI:', fullPoi);
                 
                 // Add POI to nearbyPlaces if not already there (so marker will be rendered)
                 setNearbyPlaces(prev => {
                   const exists = prev.some(p => p.poi === fullPoi.poi);
                   if (!exists) {
-                    console.log('[SimpleMap] Adding new POI to nearbyPlaces:', fullPoi.name);
+                    // console.log('[SimpleMap] Adding new POI to nearbyPlaces:', fullPoi.name);
                     // Track this as an explored marker
                     setExploredMarkerPois(prevSet => new Set([...prevSet, fullPoi.poi]));
                     return [...prev, fullPoi];
@@ -841,8 +841,8 @@ out geom;
             searchCenter={nearbySearchCenter || undefined}
             searchRadiusKm={nearbySearchRadius || undefined}
             onPlaceSelect={(place) => {
-              console.log('[SimpleMap] onPlaceSelect called:', place.name);
-              console.log('[SimpleMap] Opening ServiceInfoPanel for:', place.name);
+              // console.log('[SimpleMap] onPlaceSelect called:', place.name);
+              // console.log('[SimpleMap] Opening ServiceInfoPanel for:', place.name);
               setSelectedServicePlace(place);
             }}
             selectedServicePlace={selectedServicePlace}
@@ -855,7 +855,7 @@ out geom;
           <TopologyMarkers 
             places={layerPlaces}
             onPlaceSelect={(place) => {
-              console.log('[SimpleMap] Layer marker clicked:', place.name);
+              // console.log('[SimpleMap] Layer marker clicked:', place.name);
               setSelectedServicePlace(place);
             }}
             selectedServicePlace={selectedServicePlace}

@@ -34,7 +34,7 @@ export const loadATMsFromAPI = async (
   apiEndpoint: string = getApiEndpoint.fusekiAtms()
 ): Promise<ATMData[]> => {
   try {
-    console.log('🔍 Fetching ATM triples from API (no SPARQL)...');
+    // console.log('🔍 Fetching ATM triples from API (no SPARQL)...');
 
     const res = await fetch(apiEndpoint, { method: 'GET' });
     if (!res.ok) {
@@ -49,7 +49,7 @@ export const loadATMsFromAPI = async (
     }
 
     const atms = convertTriplesToATMs(payload.data);
-    console.log(`✅ Parsed ${atms.length} ATMs từ ${payload.count} triples`);
+    // console.log(`✅ Parsed ${atms.length} ATMs từ ${payload.count} triples`);
 
     if (atms.length) {
       console.table(

@@ -132,7 +132,7 @@ const MapChatbot: React.FC<MapChatbotProps> = ({
       recognitionInstance.maxAlternatives = 1;
       
       recognitionInstance.onstart = () => {
-        console.log('[Speech] Recognition started');
+        // console.log('[Speech] Recognition started');
         setIsListening(true);
         setIsStopping(false);
         stopStartTimeRef.current = null;

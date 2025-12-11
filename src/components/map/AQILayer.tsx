@@ -167,10 +167,10 @@ export const useAQILayer = () => {
       }
       
       const stationsData = await stationsResponse.json();
-      console.log('[AQI Layer] IoT stations:', stationsData);
+      // console.log('[AQI Layer] IoT stations:', stationsData);
       
       if (!stationsData.stations || stationsData.stations.length === 0) {
-        console.log('[AQI Layer] No IoT stations found');
+        // console.log('[AQI Layer] No IoT stations found');
         setStations([]);
         return;
       }
@@ -183,7 +183,7 @@ export const useAQILayer = () => {
       
       // Step 2: Fetch AQI data from InfluxDB for all stations
       const stationIds = stationsData.stations.map((s: any) => s.stationId);
-      console.log('[AQI Layer] Station IDs:', stationIds);
+      // console.log('[AQI Layer] Station IDs:', stationIds);
       
       // Fetch all stations AQI data
       const influxUrl = `${import.meta.env.VITE_API_BASE_URL}/influxdb/stations?measurement=air_quality&fields=aqi,pm25,pm10`;
@@ -193,7 +193,7 @@ export const useAQILayer = () => {
       
       if (influxResponse.ok) {
         const influxData = await influxResponse.json();
-        console.log('[AQI Layer] InfluxDB data:', influxData);
+        // console.log('[AQI Layer] InfluxDB data:', influxData);
         
         if (influxData.data && influxData.data.length > 0) {
           influxData.data.forEach((s: any) => {
@@ -222,7 +222,7 @@ export const useAQILayer = () => {
         };
       });
       
-      console.log('[AQI Layer] Merged stations:', mergedStations);
+      // console.log('[AQI Layer] Merged stations:', mergedStations);
       setStations(mergedStations);
     } catch (err: any) {
       console.error('[AQI Layer] Error:', err);

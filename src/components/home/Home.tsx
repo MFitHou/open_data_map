@@ -99,7 +99,7 @@ const Home: React.FC = () => {
     const state = location.state as { loginSuccess?: boolean; username?: string };
     console.log('Home - location.state:', state);
     if (state?.loginSuccess) {
-      console.log('Showing login success notification');
+      // console.log('Showing login success notification');
       setShowLoginSuccess(true);
       // Tự động ẩn sau 5 giây
       const timer = setTimeout(() => {
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
   // ✅ Copy EXACT từ Search.tsx - searchWikidata function
   const searchWikidata = async (searchTerm: string): Promise<SearchResult[]> => {
     try {
-      console.log('Searching for:', searchTerm);
+      // console.log('Searching for:', searchTerm);
 
       // SPARQL query
       const sparqlQuery = `
@@ -183,7 +183,7 @@ const Home: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log('Results:', data.results.bindings.length);
+      // console.log('Results:', data.results.bindings.length);
 
       const wikidataResults: SearchResult[] = data.results.bindings.map((binding: any) => {
         // Parse coordinate string "Point(lon lat)"
@@ -264,7 +264,7 @@ const Home: React.FC = () => {
       // Filter out invalid coordinates
       const validResults = wikidataResults.filter(r => r.lat !== 0 && r.lon !== 0);
 
-      console.log(`Found ${validResults.length} valid results with metadata`);
+      // console.log(`Found ${validResults.length} valid results with metadata`);
       return validResults;
 
     } catch (error) {
@@ -332,9 +332,9 @@ const Home: React.FC = () => {
 
   // ✅ Navigate with FULL DATA
   const handleResultClick = (result: SearchResult) => {
-    console.log('Selected:', result);
-    console.log('Identifiers:', result.identifiers);
-    console.log('Statements:', result.statements);
+    // console.log('Selected:', result);
+    // console.log('Identifiers:', result.identifiers);
+    // console.log('Statements:', result.statements);
     
     // Navigate with full SearchResult
     navigate('/map', {

@@ -379,7 +379,7 @@ const getCurrentLocation = () => {
 
   // ✅ DEFINE handleNearbyPlacesChange RIGHT AFTER STATES
   const handleNearbyPlacesChange = useCallback((places: NearbyPlace[]) => {
-    console.log('📍 Nearby places updated:', places.length);
+    // console.log('📍 Nearby places updated:', places.length);
     setNearbyPlaces(places);
   }, []);
 
@@ -662,7 +662,7 @@ out tags;
               };
 
               setWardData(geoJson);
-              console.log('Boundary loaded successfully');
+              // console.log('Boundary loaded successfully');
             }
           }
         }
@@ -676,7 +676,7 @@ out tags;
 
   // HANDLER WHEN USER CLICKS ON MEMBER IN INFO PANEL
   const handleMemberClick = async (member: { type: string; ref: number; role?: string }) => {
-    console.log('Fetching member:', member);
+    // console.log('Fetching member:', member);
     
     const query = `
 [out:json][timeout:25];
@@ -787,9 +787,9 @@ out geom;
   useEffect(() => {
     const state = location.state as LocationState;
     if (state?.searchResult && map) {
-      console.log('🏠 Received FULL DATA from Home:', state.searchResult);
-      console.log('📍 Identifiers:', state.searchResult.identifiers);
-      console.log('📊 Statements:', state.searchResult.statements);
+      // console.log('🏠 Received FULL DATA from Home:', state.searchResult);
+      // console.log('📍 Identifiers:', state.searchResult.identifiers);
+      // console.log('📊 Statements:', state.searchResult.statements);
       
       // ✅ Call directly with full data
       handleSelectLocation(state.searchResult);

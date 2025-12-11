@@ -112,7 +112,7 @@ export const fetchNearbyPlaces = async (
     
     const url = `${API_CONFIG.fusekiBaseUrl}/nearby?${params.toString()}`;
     
-    console.log(`Fetching nearby places:`, { lon, lat, radiusKm, types, includeTopology, includeIoT, language });
+    // console.log(`Fetching nearby places:`, { lon, lat, radiusKm, types, includeTopology, includeIoT, language });
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -121,7 +121,7 @@ export const fetchNearbyPlaces = async (
     
     const data: NearbyResponse = await response.json();
     
-    console.log(`Found ${data.count} places:`, data);
+    // console.log(`Found ${data.count} places:`, data);
     
     return data;
   } catch (error) {
@@ -203,7 +203,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     
     const config = amenityConfig[place.amenity];
     if (config) {
-      console.log('[getAmenityIcon] Using amenity config:', place.amenity, config);
+      // console.log('[getAmenityIcon] Using amenity config:', place.amenity, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
         markerColor: config.color as any,
@@ -212,7 +212,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       });
     }
     
-    console.log('[getAmenityIcon] Unknown amenity, using default:', place.amenity);
+    // console.log('[getAmenityIcon] Unknown amenity, using default:', place.amenity);
     return L.AwesomeMarkers.icon({
       icon: 'map-marker',
       markerColor: 'darkblue',
@@ -233,7 +233,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
     
     const config = leisureConfig[place.leisure];
     if (config) {
-      console.log('[getAmenityIcon] Using leisure config:', place.leisure, config);
+      // console.log('[getAmenityIcon] Using leisure config:', place.leisure, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
         markerColor: config.color as any,
@@ -242,7 +242,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       });
     }
     
-    console.log('[getAmenityIcon] Unknown leisure, using tree icon:', place.leisure);
+    // console.log('[getAmenityIcon] Unknown leisure, using tree icon:', place.leisure);
     return L.AwesomeMarkers.icon({
       icon: 'tree',
       markerColor: 'green',
@@ -423,7 +423,7 @@ export const fetchPOIByUri = async (
     
     const url = `${API_CONFIG.fusekiBaseUrl}/poi?${params.toString()}`;
     
-    console.log(`[fetchPOIByUri] Fetching POI:`, { uri, language });
+    // console.log(`[fetchPOIByUri] Fetching POI:`, { uri, language });
     
     const response = await fetch(url);
     if (!response.ok) {
@@ -437,7 +437,7 @@ export const fetchPOIByUri = async (
       return null;
     }
     
-    console.log(`[fetchPOIByUri] Found POI:`, data.poi);
+    // console.log(`[fetchPOIByUri] Found POI:`, data.poi);
     
     return data.poi as NearbyPlace;
   } catch (error) {

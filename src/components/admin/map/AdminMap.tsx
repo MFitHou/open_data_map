@@ -102,11 +102,11 @@ const AdminMap: React.FC = () => {
       const trafficMap = new Map<string, any>();
       if (trafficResponse.ok) {
         const trafficResult = await trafficResponse.json();
-        console.log('Traffic data from /stations:', trafficResult);
+        // console.log('Traffic data from /stations:', trafficResult);
         if (trafficResult.success && trafficResult.data) {
           trafficResult.data.forEach((item: any) => {
             const stationId = extractStationId(item.stationId);
-            console.log('Traffic station:', item.stationId, '->', stationId, item.data);
+            // console.log('Traffic station:', item.stationId, '->', stationId, item.data);
             trafficMap.set(stationId, item.data);
           });
         }
@@ -116,11 +116,11 @@ const AdminMap: React.FC = () => {
       const floodMap = new Map<string, any>();
       if (floodResponse.ok) {
         const floodResult = await floodResponse.json();
-        console.log('Flood data from /stations:', floodResult);
+        // console.log('Flood data from /stations:', floodResult);
         if (floodResult.success && floodResult.data) {
           floodResult.data.forEach((item: any) => {
             const stationId = extractStationId(item.stationId);
-            console.log('Flood station:', item.stationId, '->', stationId, item.data);
+            // console.log('Flood station:', item.stationId, '->', stationId, item.data);
             floodMap.set(stationId, item.data);
           });
         }
@@ -130,11 +130,11 @@ const AdminMap: React.FC = () => {
       const airQualityMap = new Map<string, any>();
       if (airQualityResponse.ok) {
         const airQualityResult = await airQualityResponse.json();
-        console.log('Air quality data from /stations:', airQualityResult);
+        // console.log('Air quality data from /stations:', airQualityResult);
         if (airQualityResult.success && airQualityResult.data) {
           airQualityResult.data.forEach((item: any) => {
             const stationId = extractStationId(item.stationId);
-            console.log('Air quality station:', item.stationId, '->', stationId, item.data);
+            // console.log('Air quality station:', item.stationId, '->', stationId, item.data);
             airQualityMap.set(stationId, item.data);
           });
         }
@@ -145,7 +145,7 @@ const AdminMap: React.FC = () => {
         flood: Array.from(floodMap.keys()),
         airQuality: Array.from(airQualityMap.keys())
       });
-      console.log('Expected station IDs:', IOT_STATIONS.map(s => s.id));
+      // console.log('Expected station IDs:', IOT_STATIONS.map(s => s.id));
 
       // Merge with station definitions
       const trafficResults: TrafficData[] = IOT_STATIONS.map((station) => {

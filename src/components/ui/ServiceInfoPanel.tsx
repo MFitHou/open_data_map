@@ -17,6 +17,8 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { UpdateForm } from '../map/UpdateForm';
+import { requireAuth } from '../../utils/authUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faTimes, 
@@ -24,7 +26,8 @@ import {
   faLink, 
   faBroadcastTower,
   faChevronDown,
-  faChevronUp
+  faChevronUp,
+  faPencil
 } from '@fortawesome/free-solid-svg-icons';
 import type { NearbyPlace, TopologyRelation } from '../../utils/nearbyApi';
 import { getPlaceName } from '../../utils/nearbyApi';
@@ -90,9 +93,38 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
   
   // Get current language, default to 'vi'
   const currentLanguage = i18n.language?.startsWith('vi') ? 'vi' : 'en';
+
+  /**
+   * Xử lý khi click nút cập nhật thông tin
+   * Kiểm tra đăng nhập trước khi mở form
+   */
+  const handleUpdateClick = async () => {
+    setIsCheckingAuth(true);
+    
+    await requireAuth(
+      // onSuccess: đã đăng nhập
+      (user) => {
+        console.log('User authenticated:', user.username);
+        setShowUpdateForm(true);
+        setIsCheckingAuth(false);
+      },
+      // onError: chưa đăng nhập
+      () => {
+        setIsCheckingAuth(false);
+        const confirmLogin = window.confirm(
+          t('map.updateForm.requireLogin', 'Bạn cần đăng nhập để cập nhật thông tin. Chuyển đến trang đăng nhập?')
+        );
+        if (confirmLogin) {
+          window.location.href = '/login';
+        }
+      }
+    );
+  };
 
   const toggleGroup = (predicate: string) => {
     setExpandedGroups(prev => ({
@@ -232,6 +264,52 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
               </div>
             )}
           </div>
+          
+          {/* Update Button */}
+          <button 
+            className="update-info-btn" 
+            onClick={handleUpdateClick}
+            disabled={isCheckingAuth}
+            style={{
+              width: '100%',
+              padding: '10px',
+              marginTop: '12px',
+              backgroundColor: isCheckingAuth ? '#9E9E9E' : '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: isCheckingAuth ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              transition: 'all 0.2s',
+              opacity: isCheckingAuth ? 0.7 : 1
+            }}
+            onMouseOver={(e) => {
+              if (!isCheckingAuth) {
+                e.currentTarget.style.backgroundColor = '#45a049';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (!isCheckingAuth) {
+                e.currentTarget.style.backgroundColor = '#4CAF50';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }
+            }}
+          >
+            <FontAwesomeIcon icon={faPencil} spin={isCheckingAuth} />
+            <span>
+              {isCheckingAuth 
+                ? t('map.updateForm.checkingAuth', 'Đang kiểm tra...') 
+                : t('map.updateForm.updateButton')}
+            </span>
+          </button>
         </div>
 
         {/* Topology Section */}
@@ -325,6 +403,20 @@ export const ServiceInfoPanel: React.FC<ServiceInfoPanelProps> = ({
           </div>
         )}
       </div>
+
+      {/* UpdateForm Modal */}
+      {showUpdateForm && (
+        <UpdateForm
+          placeData={{
+            name: getPlaceName(place, 0),
+            lat: place.lat,
+            lon: place.lon,
+            type: place.amenity || place.highway || place.leisure || 'poi',
+            poiId: place.poi || `${place.amenity || 'poi'}_${Date.now()}`
+          }}
+          onClose={() => setShowUpdateForm(false)}
+        />
+      )}
     </div>
   );
 };

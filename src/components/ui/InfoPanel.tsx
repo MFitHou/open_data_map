@@ -216,7 +216,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     // 2. We had previously searched from InfoPanel (hasSearchedNearby = true)
     // This prevents clearing markers from chatbot or external sources
     if (hasSearchedNearby && (activeTab !== 'tasks' || activeTaskTab !== 'nearby')) {
-      console.log('[InfoPanel] Clearing markers - left nearby tab after searching');
+      // console.log('[InfoPanel] Clearing markers - left nearby tab after searching');
       setNearbyPlaces([]);
       setHasSearchedNearby(false); // Reset flag
       if (onNearbyPlacesChange) {

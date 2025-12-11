@@ -28,7 +28,7 @@ export const FlyToLocation: React.FC<FlyToLocationProps> = ({ lat, lon, zoom = 1
   const map = useMap();
   
   useEffect(() => {
-    console.log('[FlyToLocation] Flying to:', { lat, lon, zoom });
+    // console.log('[FlyToLocation] Flying to:', { lat, lon, zoom });
     console.trace('[FlyToLocation] Call stack:');
     map.flyTo([lat, lon], zoom, {
       duration: 1.5

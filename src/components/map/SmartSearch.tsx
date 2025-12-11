@@ -129,7 +129,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
 
       const data = await response.json();
       
-      console.log('[SmartSearch] Response:', data);
+      // console.log('[SmartSearch] Response:', data);
 
       // Handle different action types
       handleSearchAction(data);
@@ -170,7 +170,7 @@ export const SmartSearch: React.FC<SmartSearchProps> = ({
     switch (action) {
       case 'nearby_search':
         if (results && onNearbyPlacesChange) {
-          console.log('[SmartSearch] Nearby search:', results.length, 'results');
+          // console.log('[SmartSearch] Nearby search:', results.length, 'results');
           onNearbyPlacesChange(
             results,
             params?.center,
