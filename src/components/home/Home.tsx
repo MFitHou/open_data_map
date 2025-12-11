@@ -478,9 +478,6 @@ const Home: React.FC = () => {
                 <a href="/map" className="quick-link-button">
                   <FontAwesomeIcon icon={faMapLocationDot} /> {t('nav.map')}
                 </a>
-                <a href="/query" className="quick-link-button">
-                  <FontAwesomeIcon icon={faSearch} /> {t('nav.query')}
-                </a>
                 <a href="/data-explorer" className="quick-link-button">
                   <FontAwesomeIcon icon={faProjectDiagram} /> Query Builder
                 </a>
