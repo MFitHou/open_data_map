@@ -34,6 +34,19 @@ import {
   faRobot,
   faLock
 } from '@fortawesome/free-solid-svg-icons';
+import { faProjectDiagram } from '@fortawesome/free-solid-svg-icons/faProjectDiagram';
+
+// Import demo images
+import mapDemo1 from '../../assets/1.png';
+import mapDemo2 from '../../assets/2.png';
+import mapDemo3 from '../../assets/3.png';
+import chatbotDemo1 from '../../assets/4.png';
+import chatbotDemo2 from '../../assets/5.png';
+import queryDemo1 from '../../assets/6.png';
+import queryDemo2 from '../../assets/8.png';
+import adminDemo1 from '../../assets/10.png';
+import adminDemo2 from '../../assets/11.png';
+import adminDemo3 from '../../assets/12.png';
 
 interface SearchResult {
   id: string;
@@ -75,6 +88,7 @@ const Home: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showLoginSuccess, setShowLoginSuccess] = useState(false);
+  const [activeFeatureTab, setActiveFeatureTab] = useState<'map' | 'chatbot' | 'query' | 'admin'>('map');
   
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -292,11 +306,11 @@ const Home: React.FC = () => {
       setShowResults(true);
 
       if (sortedResults.length === 0) {
-        setError("No results found. Try different keywords.");
+        setError(t('common.status.noResultsFound'));
       }
     } catch (error) {
       console.error("Error searching:", error);
-      setError("Connection error. Please try again later.");
+      setError(t('common.status.connectionError'));
       setResults([]);
       setShowResults(true);
     } finally {
@@ -464,8 +478,8 @@ const Home: React.FC = () => {
                 <a href="/map" className="quick-link-button">
                   <FontAwesomeIcon icon={faMapLocationDot} /> {t('nav.map')}
                 </a>
-                <a href="/query" className="quick-link-button">
-                  <FontAwesomeIcon icon={faSearch} /> {t('nav.query')}
+                <a href="/data-explorer" className="quick-link-button">
+                  <FontAwesomeIcon icon={faProjectDiagram} /> Query Builder
                 </a>
               </div>
 
@@ -548,6 +562,42 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Video Intro Section */}
+      <section className="video-intro-section">
+        <div className="container">
+          <h2 className="section-title">{t('home.video.introTitle')}</h2>
+          <div className="video-wrapper">
+            <div className="video-container">
+              <iframe
+                src="https://www.youtube.com/embed/N6JpxWiIIIc?si=PBN6YOVzw0HHt7NA"
+                title="OpenDataFitHou Introduction Video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Problem & Solution Section */}
+      <section className="problem-solution-section">
+        <div className="container">
+          <div className="problem-solution-grid">
+            <div className="ps-card problem-card">
+              <div className="ps-icon">❌</div>
+              <h3>{t('home.problemSolution.problemTitle')}</h3>
+              <p>{t('home.problemSolution.problem')}</p>
+            </div>
+            <div className="ps-card solution-card">
+              <div className="ps-icon">✅</div>
+              <h3>{t('home.problemSolution.solutionTitle')}</h3>
+              <p>{t('home.problemSolution.solution')}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Section 2: Project Introduction */}
       <section className="intro-section">
         <div className="container">
@@ -572,66 +622,77 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Section 4: Data & Features */}
-      <section className="features-section">
+      {/* Features Tabs Section */}
+      <section className="features-tabs-section">
         <div className="container">
-          <div className="data-types">
-            <h3>{t('home.features.dataTypesTitle')}</h3>
-            <div className="data-tags">
-              <span className="data-tag">🚌 Bus Stop</span>
-              <span className="data-tag">🏧 ATM</span>
-              <span className="data-tag">🏥 Hospital</span>
-              <span className="data-tag">🏫 School</span>
-              <span className="data-tag">🛝 Playground</span>
-              <span className="data-tag">🚻 Toilets</span>
-              <span className="data-tag">🚰 Drinking Water</span>
-            </div>
+          <h2 className="section-title">{t('home.featuresTabs.title')}</h2>
+          
+          <div className="tab-buttons">
+            <button 
+              className={`tab-btn ${activeFeatureTab === 'map' ? 'active' : ''}`}
+              onClick={() => setActiveFeatureTab('map')}
+            >
+              <FontAwesomeIcon icon={faMapLocationDot} /> {t('home.featuresTabs.map.title')}
+            </button>
+            <button 
+              className={`tab-btn ${activeFeatureTab === 'chatbot' ? 'active' : ''}`}
+              onClick={() => setActiveFeatureTab('chatbot')}
+            >
+              <FontAwesomeIcon icon={faRobot} /> {t('home.featuresTabs.chatbot.title')}
+            </button>
+            <button 
+              className={`tab-btn ${activeFeatureTab === 'query' ? 'active' : ''}`}
+              onClick={() => setActiveFeatureTab('query')}
+            >
+              <FontAwesomeIcon icon={faSearch} /> {t('home.featuresTabs.query.title')}
+            </button>
+            <button 
+              className={`tab-btn ${activeFeatureTab === 'admin' ? 'active' : ''}`}
+              onClick={() => setActiveFeatureTab('admin')}
+            >
+              <FontAwesomeIcon icon={faProjectDiagram} /> {t('home.featuresTabs.admin.title')}
+            </button>
           </div>
 
-          <div className="features-list">
-            <h3>{t('home.features.title')}</h3>
-            <div className="features-grid">
-              <div className="feature-item">
-                <span className="feature-icon">🔍</span>
-                <span>{t('home.features.search')}</span>
+          <div className="tab-content">
+            {activeFeatureTab === 'map' && (
+              <div className="tab-panel">
+                <h3>{t('home.featuresTabs.map.description')}</h3>
+                <div className="demo-images">
+                  <img src={mapDemo1} alt="Map Demo 1" className="demo-image" />
+                  <img src={mapDemo2} alt="Map Demo 2" className="demo-image" />
+                  <img src={mapDemo3} alt="Map Demo 3" className="demo-image" />
+                </div>
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">📍</span>
-                <span>{t('home.features.display')}</span>
+            )}
+            {activeFeatureTab === 'chatbot' && (
+              <div className="tab-panel">
+                <h3>{t('home.featuresTabs.chatbot.description')}</h3>
+                <div className="demo-images two-cols">
+                  <img src={chatbotDemo1} alt="Chatbot Demo 1" className="demo-image" />
+                  <img src={chatbotDemo2} alt="Chatbot Demo 2" className="demo-image" />
+                </div>
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">📋</span>
-                <span>{t('home.features.details')}</span>
+            )}
+            {activeFeatureTab === 'query' && (
+              <div className="tab-panel">
+                <h3>{t('home.featuresTabs.query.description')}</h3>
+                <div className="demo-images two-cols">
+                  <img src={queryDemo1} alt="Query Demo 1" className="demo-image" />
+                  <img src={queryDemo2} alt="Query Demo 2" className="demo-image" />
+                </div>
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">🔄</span>
-                <span>{t('home.features.nearby')}</span>
+            )}
+            {activeFeatureTab === 'admin' && (
+              <div className="tab-panel">
+                <h3>{t('home.featuresTabs.admin.description')}</h3>
+                <div className="demo-images">
+                  <img src={adminDemo1} alt="Admin Demo 1" className="demo-image" />
+                  <img src={adminDemo2} alt="Admin Demo 2" className="demo-image" />
+                  <img src={adminDemo3} alt="Admin Demo 3" className="demo-image" />
+                </div>
               </div>
-              <div className="feature-item">
-                <span className="feature-icon">⬇️</span>
-                <span>{t('home.features.download')}</span>
-              </div>
-              <div className="feature-item">
-                <span className="feature-icon">🌍</span>
-                <span>{t('home.features.query')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Introduction Video Section */}
-        <div className='container intro_video'>
-          <h3>{t('home.video.title')}</h3>
-          <div className="video-wrapper">
-            <div className="video-container">
-              <iframe
-                src="https://www.youtube.com/embed/N6JpxWiIIIc?si=lHN1Kfgf-4Zt6YH2"
-                title="Project Introduction Video"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
-            </div>
+            )}
           </div>
         </div>
       </section>

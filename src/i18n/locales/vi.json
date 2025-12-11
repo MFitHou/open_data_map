@@ -18,11 +18,21 @@
       "searching": "Đang tìm kiếm...",
       "noResults": "Không tìm thấy kết quả",
       "submitting": "Đang gửi..."
+      "noResultsFound": "Không tìm thấy kết quả. Thử từ khóa khác.",
+      "connectionError": "Lỗi kết nối. Vui lòng thử lại sau.",
+      "unknownError": "Lỗi không xác định",
+      "success": "Thành công",
+      "failed": "Thất bại",
+      "apiError": "Lỗi API"
     },
     "language": {
       "vi": "Tiếng Việt",
       "en": "English",
       "zh-TW": "繁體中文"
+    },
+    "accessibility": {
+      "hidePassword": "Ẩn mật khẩu",
+      "showPassword": "Hiện mật khẩu"
     }
   },
   "nav": {
@@ -59,7 +69,77 @@
       "query": "Truy vấn dữ liệu với SPARQL"
     },
     "video": {
-      "title": "Video giới thiệu"
+      "title": "Video giới thiệu",
+      "introTitle": "🎬 Video giới thiệu dự án",
+      "placeholder": "Video giới thiệu sẽ được đặt ở đây (16:9)"
+    },
+    "problemSolution": {
+      "problemTitle": "Vấn đề",
+      "problem": "Dữ liệu mở phân tán, thiếu chuẩn hóa, khó truy cập và tích hợp",
+      "solutionTitle": "Giải pháp",
+      "solution": "OpenDataFitHou thu thập, chuẩn hóa thành Linked Open Data, trực quan hóa và cung cấp API"
+    },
+    "featuresTabs": {
+      "title": "⚡ Tính năng nổi bật",
+      "map": {
+        "title": "Bản đồ",
+        "description": "Tìm kiếm và hiển thị địa điểm trên bản đồ tương tác với nhiều layer dữ liệu"
+      },
+      "chatbot": {
+        "title": "AI Chatbot",
+        "description": "Trợ lý AI thông minh giúp trả lời câu hỏi về địa điểm và dữ liệu"
+      },
+      "query": {
+        "title": "Truy vấn",
+        "description": "Truy vấn dữ liệu RDF với SPARQL, Query Builder trực quan"
+      },
+      "admin": {
+        "title": "Quản trị",
+        "description": "Quản lý POIs, giám sát môi trường, và báo cáo hệ thống"
+      }
+    },
+    "dataSources": {
+      "title": "📊 Nguồn dữ liệu",
+      "columns": {
+        "source": "Nguồn dữ liệu",
+        "description": "Mô tả",
+        "reliability": "Độ tin cậy"
+      },
+      "sources": {
+        "osm": "Dữ liệu bản đồ nền, vị trí các tiện ích (bãi đỗ xe, đường, POI) qua Overpass API",
+        "openweather": "Dữ liệu thời tiết thực tế",
+        "openaq": "Dữ liệu chất lượng không khí toàn cầu",
+        "iotSimulation": "Dữ liệu IoT giả lập",
+        "iotDescription": "Dữ liệu mô phỏng: giao thông, tiếng ồn, ngập lụt dựa trên logic, thời gian, thời tiết thực tế"
+      },
+      "reliability": {
+        "high": "Cao (cộng đồng cập nhật)",
+        "medium": "Trung bình (phụ thuộc coverage, fallback mô phỏng nếu thiếu)"
+      },
+      "viewDetails": "Xem kịch bản"
+    },
+    "techStack": {
+      "title": "💻 Công nghệ hiện đại",
+      "backend": {
+        "title": "Backend",
+        "description": "NestJS 11.0, TypeScript 5.7, Apache Jena Fuseki, SPARQL, RDF/XML"
+      },
+      "frontend": {
+        "title": "Frontend",
+        "description": "React 19.1, TypeScript 5.8, Vite 7, Leaflet 1.9, React Router 7, i18next"
+      },
+      "pipeline": {
+        "title": "Data Pipeline",
+        "description": "Python ETL, Wikidata API, Overpass API, RDF Transformation, Data Validation"
+      },
+      "infrastructure": {
+        "title": "Infrastructure",
+        "description": "Docker, Git, GitHub Actions, ESLint, Prettier, Jest"
+      }
+    },
+    "team": {
+      "title": "👥 Đội ngũ phát triển",
+      "role": "Developer"
     },
     "license": {
       "title": "📄 Thông tin giấy phép",
@@ -107,6 +187,7 @@
     "latitude": "Vĩ độ",
     "longitude": "Kinh độ",
     "accuracy": "Độ chính xác",
+    "feeRequired": "💵 Có phí",
     "search": {
       "placeholder": "Tìm địa điểm trên bản đồ... (VD: Hồ Gươm, Văn Miếu, BIDV)",
       "noResults": "Không tìm thấy kết quả",
@@ -140,6 +221,7 @@
     "info": {
       "title": "Thông tin địa điểm",
       "basicTab": "Cơ bản",
+      "basicInfo": "Thông tin cơ bản",
       "identifiersTab": "Định danh",
       "statementsTab": "Thuộc tính",
       "referencesTab": "Tham chiếu",
@@ -283,6 +365,55 @@
     "downloadJSON": "Tải xuống JSON",
     "editorTitle": "Trình soạn thảo truy vấn"
   },
+  "dataExplorer": {
+    "title": "Query Builder",
+    "selectDataType": "Chọn Loại Dữ Liệu",
+    "iotData": "Dữ Liệu IoT",
+    "mapData": "Dữ Liệu Bản Đồ",
+    "selectMeasurement": "Chọn Phép Đo",
+    "selectMapType": "Chọn Loại Bản Đồ",
+    "execute": "Thực Thi Truy Vấn",
+    "loading": "Đang tải...",
+    "noResults": "Không tìm thấy kết quả",
+    "foundResults": "Tìm thấy <strong>{{count}}</strong> kết quả",
+    "viewScript": "Xem Script",
+    "hideScript": "Ẩn Script",
+    "download": "Tải Xuống",
+    "downloadJSON": "Tải Xuống JSON",
+    "queryScript": "Script Truy Vấn",
+    "tableView": "Dạng Bảng",
+    "emptyState": "Chọn loại dữ liệu và phép đo, sau đó nhấn Thực Thi để xem kết quả",
+    "selectFields": "Chọn Trường Dữ Liệu",
+    "selectAll": "Chọn Tất Cả",
+    "clearAll": "Bỏ Chọn",
+    "selectedCount": "Đã chọn: {{count}} trường",
+    "measurement": "Phép Đo",
+    "type": "Loại",
+    "timeRange": "Khoảng Thời Gian",
+    "station": "Trạm",
+    "allStations": "Tất Cả Trạm",
+    "relatedType": "Loại Liên Quan",
+    "relationship": "Mối Quan Hệ",
+    "edit": "Chỉnh Sửa",
+    "save": "Lưu",
+    "iot": {
+      "airQuality": "airQuality",
+      "weather": "weather",
+      "traffic": "traffic",
+      "flood": "flood",
+      "station": "Trạm Quan Trắc",
+      "allStations": "Tất Cả Trạm"
+    },
+    "map": {
+      "atm": "Máy ATM",
+      "hospital": "Bệnh Viện",
+      "school": "Trường Học",
+      "restaurant": "Nhà Hàng"
+    },
+    "errors": {
+      "unknown": "Đã xảy ra lỗi không xác định"
+    }
+  },
   "tour": {
     "startTour": "Hướng dẫn sử dụng",
     "next": "Tiếp theo",
@@ -340,6 +471,10 @@
       "totalPois": "Tổng số điểm",
       "monitoringPoints": "Điểm giám sát",
       "totalReports": "Tổng số báo cáo"
+    },
+    "map": {
+      "loadingIotData": "Đang tải dữ liệu IoT...",
+      "errorLoadingIotData": "Không thể tải dữ liệu IoT"
     },
     "pois": {
       "title": "Quản lý điểm quan tâm (POIs)",
@@ -541,5 +676,21 @@
     "logout": "Đăng xuất",
     "adminPanel": "Quản trị",
     "confirmLogout": "Bạn có chắc muốn đăng xuất?"
+  },
+  "landing": {
+    "getStarted": "Bắt đầu",
+    "videoPlaceholder": "Video giới thiệu sẽ được đặt ở đây",
+    "dataSources": {
+      "title": "Nguồn dữ liệu",
+      "source": "Nguồn dữ liệu",
+      "description": "Mô tả",
+      "reliability": "Độ tin cậy",
+      "wikidata": "Cơ sở dữ liệu tri thức mở, có cấu trúc",
+      "osm": "Bản đồ mở cộng đồng, dữ liệu địa lý",
+      "fuseki": "SPARQL server, quản lý RDF",
+      "daily": "Cập nhật hàng ngày",
+      "realtime": "Realtime",
+      "weekly": "Cập nhật hàng tuần"
+    }
   }
 }

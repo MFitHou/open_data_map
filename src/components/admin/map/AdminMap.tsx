@@ -17,6 +17,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, LayersControl, LayerGroup } from 'react-leaflet';
+import { useTranslation } from 'react-i18next';
 import { API_BASE_URL } from '../../../config/api';
 import './AdminMap.css';
 
@@ -69,6 +70,7 @@ const IOT_STATIONS = [
 ];
 
 const AdminMap: React.FC = () => {
+  const { t } = useTranslation();
   const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
   const [floodData, setFloodData] = useState<FloodData[]>([]);
   const [airQualityData, setAirQualityData] = useState<AirQualityData[]>([]);
@@ -200,8 +202,8 @@ const AdminMap: React.FC = () => {
       setAirQualityData(airQualityResults);
       setLoading(false);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Không thể tải dữ liệu IoT: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : t('common.status.unknownError');
+      setError(`${t('admin.map.errorLoadingIotData')}: ${errorMessage}`);
       setLoading(false);
     }
   };
@@ -217,7 +219,7 @@ const AdminMap: React.FC = () => {
     <div className="admin-map-container">
       {loading && (
         <div className="admin-map-loading">
-          Đang tải dữ liệu IoT...
+          {t('admin.map.loadingIotData')}
         </div>
       )}
 

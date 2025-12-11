@@ -206,7 +206,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       // console.log('[getAmenityIcon] Using amenity config:', place.amenity, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
-        markerColor: config.color,
+        markerColor: config.color as any,
         prefix: 'fa',
         iconColor: 'white'
       });
@@ -236,7 +236,7 @@ export const getAmenityIcon = (place: NearbyPlace): L.AwesomeMarkers.Icon => {
       // console.log('[getAmenityIcon] Using leisure config:', place.leisure, config);
       return L.AwesomeMarkers.icon({
         icon: config.icon,
-        markerColor: config.color,
+        markerColor: config.color as any,
         prefix: 'fa',
         iconColor: 'white'
       });
@@ -323,17 +323,17 @@ export const getDrinkingWaterDetails = (place: NearbyPlace): string[] => {
   }
   
   if (place.bottle === 'yes') {
-    details.push('🍶 Bottle refill available');
+    details.push('🍶 Có thể rót chai');
   }
   
   if (place.fee === 'no') {
-    details.push('💰 Free');
+    details.push('💰 Miễn phí');
   } else if (place.fee === 'yes') {
-    details.push('💵 Fee required');
+    details.push('💵 Có phí');
   }
   
   if (place.access) {
-    details.push(`🚪 Access: ${place.access}`);
+    details.push(`🚪 Truy cập: ${place.access}`);
   }
   
   return details;

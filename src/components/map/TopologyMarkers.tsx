@@ -44,7 +44,7 @@ export const TopologyMarkers: React.FC<TopologyMarkersProps> = ({
   // When user clicks topology item or closes panel, selectedServicePlace changes
   useEffect(() => {
     // Always sync - including when selectedServicePlace becomes null (panel closed/cleared)
-    setSelectedPlace(selectedServicePlace);
+    setSelectedPlace(selectedServicePlace ?? null);
   }, [selectedServicePlace]);
 
   const handleMarkerClick = (place: NearbyPlace) => {

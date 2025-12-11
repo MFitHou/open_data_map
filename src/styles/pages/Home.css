@@ -1369,6 +1369,330 @@
   border-radius: 12px;
 }
 
+/* ===== VIDEO INTRO SECTION ===== */
+.video-intro-section {
+  background: #ffffff;
+  padding: 48px 16px;
+}
+
+.video-intro-section .video-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.video-intro-section .video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: #000;
+}
+
+.video-intro-section .video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+}
+
+/* ===== PROBLEM & SOLUTION SECTION ===== */
+.problem-solution-section {
+  background: #fafafa;
+  padding: 48px 16px;
+}
+
+.problem-solution-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.ps-card {
+  background: white;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.ps-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.ps-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.ps-card h3 {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: #212121;
+}
+
+.ps-card p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #616161;
+  margin: 0;
+}
+
+/* ===== FEATURES TABS SECTION ===== */
+.features-tabs-section {
+  background: #ffffff;
+  padding: 48px 16px;
+}
+
+.tab-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #757575;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  color: #1976d2;
+}
+
+.tab-btn.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+}
+
+.tab-content {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.tab-panel {
+  animation: fadeIn 0.3s;
+}
+
+.tab-panel h3 {
+  font-size: 20px;
+  font-weight: 500;
+  color: #212121;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.demo-images {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.demo-images.two-cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.demo-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
+}
+
+.demo-image:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.demo-placeholder {
+  background: #f5f5f5;
+  border: 2px dashed #bdbdbd;
+  border-radius: 8px;
+  padding: 80px 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #757575;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== DATA SOURCES TABLE SECTION ===== */
+.data-sources-section {
+  background: #fafafa;
+  padding: 48px 16px;
+}
+
+.data-table-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #1976d2;
+  color: white;
+}
+
+.data-table th,
+.data-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.data-table td {
+  font-size: 15px;
+  color: #424242;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover {
+  background: #f5f5f5;
+}
+
+.reliability-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.reliability-badge.high {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.reliability-badge.medium {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+/* ===== TECH STACK SECTION ===== */
+.tech-stack-section {
+  background: #ffffff;
+  padding: 48px 16px;
+}
+
+/* ===== TEAM SECTION ===== */
+.team-section {
+  background: #fafafa;
+  padding: 48px 16px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.team-member {
+  background: white;
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.team-member:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.member-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  overflow: hidden;
+  background: #f5f5f5;
+  border: 3px solid #1976d2;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-name {
+  font-size: 20px;
+  font-weight: 500;
+  color: #212121;
+  margin-bottom: 8px;
+}
+
+.member-role {
+  font-size: 14px;
+  color: #757575;
+  margin-bottom: 16px;
+}
+
+.member-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: #1976d2;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.3s;
+}
+
+.member-github:hover {
+  background: #1565c0;
+}
+
 /* ===== ANIMATIONS ===== */
 @keyframes slideInRight {
   from {
@@ -1378,5 +1702,44 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .problem-solution-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .demo-images,
+  .demo-images.two-cols {
+    grid-template-columns: 1fr;
+  }
+  
+  .tab-buttons {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .data-table {
+    font-size: 14px;
+  }
+  
+  .data-table th,
+  .data-table td {
+    padding: 12px;
   }
 }
