@@ -619,7 +619,10 @@ out geom;
   useEffect(() => {
     if (!currentLocation && !isGettingLocation) {
       // console.log('[SimpleMap] Auto-getting current location on mount');
-      getLocation();
+      getLocation((loc, info) => {
+        setSelectedLocation(loc);
+        setSelectedInfo(info);
+      });
     }
   }, []); // Run once on mount
 
